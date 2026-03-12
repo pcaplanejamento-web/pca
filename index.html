@@ -351,20 +351,1107 @@ LAYOUT
   margin: 0;
 }
 
+/* =====================================================
+   CONTROLES DE FILTRO — MODERNIZADOS
+===================================================== */
 .controls {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 0;
   margin-bottom: 24px;
-  align-items: flex-end;
 }
 
+/* Container do painel de filtros moderno */
+.filtro-painel {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+  overflow: visible;
+  transition: box-shadow .2s;
+}
+.filtro-painel:focus-within {
+  box-shadow: 0 4px 20px rgba(67,97,238,.1), 0 1px 3px rgba(0,0,0,.04);
+}
+
+/* Linha de busca principal */
+.filtro-busca-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0;
+  align-items: stretch;
+  border-bottom: 1.5px solid var(--border);
+}
+
+/* Campo de busca wrapper */
+.filtro-campo-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.filtro-campo-busca + .filtro-campo-busca {
+  border-left: 1.5px solid var(--border);
+}
+.filtro-busca-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.filtro-busca-input {
+  width: 100%;
+  padding: 15px 44px 15px 44px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: background .15s;
+}
+.filtro-busca-input::placeholder {
+  color: var(--text-light);
+  font-size: 13px;
+}
+.filtro-busca-input:focus {
+  background: var(--accent-soft);
+}
+
+/* Botão limpar inline */
+.filtro-busca-clear {
+  position: absolute;
+  right: 10px;
+  width: 22px; height: 22px;
+  border: none;
+  background: var(--surface3);
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+  z-index: 2;
+}
+.filtro-busca-clear:hover { background: var(--border); color: var(--text); }
+.filtro-busca-clear.visivel { display: flex; }
+
+/* Botão ação busca */
+.filtro-busca-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 22px;
+  border: none;
+  border-left: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--accent);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 0 14px 0 0;
+  transition: background .15s, color .15s;
+  min-width: 100px;
+}
+.filtro-busca-action:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Grade de filtros secundários */
+.filtro-grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.filtro-grade-item {
+  padding: 12px 16px 14px;
+  border-right: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.filtro-grade-item:last-child,
+.filtro-grade-item:nth-child(4n) {
+  border-right: none;
+}
+.filtro-grade-item.full {
+  grid-column: 1 / -1;
+  border-right: none;
+}
+
+/* Linha de controles de visualização */
+.filtro-vis-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 0;
+  border-top: 1.5px solid var(--border);
+}
+.filtro-vis-item {
+  padding: 12px 16px 14px;
+  border-right: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.filtro-vis-item:last-child { border-right: none; }
+
+/* Label dos campos dentro do painel */
+.filtro-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* Inputs dentro do painel — sem borda própria */
+.filtro-painel input[type="text"],
+.filtro-painel select {
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  font-size: 13px;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  width: 100%;
+  transition: color .15s;
+}
+.filtro-painel input[type="text"]:focus,
+.filtro-painel select:focus {
+  color: var(--accent);
+  box-shadow: none;
+  border: none;
+}
+
+/* Botão Excel dentro do painel */
+.filtro-excel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 20px;
+  border: none;
+  border-left: 1.5px solid var(--border);
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 0 0 14px 0;
+  transition: opacity .15s, filter .15s;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+.filtro-excel-btn:hover { opacity: .88; filter: brightness(1.06); }
+
+/* Ocultar selects virtuais (usados pelo SearchableDropdown) */
+.filtro-hidden-selects { display: none; }
+
+/* sd-wrap herdado — remover largura mínima */
+.filtro-grade-item .sd-wrap,
+.filtro-vis-item .sd-wrap { width: 100%; }
+.filtro-grade-item .sd-display,
+.filtro-vis-item .sd-display {
+  border: none;
+  background: transparent;
+  padding: 4px 28px 4px 0;
+  font-size: 13px;
+}
+
+/* Manter .box para uso em outros contextos */
 .box {
   background: var(--surface);
   padding: 12px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+}
+
+/* =====================================================
+   TABELA DE ITENS — CABEÇALHO DA SEÇÃO MODERNIZADO
+===================================================== */
+.consulta-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.consulta-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.consulta-header-icon {
+  width: 38px; height: 38px;
+  background: var(--accent-soft);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.consulta-header-info h2 {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.3px;
+  margin: 0 0 2px;
+}
+.consulta-header-info p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.consulta-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tabela modernizada — wrapper */
+.tabela-moderna-wrap {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.tabela-moderna-wrap .table-wrapper {
+  border-radius: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Cabeçalho da tabela melhorado */
+.tabela-moderna-wrap thead th {
+  background: var(--th-bg);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--th-color);
+  padding: 12px 10px;
+  white-space: nowrap;
+  border-bottom: 1.5px solid var(--border);
+}
+.tabela-moderna-wrap thead th:first-child { border-radius: 0; }
+.tabela-moderna-wrap thead th:last-child  { border-radius: 0; }
+
+/* Footer da tabela */
+.tabela-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-top: 1.5px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.tabela-footer-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tabela-footer-total-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.tabela-footer-total-val {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+/* Paginação modernizada dentro do wrapper */
+.tabela-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 0 4px;
+}
+
+/* =====================================================
+   CONSULTA DE ITENS — BANNER + BARRA DE PESQUISA
+===================================================== */
+
+/* Banner de cabeçalho da seção */
+.ci-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--accent) 0%, #2563eb 100%);
+  border-radius: 16px 16px 0 0;
+  padding: 22px 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.ci-banner::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  pointer-events: none;
+}
+.ci-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: 60px;
+  width: 180px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  pointer-events: none;
+}
+.ci-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.ci-banner-icon {
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,.18);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+.ci-banner-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 3px;
+  letter-spacing: -.3px;
+}
+.ci-banner-sub {
+  font-size: 12.5px;
+  color: rgba(255,255,255,.78);
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.ci-banner-right {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ci-contador-pill {
+  background: rgba(255,255,255,.2) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.3);
+  font-size: 12px !important;
+  padding: 4px 12px !important;
+  backdrop-filter: blur(4px);
+}
+
+/* Barra de pesquisa destaque */
+.ci-search-banner {
+  background: var(--surface);
+  border-left: 1.5px solid var(--border);
+  border-right: 1.5px solid var(--border);
+  padding: 16px 20px 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  /* Sticky após sair da viewport do banner */
+  position: sticky;
+  top: 68px; /* altura do header */
+  z-index: 80;
+  transition: box-shadow .25s, border-color .25s;
+}
+/* Elevação extra quando fixada */
+.ci-search-banner.is-stuck {
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-top: none;
+  box-shadow:
+    0 4px 20px rgba(0,0,0,.10),
+    0 1px 0 var(--border);
+  background: rgba(var(--surface-rgb, 255,255,255), .96);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+[data-theme="dark"] .ci-search-banner.is-stuck {
+  background: rgba(18,24,38, .94);
+}
+
+/* ── Chips de tipo de pesquisa ─────────────────────── */
+.ci-tipo-chips {
+  display: flex;
+  flex-wrap: nowrap;           /* nunca quebra linha */
+  gap: 6px;
+  margin-bottom: 12px;
+  overflow-x: auto;            /* scroll horizontal */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;       /* Firefox — oculta scrollbar */
+  -ms-overflow-style: none;    /* IE/Edge */
+  padding-bottom: 2px;         /* evita clip do box-shadow dos chips */
+}
+.ci-tipo-chips::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.ci-tipo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px 5px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s, box-shadow .15s;
+  user-select: none;
+}
+.ci-tipo-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.ci-tipo-chip.ativo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(67,97,238,.25);
+}
+.ci-tipo-chip.ativo:hover { filter: brightness(1.08); }
+
+/* Separador visual entre grupos de chips (ex: entre Produto e Sequencial) */
+.ci-tipo-chip.ci-tipo-sep {
+  margin-left: 8px;
+  border-left: 2px solid var(--border);
+  padding-left: 14px;
+}
+.ci-tipo-chip.ci-tipo-sep.ativo {
+  border-left-color: rgba(255,255,255,.4);
+}
+
+/* ── Barra de busca ────────────────────────────────── */
+.ci-search-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--input-bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s, box-shadow .2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.ci-search-wrap:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(67,97,238,.1), 0 2px 8px rgba(0,0,0,.08);
+}
+.ci-search-leading {
+  display: flex;
+  align-items: center;
+  padding: 0 14px 0 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color .2s;
+}
+.ci-search-wrap:focus-within .ci-search-leading { color: var(--accent); }
+.ci-search-input {
+  flex: 1;
+  padding: 14px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14.5px;
+  outline: none;
+  min-width: 0;
+}
+.ci-search-input::placeholder {
+  color: var(--text-light);
+  font-size: 13.5px;
+}
+.ci-search-clear {
+  width: 30px; height: 30px;
+  border: none;
+  background: var(--surface2);
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  margin-right: 6px;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+}
+.ci-search-clear:hover { background: var(--border); color: var(--text); }
+.ci-search-clear.visivel { display: flex; }
+.ci-search-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 20px;
+  height: 100%;
+  min-height: 50px;
+  border: none;
+  border-left: 1.5px solid var(--border);
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, filter .15s;
+}
+.ci-search-btn:hover { filter: brightness(1.1); }
+.ci-search-btn:active { filter: brightness(.95); }
+
+/* ── Indicador de tipo ativo ───────────────────────── */
+.ci-tipo-indicador {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.ci-tipo-indicador strong { color: var(--accent); font-weight: 700; }
+
+/* =====================================================
+   PAINEL DE FILTROS — SEÇÃO REFINADA
+===================================================== */
+.ci-filtros-painel {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  overflow: visible;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.05);
+}
+
+/* Cabeçalho dos filtros */
+.ci-filtros-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--surface2);
+  border-bottom: 1.5px solid var(--border);
+}
+.ci-filtros-header-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+.ci-filtros-hint {
+  font-size: 11px;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* Grade de filtros — 4 colunas chips visuais */
+.ci-filtros-grade {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.ci-filtro-item {
+  padding: 12px 18px 14px;
+  border-right: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.ci-filtro-item:hover { background: var(--surface2); }
+.ci-filtro-item:focus-within { background: var(--accent-soft); }
+.ci-filtro-item:focus-within::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 0 0 2px 2px;
+}
+.ci-filtro-item:nth-child(4n),
+.ci-filtro-item:last-child { border-right: none; }
+.ci-filtro-item:nth-child(n+5) { border-bottom: none; }
+
+/* Label de cada filtro com ícone */
+.ci-filtro-item-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  pointer-events: none;
+}
+.ci-filtro-item:focus-within .ci-filtro-item-label { color: var(--accent); }
+
+/* Input de texto dentro do filtro */
+.ci-filtro-text {
+  position: relative;
+}
+.ci-filtro-text-input {
+  border: none;
+  background: transparent;
+  padding: 3px 26px 3px 0;
+  font-size: 13px;
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  width: 100%;
+  transition: color .15s;
+}
+.ci-filtro-text-input::placeholder { color: var(--text-light); font-size: 12px; }
+.ci-filtro-text-input:focus { color: var(--accent); }
+.ci-filtro-clear-inline {
+  position: absolute;
+  right: 10px; bottom: 14px;
+  width: 18px; height: 18px;
+  border: none; background: var(--border);
+  border-radius: 50%; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  color: var(--text-muted); transition: background .15s;
+}
+.ci-filtro-clear-inline:hover { background: var(--text-muted); color: #fff; }
+.ci-filtro-clear-inline.visivel { display: flex; }
+
+/* Selects dentro dos filtros */
+.ci-filtro-native-select {
+  border: none;
+  background: transparent;
+  padding: 3px 0;
+  font-size: 13px;
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  width: 100%;
+  cursor: pointer;
+  transition: color .15s;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%2394a3b8' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+  padding-right: 18px;
+}
+.ci-filtro-native-select:focus { color: var(--accent); box-shadow: none; border: none; }
+
+/* sd-wrap dentro dos filtros ci */
+.ci-filtro-item .sd-wrap { width: 100%; }
+.ci-filtro-item .sd-display {
+  border: none;
+  background: transparent;
+  padding: 3px 28px 3px 0;
+  font-size: 13px;
+}
+
+/* Linha de visualização */
+.ci-filtros-vis {
+  display: flex;
+  align-items: stretch;
+  border-top: 1.5px solid var(--border);
+  background: var(--surface2);
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+}
+.ci-vis-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 18px 14px;
+  border-right: 1.5px solid var(--border);
+  min-width: 160px;
+  transition: background .15s;
+}
+.ci-vis-item:focus-within { background: var(--accent-soft); }
+.ci-vis-spacer { flex: 1; }
+.ci-excel-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  border: none;
+  border-left: 1.5px solid var(--border);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 0 0 14px 0;
+  transition: filter .15s;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+.ci-excel-btn:hover { filter: brightness(1.1); }
+
+/* =====================================================
+   TABELA — ZEBRA STRIPING + HIERARQUIA VISUAL
+===================================================== */
+
+/* Override zebra striping na tabela de itens */
+#tabelaItens tbody tr:nth-child(4n+1),
+#tabelaItens tbody tr:nth-child(4n+2) {
+  background: var(--surface);
+}
+#tabelaItens tbody tr:nth-child(4n+3),
+#tabelaItens tbody tr:nth-child(4n+4) {
+  background: var(--surface2);
+}
+/* Linha detalhe sempre usa surface2 */
+#tabelaItens tbody tr.linha-detalhe td { background: var(--surface2) !important; }
+
+/* Hover e selecionada continuam funcionando */
+#tabelaItens tbody tr:not(.linha-detalhe):hover { background: var(--row-hover); cursor: pointer; }
+#tabelaItens tbody tr.selecionada > td { background: var(--accent-soft) !important; }
+
+/* Espaçamento melhorado nas células */
+#tabelaItens td { padding: 12px 10px; }
+#tabelaItens th { padding: 13px 10px; }
+
+/* =====================================================
+   MODAL DE DETALHE DO ITEM — FLOATING PANEL
+===================================================== */
+#itemDetalheOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 8500;
+  background: rgba(10,14,30,.48);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 20px;
+  align-items: flex-end;
+  justify-content: center;
+}
+#itemDetalheOverlay.aberto {
+  display: flex;
+  animation: idOverlayIn .2s ease;
+}
+@keyframes idOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Painel principal */
+.id-panel {
+  background: var(--surface);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 780px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 32px 80px rgba(0,0,0,.22),
+    0 8px 24px rgba(0,0,0,.12),
+    0 0 0 1px rgba(255,255,255,.06);
+  animation: idPanelIn .28s cubic-bezier(.16,1,.3,1);
+  transform-origin: bottom center;
+}
+@keyframes idPanelIn {
+  from { opacity: 0; transform: translateY(20px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header do modal */
+.id-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 24px 16px;
+  border-bottom: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+.id-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+.id-header-icon {
+  width: 46px; height: 46px;
+  background: var(--accent-soft);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.id-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.id-header-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 9px;
+  border-radius: 20px;
+  width: fit-content;
+}
+.id-header-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.id-close {
+  width: 34px; height: 34px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.id-close:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Corpo do modal — scrollável */
+.id-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 24px;
+  overscroll-behavior: contain;
+}
+.id-body::-webkit-scrollbar { width: 5px; }
+.id-body::-webkit-scrollbar-track { background: transparent; }
+.id-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Seções dentro do body */
+.id-secao {
+  margin-bottom: 22px;
+}
+.id-secao:last-child { margin-bottom: 0; }
+.id-secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Grid de campos */
+.id-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 20px;
+}
+.id-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.id-grid-full { grid-template-columns: 1fr; }
+
+/* Campo individual */
+.id-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.id-campo-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.id-campo-valor {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.id-campo-valor.destaque-verde { color: #10b981; font-weight: 700; }
+.id-campo-valor.destaque-amarelo { color: #f59e0b; font-weight: 700; }
+.id-campo-valor.destaque-azul { color: #06b6d4; font-weight: 700; }
+.id-campo-valor.vazio { color: var(--text-muted); font-weight: 400; }
+
+/* Campo produto destaque */
+.id-produto-destaque {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+}
+.id-produto-destaque-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 6px;
+}
+.id-produto-destaque-nome {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+/* Footer do modal */
+.id-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1.5px solid var(--border);
+  background: var(--surface2);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.id-footer-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.id-footer-close {
+  padding: 8px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.id-footer-close:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+/* =====================================================
+   RESPONSIVIDADE — CONSULTA DE ITENS
+===================================================== */
+@media (max-width: 900px) {
+  .ci-banner { border-radius: 14px 14px 0 0; padding: 18px 20px; }
+  .ci-banner-title { font-size: 17px; }
+  .ci-filtros-grade { grid-template-columns: repeat(2, 1fr); }
+  .ci-filtro-item:nth-child(2n) { border-right: none; }
+  .ci-filtro-item:nth-child(4n) { border-right: 1.5px solid var(--border); }
+  .ci-filtro-item:nth-child(4n):last-child,
+  .ci-filtro-item:nth-last-child(1),
+  .ci-filtro-item:nth-last-child(2):nth-child(2n+1) { border-right: none; }
+  .ci-filtro-item:nth-child(n+5) { border-bottom: 1.5px solid var(--border); }
+  .ci-filtro-item:nth-last-child(-n+2) { border-bottom: none; }
+  .ci-filtros-vis { flex-wrap: wrap; }
+  .ci-vis-item { min-width: 0; flex: 1; border-bottom: 1.5px solid var(--border); }
+  .ci-excel-btn { border-radius: 0 0 14px 0; }
+
+  .id-grid   { grid-template-columns: repeat(2, 1fr); }
+  .id-panel  { max-width: 100%; border-radius: 18px 18px 0 0; max-height: 92vh; }
+  #itemDetalheOverlay { padding: 0; align-items: flex-end; }
+}
+
+@media (max-width: 600px) {
+  .ci-banner { padding: 16px; border-radius: 12px 12px 0 0; }
+  .ci-banner-title { font-size: 16px; }
+  .ci-banner-sub { display: none; }
+  .ci-banner-icon { width: 40px; height: 40px; border-radius: 10px; }
+
+  .ci-search-banner { padding: 10px 12px 8px; }
+  .ci-tipo-chips { gap: 4px; }
+  .ci-tipo-chip { font-size: 11px; padding: 4px 10px 4px 8px; }
+  .ci-search-input { font-size: 16px; padding: 13px 6px; }
+  .ci-search-btn span { display: none; }
+  .ci-search-btn { padding: 0 16px; min-height: 46px; }
+  .ci-tipo-indicador { font-size: 11px; margin-top: 6px; }
+
+  .ci-filtros-grade { grid-template-columns: 1fr; }
+  .ci-filtro-item { border-right: none !important; border-bottom: 1.5px solid var(--border) !important; padding: 14px 16px; }
+  .ci-filtro-item:last-child { border-bottom: none !important; }
+  .ci-filtro-item:focus-within::after { bottom: -1px; }
+
+  .ci-filtros-vis { flex-direction: column; }
+  .ci-vis-item { border-right: none; border-bottom: 1.5px solid var(--border); min-width: 0; }
+  .ci-vis-spacer { display: none; }
+  .ci-excel-btn { border-left: none; border-top: 1.5px solid var(--border); border-radius: 0 0 14px 14px; padding: 14px; justify-content: center; }
+
+  .id-grid   { grid-template-columns: 1fr; }
+  .id-grid-2 { grid-template-columns: 1fr; }
+  .id-header { padding: 16px; }
+  .id-header-title { font-size: 14px; }
+  .id-body   { padding: 16px; }
+  .id-footer { padding: 12px 16px; }
+  .id-footer-hint { display: none; }
+  .id-footer-close { width: 100%; text-align: center; padding: 12px; font-size: 14px; }
 }
 
 .section-header {
@@ -923,7 +2010,62 @@ ABAS (TABS)
 /* =====================================================
 PÁGINA DE DOCUMENTOS
 ===================================================== */
+/* =====================================================
+   DOCUMENTOS IMPORTANTES — Layout moderno
+===================================================== */
 .docs-page { padding-bottom: 40px; }
+
+/* Cabeçalho da seção Documentos */
+.docs-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 0;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--border);
+}
+.docs-section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.docs-section-icon {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--accent) 0%, #2563eb 100%);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.docs-section-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 3px;
+  letter-spacing: -.3px;
+}
+.docs-section-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.docs-drive-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
 
 .docs-config-bar {
   display: flex;
@@ -949,6 +2091,9 @@ PÁGINA DE DOCUMENTOS
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .docs-config-input {
   flex: 1;
@@ -961,45 +2106,74 @@ PÁGINA DE DOCUMENTOS
 }
 .docs-config-input::placeholder { color: var(--text-muted); font-family: inherit; }
 
+/* Barra de busca de documentos */
 .docs-search-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin: 18px 0 20px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 0 16px;
+  transition: border-color .2s, box-shadow .2s;
 }
+.docs-search-bar:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(67,97,238,.1);
+}
+.docs-search-bar-icon {
+  color: var(--text-muted);
+  display: flex;
+  flex-shrink: 0;
+  transition: color .2s;
+}
+.docs-search-bar:focus-within .docs-search-bar-icon { color: var(--accent); }
 .docs-search-input {
   flex: 1;
-  padding: 10px 16px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--surface2);
-  font-family: inherit;
+  padding: 13px 0;
+  border: none;
+  background: transparent;
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 14px;
   color: var(--text);
   outline: none;
-  transition: border-color 0.15s;
 }
-.docs-search-input:focus { border-color: var(--accent); }
+.docs-search-input::placeholder { color: var(--text-light); }
 .docs-count {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 12px;
 }
 
-/* Estado vazio / loading / erro */
+/* Estados: carregando / erro / vazio */
 .docs-estado {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 60px 20px;
+  gap: 12px;
+  padding: 64px 20px;
   color: var(--text-muted);
-  font-size: 15px;
+  font-size: 14px;
   text-align: center;
+  font-family: 'Inter', system-ui, sans-serif;
 }
-.docs-erro { color: #e05252; }
+.docs-estado-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.docs-estado-icon.azul  { background: var(--accent-soft); color: var(--accent); }
+.docs-estado-icon.vermelho { background: #fee2e2; color: #dc2626; }
+.docs-estado-icon.cinza { background: var(--surface2); color: var(--text-muted); }
+.docs-erro { color: #dc2626; }
 .docs-spinner {
   width: 36px; height: 36px;
   border: 3px solid var(--border);
@@ -1009,84 +2183,137 @@ PÁGINA DE DOCUMENTOS
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Grade de documentos */
+/* Grade de documentos — cards modernos */
 .docs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
+  margin-top: 4px;
 }
+
+/* Card de documento */
 .doc-card {
   background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 16px 14px;
+  border-radius: 16px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: box-shadow 0.18s, border-color 0.18s, transform 0.15s;
-  position: relative;
   overflow: hidden;
+  transition: box-shadow .2s, border-color .2s, transform .15s;
+  position: relative;
 }
 .doc-card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 28px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
   border-color: var(--accent);
   transform: translateY(-2px);
 }
-.doc-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  opacity: 0;
-  transition: opacity 0.18s;
+/* Topo colorido do card */
+.doc-card-top {
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), #2563eb);
+  flex-shrink: 0;
 }
-.doc-card:hover::before { opacity: 1; }
-
-.doc-icon { font-size: 32px; line-height: 1; }
-.doc-name {
-  font-size: 13px;
+/* Corpo do card */
+.doc-card-body {
+  padding: 18px 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+/* Ícone do documento */
+.doc-card-icon-wrap {
+  width: 44px; height: 44px;
+  background: #fef2f2;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+/* Título e meta */
+.doc-card-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.doc-card-title-col { flex: 1; min-width: 0; }
+.doc-card-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--text);
   line-height: 1.4;
   word-break: break-word;
-  flex: 1;
+  margin: 0 0 5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.doc-meta {
-  font-size: 11px;
-  color: var(--text-muted);
+.doc-card-meta {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
-.doc-actions {
+.doc-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+/* Linha divisória */
+.doc-card-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 -18px;
+}
+/* Ações */
+.doc-card-actions {
   display: flex;
   gap: 8px;
-  margin-top: 4px;
+  padding: 12px 18px 16px;
 }
 .doc-btn {
   flex: 1;
-  padding: 8px 0;
-  border-radius: 8px;
+  padding: 9px 0;
+  border-radius: 9px;
   border: 1.5px solid var(--border);
   background: var(--surface2);
   color: var(--text);
-  font-family: inherit;
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all .15s;
   text-align: center;
   text-decoration: none;
-  display: flex; align-items: center; justify-content: center; gap: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.doc-btn:hover { background: var(--hover); border-color: var(--accent); color: var(--accent); }
+.doc-btn:hover {
+  background: var(--hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
 .doc-btn-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: white;
+  color: #fff;
 }
-.doc-btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: white; }
+.doc-btn-primary:hover {
+  filter: brightness(1.1);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Responsividade docs */
+@media (max-width: 600px) {
+  .docs-grid { grid-template-columns: 1fr; }
+  .docs-section-title { font-size: 17px; }
+}
 
 /* =====================================================
 BOTÃO PNG
@@ -1987,13 +3214,41 @@ RESPONSIVIDADE — TABLET
 @media (max-width: 900px) {
   .grid      { grid-template-columns: 1fr; }
   .big       { grid-column: 1; }
-  .controls  { flex-direction: column; align-items: stretch; }
+  .controls  { gap: 0; }
   .box       { width: 100%; }
   input, select { width: 100%; }
   .kpi-grid  { grid-template-columns: repeat(2, 1fr); }
   canvas     { max-height: 300px; }
   hr         { margin: 36px 0; }
   .container { padding: 20px 20px; }
+
+  /* Filtro painel — tablet */
+  .filtro-busca-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .filtro-busca-action {
+    border-radius: 0;
+    display: none;
+  }
+  .filtro-grade {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .filtro-grade-item:nth-child(2n) { border-right: none; }
+  .filtro-grade-item:nth-child(n+3) { border-bottom: none; }
+  .filtro-vis-row {
+    grid-template-columns: 1fr 1fr;
+    border-top: none;
+  }
+  .filtro-vis-item { border-top: 1.5px solid var(--border); }
+  .filtro-vis-item:nth-child(2n) { border-right: none; }
+  .filtro-excel-btn {
+    grid-column: 1 / -1;
+    border-left: none;
+    border-top: 1.5px solid var(--border);
+    border-radius: 0 0 14px 14px;
+    padding: 12px;
+    justify-content: center;
+  }
 }
 
 /* =====================================================
@@ -2063,9 +3318,13 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
     font-size: 10px !important;
   }
 
-  /* Oculta actions no mobile (já controlado por .hide-mobile) */
+  /* Oculta actions no mobile — exceto botão dark mode */
   .header-actions {
     display: none;
+  }
+  /* Mantém botão dark mode sempre visível no mobile */
+  #btnDark {
+    display: inline-flex !important;
   }
 
   .header-actions .btn {
@@ -2095,10 +3354,59 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
 
   hr { margin: 26px 0; }
 
-  .controls     { gap: 8px; margin-bottom: 12px; }
+  .controls     { gap: 0; margin-bottom: 12px; }
   .box          { padding: 10px 12px; }
   label         { font-size: 11px; }
   input, select { font-size: 14px; padding: 10px 10px; }
+
+  /* Filtro painel — mobile */
+  .filtro-busca-row {
+    grid-template-columns: 1fr;
+  }
+  .filtro-campo-busca + .filtro-campo-busca {
+    border-left: none;
+    border-top: 1.5px solid var(--border);
+  }
+  .filtro-busca-action { display: none; }
+  .filtro-busca-input  { font-size: 16px; padding: 16px 44px; }
+
+  .filtro-grade {
+    grid-template-columns: 1fr;
+  }
+  .filtro-grade-item {
+    border-right: none;
+    padding: 13px 16px 15px;
+  }
+  .filtro-grade-item:last-child { border-bottom: none; }
+
+  .filtro-vis-row {
+    grid-template-columns: 1fr;
+    border-top: none;
+  }
+  .filtro-vis-item {
+    border-right: none;
+    border-top: 1.5px solid var(--border);
+    padding: 13px 16px 15px;
+  }
+  .filtro-excel-btn {
+    border-left: none;
+    border-top: 1.5px solid var(--border);
+    border-radius: 0 0 14px 14px;
+    padding: 14px;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .filtro-painel input[type="text"],
+  .filtro-painel select {
+    font-size: 16px;
+    padding: 5px 0;
+  }
+
+  .consulta-header { margin-bottom: 12px; }
+  .consulta-header-info h2 { font-size: 16px; }
+  .consulta-header-info p  { display: none; }
+  .tabela-moderna-wrap { border-radius: 12px; }
 
   #filtroResumo { font-size: 12px; padding: 8px 12px; gap: 6px; }
   .filtro-tag   { font-size: 11px; padding: 2px 8px; }
@@ -3163,10 +4471,9 @@ PAINEL DE CONFIGURAÇÕES
   left: 50%;
   transform: translateX(-50%);
   z-index: 900;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
+  /* Limita largura máxima para forçar scroll em telas pequenas */
+  max-width: min(92vw, 600px);
+  padding: 10px 12px;
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -3178,6 +4485,19 @@ PAINEL DE CONFIGURAÇÕES
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
+
+/* Wrapper interno com scroll horizontal */
+.dock-scroll-inner {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.dock-scroll-inner::-webkit-scrollbar { display: none; }
 
 [data-theme="dark"] #floatingDock {
   background: rgba(22, 27, 39, 0.78);
@@ -3193,6 +4513,13 @@ PAINEL DE CONFIGURAÇÕES
   opacity: 0;
   pointer-events: none;
   transform: translateX(-50%) translateY(16px);
+}
+
+/* Hide dock when scrolling down */
+#floatingDock.dock-scroll-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(24px);
 }
 
 /* ── Separator ──────────────────────────────────── */
@@ -3225,6 +4552,8 @@ PAINEL DE CONFIGURAÇÕES
     transform 0.2s cubic-bezier(.34, 1.56, .64, 1),
     box-shadow 0.25s ease;
   min-width: 62px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
   position: relative;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -3258,25 +4587,26 @@ PAINEL DE CONFIGURAÇÕES
 }
 
 /* Per-button accent colors */
-.dock-btn[data-action="consultar"] .dock-btn-icon  { background: rgba(67,97,238,0.10);  }
-.dock-btn[data-action="gerar-pca"] .dock-btn-icon  { background: rgba(220,38,38,0.09);  }
-.dock-btn[data-action="declaracao"] .dock-btn-icon { background: rgba(16,185,129,0.10); }
-.dock-btn[data-action="documentos"] .dock-btn-icon { background: rgba(124,58,237,0.10); }
+.dock-btn[data-action="indicadores"] .dock-btn-icon { background: rgba(14,165,233,0.10); }
+.dock-btn[data-action="orcamento"]   .dock-btn-icon { background: rgba(245,158,11,0.10); }
+.dock-btn[data-action="consultar"]   .dock-btn-icon { background: rgba(67,97,238,0.10);  }
+.dock-btn[data-action="gerar-pca"]   .dock-btn-icon { background: rgba(220,38,38,0.09);  }
+.dock-btn[data-action="declaracao"]  .dock-btn-icon { background: rgba(16,185,129,0.10); }
+.dock-btn[data-action="documentos"]  .dock-btn-icon { background: rgba(124,58,237,0.10); }
 
-.dock-btn[data-action="consultar"]:hover  .dock-btn-icon { background: rgba(67,97,238,0.16);  }
-.dock-btn[data-action="gerar-pca"]:hover  .dock-btn-icon { background: rgba(220,38,38,0.14);  }
-.dock-btn[data-action="declaracao"]:hover .dock-btn-icon { background: rgba(16,185,129,0.16); }
-.dock-btn[data-action="documentos"]:hover .dock-btn-icon { background: rgba(124,58,237,0.16); }
+.dock-btn[data-action="indicadores"]:hover .dock-btn-icon { background: rgba(14,165,233,0.18); }
+.dock-btn[data-action="orcamento"]:hover   .dock-btn-icon { background: rgba(245,158,11,0.18); }
+.dock-btn[data-action="consultar"]:hover   .dock-btn-icon { background: rgba(67,97,238,0.16);  }
+.dock-btn[data-action="gerar-pca"]:hover   .dock-btn-icon { background: rgba(220,38,38,0.14);  }
+.dock-btn[data-action="declaracao"]:hover  .dock-btn-icon { background: rgba(16,185,129,0.16); }
+.dock-btn[data-action="documentos"]:hover  .dock-btn-icon { background: rgba(124,58,237,0.16); }
 
-.dock-btn[data-action="consultar"]  { color: var(--text-muted); }
-.dock-btn[data-action="gerar-pca"]  { color: var(--text-muted); }
-.dock-btn[data-action="declaracao"] { color: var(--text-muted); }
-.dock-btn[data-action="documentos"] { color: var(--text-muted); }
-
-.dock-btn[data-action="consultar"]:hover  { color: #4361ee;  background: rgba(67,97,238,0.07);  }
-.dock-btn[data-action="gerar-pca"]:hover  { color: #dc2626;  background: rgba(220,38,38,0.06);  }
-.dock-btn[data-action="declaracao"]:hover { color: #059669;  background: rgba(16,185,129,0.07); }
-.dock-btn[data-action="documentos"]:hover { color: #7c3aed;  background: rgba(124,58,237,0.07); }
+.dock-btn[data-action="indicadores"]:hover { color: #0ea5e9; background: rgba(14,165,233,0.07); }
+.dock-btn[data-action="orcamento"]:hover   { color: #f59e0b; background: rgba(245,158,11,0.07); }
+.dock-btn[data-action="consultar"]:hover   { color: #4361ee; background: rgba(67,97,238,0.07);  }
+.dock-btn[data-action="gerar-pca"]:hover   { color: #dc2626; background: rgba(220,38,38,0.06);  }
+.dock-btn[data-action="declaracao"]:hover  { color: #059669; background: rgba(16,185,129,0.07); }
+.dock-btn[data-action="documentos"]:hover  { color: #7c3aed; background: rgba(124,58,237,0.07); }
 
 /* ── Label under icon ───────────────────────────── */
 .dock-btn-label {
@@ -3292,8 +4622,8 @@ PAINEL DE CONFIGURAÇÕES
 @media (max-width: 900px) {
   #floatingDock {
     bottom: 20px;
-    padding: 8px 12px;
-    gap: 4px;
+    padding: 8px 10px;
+    max-width: 88vw;
   }
   .dock-btn {
     padding: 8px 10px;
@@ -3313,8 +4643,8 @@ PAINEL DE CONFIGURAÇÕES
 @media (max-width: 600px) {
   #floatingDock {
     bottom: 16px;
-    padding: 8px 10px;
-    gap: 2px;
+    padding: 8px 8px;
+    max-width: 86vw;
     border-radius: 22px;
   }
   .dock-btn {
@@ -3334,8 +4664,8 @@ PAINEL DE CONFIGURAÇÕES
 
 /* ── Extra small ─────────────────────────────────── */
 @media (max-width: 380px) {
-  #floatingDock { padding: 7px 8px; }
-  .dock-btn { min-width: 40px; padding: 7px 6px; }
+  #floatingDock { padding: 7px 6px; }
+  .dock-btn { min-width: 40px; padding: 7px 5px; }
   .dock-btn-icon { width: 28px; height: 28px; }
   .dock-btn-label { display: none; }
 }
@@ -6749,27 +8079,27 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
   <div class="grid">
     <div class="card big">
-      <button class="btn-export-chart" onclick="exportarGrafico('classChart','classificacao')">⬇ PNG</button>
+      <button class="btn-export-chart" onclick="exportarGrafico('classChart','classificacao')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Classificação dos Itens</div>
       <canvas id="classChart" role="img"></canvas>
     </div>
     <div class="card">
-      <button class="btn-export-chart" onclick="exportarGrafico('dominioChart','dominio')">⬇ PNG</button>
+      <button class="btn-export-chart" onclick="exportarGrafico('dominioChart','dominio')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Domínio</div>
       <canvas id="dominioChart" role="img"></canvas>
     </div>
     <div class="card">
-      <button class="btn-export-chart" onclick="exportarGrafico('priorChart','prioridade')">⬇ PNG</button>
+      <button class="btn-export-chart" onclick="exportarGrafico('priorChart','prioridade')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Grau de Prioridade</div>
       <canvas id="priorChart" role="img"></canvas>
     </div>
     <div class="card">
-      <button class="btn-export-chart" onclick="exportarGrafico('mesChart','cronograma')">⬇ PNG</button>
+      <button class="btn-export-chart" onclick="exportarGrafico('mesChart','cronograma')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Cronograma Mensal</div>
       <canvas id="mesChart" role="img"></canvas>
     </div>
     <div class="card">
-      <button class="btn-export-chart" onclick="exportarGrafico('periodicoChart','periodico')">⬇ PNG</button>
+      <button class="btn-export-chart" onclick="exportarGrafico('periodicoChart','periodico')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Contratações Periódicas</div>
       <canvas id="periodicoChart" role="img"></canvas>
     </div>
@@ -6853,143 +8183,356 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
   <hr>
 
-  <!-- CONSULTA DE ITENS -->
-  <div class="section-header">
-    <h2 class="section-title">Consulta de Itens</h2>
-    <span class="section-pill">Filtros</span>
+  <!-- ═══════════════════════════════════════════════
+       CONSULTA DE ITENS — Banner + Filtros + Tabela
+  ══════════════════════════════════════════════════ -->
+
+  <!-- Banner de pesquisa destaque -->
+  <div class="ci-banner">
+    <div class="ci-banner-left">
+      <div class="ci-banner-icon">
+        <i data-lucide="database" style="width:22px;height:22px;"></i>
+      </div>
+      <div class="ci-banner-text">
+        <h2 class="ci-banner-title">Consulta de Itens</h2>
+        <p class="ci-banner-sub">Pesquise e filtre os itens do Plano de Contratações Anual ativo</p>
+      </div>
+    </div>
+    <div class="ci-banner-right">
+      <span class="section-pill ci-contador-pill" id="consultaContadorPill" style="display:none;"></span>
+    </div>
+  </div>
+
+  <!-- Campo de pesquisa unificada com seletor de tipo -->
+  <div class="ci-search-banner">
+
+    <!-- Seletor de tipo — chips em scroll horizontal, sem quebra de linha -->
+    <div class="ci-tipo-chips" id="ciTipoChips" role="radiogroup" aria-label="Tipo de pesquisa">
+      <button class="ci-tipo-chip ativo" data-tipo="produto" role="radio" aria-checked="true">
+        <i data-lucide="package" style="width:12px;height:12px;"></i>
+        Produto
+      </button>
+      <button class="ci-tipo-chip ci-tipo-sep" data-tipo="sequencial" role="radio" aria-checked="false">
+        <i data-lucide="list-ordered" style="width:12px;height:12px;"></i>
+        Sequencial
+      </button>
+      <button class="ci-tipo-chip" data-tipo="dfd" role="radio" aria-checked="false">
+        <i data-lucide="file-search" style="width:12px;height:12px;"></i>
+        DFD
+      </button>
+      <button class="ci-tipo-chip" data-tipo="local" role="radio" aria-checked="false">
+        <i data-lucide="building-2" style="width:12px;height:12px;"></i>
+        Local
+      </button>
+      <button class="ci-tipo-chip" data-tipo="classificacao" role="radio" aria-checked="false">
+        <i data-lucide="tag" style="width:12px;height:12px;"></i>
+        Categoria
+      </button>
+      <button class="ci-tipo-chip" data-tipo="dominio" role="radio" aria-checked="false">
+        <i data-lucide="layers" style="width:12px;height:12px;"></i>
+        Domínio
+      </button>
+      <button class="ci-tipo-chip" data-tipo="prioridade" role="radio" aria-checked="false">
+        <i data-lucide="flag" style="width:12px;height:12px;"></i>
+        Prioridade
+      </button>
+    </div>
+
+    <!-- Campo de busca principal -->
+    <div class="ci-search-wrap" id="ciSearchWrap">
+      <span class="ci-search-leading">
+        <i data-lucide="search" style="width:18px;height:18px;"></i>
+      </span>
+      <input
+        type="text"
+        id="produtoSearch"
+        class="ci-search-input"
+        placeholder="Pesquisar itens do PCA por produto ou serviço..."
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <!-- Input oculto para DFD/sequencial — compatibilidade JS existente -->
+      <input type="hidden" id="dfdSearch" value="">
+      <button
+        class="ci-search-clear"
+        id="produtoSearchClear"
+        title="Limpar pesquisa"
+        onclick="_ciLimparBusca()"
+      >
+        <i data-lucide="x" style="width:13px;height:13px;"></i>
+      </button>
+      <button class="ci-search-btn" onclick="aplicarFiltrosTabela()">
+        <i data-lucide="search" style="width:14px;height:14px;"></i>
+        <span>Pesquisar</span>
+      </button>
+    </div>
+
+    <!-- Indicador de tipo ativo -->
+    <div class="ci-tipo-indicador" id="ciTipoIndicador">
+      <i data-lucide="info" style="width:11px;height:11px;"></i>
+      <span id="ciTipoIndicadorText">Pesquisando por: <strong>Produto ou serviço</strong></span>
+    </div>
+
   </div>
 
   <!-- RESUMO DE FILTROS ATIVOS -->
   <div id="filtroResumo" class="vazio">
-    <strong>🔍 Filtros:</strong>
+    <strong style="display:flex;align-items:center;gap:5px;">
+      <i data-lucide="filter" style="width:13px;height:13px;"></i> Filtros ativos:
+    </strong>
     <span id="filtroTags"></span>
-    <button id="btnLimparFiltros" onclick="limparFiltros()">Limpar todos</button>
+    <button id="btnLimparFiltros" onclick="limparFiltros()">
+      <i data-lucide="x" style="width:11px;height:11px;"></i> Limpar todos
+    </button>
   </div>
 
+  <!-- PAINEL DE FILTROS — grade organizada com chips selecionáveis -->
   <div class="controls">
-    <div class="box">
-      <label for="dfdSearch">DFD / Sequencial / Protocolo</label>
-      <input type="text" id="dfdSearch" placeholder="Número...">
-    </div>
-    <div class="box">
-      <label for="produtoSearch">Produto</label>
-      <input type="text" id="produtoSearch" placeholder="Nome...">
-    </div>
-    <div class="box">
-      <label>LOCAL</label>
-      <div class="sd-wrap" id="sd-localTabela"></div>
-    </div>
-    <div class="box">
-      <label>Classificação</label>
-      <div class="sd-wrap" id="sd-classTabela"></div>
-    </div>
-    <div class="box">
-      <label>Domínio</label>
-      <div class="sd-wrap" id="sd-dominioTabela"></div>
-    </div>
-    <div class="box">
-      <label>Prioridade</label>
-      <div class="sd-wrap" id="sd-prioridadeTabela"></div>
-    </div>
-    <div class="box">
-      <label>Mês/Ano</label>
-      <div class="sd-wrap" id="sd-mesTabela"></div>
-    </div>
-    <div class="box">
-      <label for="saldoFilter">Saldo Utilizado</label>
-      <select id="saldoFilter">
-        <option value="">Todos</option>
-        <option value="com">Com saldo</option>
-        <option value="sem">Sem saldo</option>
-        <option value="parcial">Parcial (saldo &lt; total)</option>
-      </select>
-    </div>
-    <!-- Hidden selects kept for compatibility with filter logic -->
-    <select id="localTabela"      style="display:none"></select>
-    <select id="classTabela"      style="display:none"></select>
-    <select id="dominioTabela"    style="display:none"></select>
-    <select id="prioridadeTabela" style="display:none"></select>
-    <select id="mesTabela"        style="display:none"></select>
-    <div class="box">
-      <label for="valorSort">Ordenar por</label>
-      <select id="valorSort">
-        <option value="">Sequencial</option>
-        <option value="asc">Valor ↑</option>
-        <option value="desc">Valor ↓</option>
-        <option value="saldo_desc">Saldo ↓</option>
-        <option value="saldo_asc">Saldo ↑</option>
-        <option value="dt_atualiz_desc">Últ. atualização ↓ (mais recente)</option>
-        <option value="dt_atualiz_asc">Últ. atualização ↑ (mais antigo)</option>
-      </select>
-    </div>
-    <div class="box">
-      <label for="itensPorPagina">Itens/página</label>
-      <select id="itensPorPagina">
-        <option value="25">25</option>
-        <option value="50" selected>50</option>
-        <option value="100">100</option>
-        <option value="999999">Todos</option>
-      </select>
-    </div>
-    <button class="btn btn-green" onclick="exportarExcel()">📥 Excel</button>
-  </div>
+    <div class="ci-filtros-painel">
 
-  <div class="table-wrapper">
-    <table id="tabelaItens">
-      <thead>
-        <tr>
-          <th>LOCAL</th><th>SEQ.</th><th>CÓDIGO</th><th>PRODUTO</th>
-          <th>UN.</th><th>CLASSIFICAÇÃO</th><th>DOMÍNIO</th>
-          <th>QTD</th><th>VL. UNIT.</th><th>VL. TOTAL</th>
-          <th>SALDO UTIL.</th><th>QTDE UTIL.</th><th>DATA</th><th>PRIORIDADE</th><th>PROTOCOLO</th><th>DFD</th>
-          <th>ÚLT. ATUALIZ.</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-      <tfoot>
-        <tr class="total-row">
-          <td colspan="9" class="center">TOTAL DA PÁGINA</td>
-          <td class="center" id="totalItens">R$ 0,00</td>
-          <td colspan="7"></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+      <!-- Cabeçalho do painel de filtros -->
+      <div class="ci-filtros-header">
+        <span class="ci-filtros-header-label">
+          <i data-lucide="sliders-horizontal" style="width:13px;height:13px;"></i>
+          Filtros adicionais
+        </span>
+        <span class="ci-filtros-hint">Combine com a pesquisa acima</span>
+      </div>
 
-  <div class="paginacao">
+      <!-- Grade de filtros — apenas dropdowns complementares -->
+      <div class="ci-filtros-grade">
+
+        <!-- Filtro: Local (complementar — quando tipo ativo não é Local) -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-local">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="building-2" style="width:11px;height:11px;"></i>
+            Local
+          </div>
+          <div class="sd-wrap" id="sd-localTabela"></div>
+        </div>
+
+        <!-- Filtro: Classificação -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-class">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="tag" style="width:11px;height:11px;"></i>
+            Classificação
+          </div>
+          <div class="sd-wrap" id="sd-classTabela"></div>
+        </div>
+
+        <!-- Filtro: Domínio -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-dominio">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="layers" style="width:11px;height:11px;"></i>
+            Domínio
+          </div>
+          <div class="sd-wrap" id="sd-dominioTabela"></div>
+        </div>
+
+        <!-- Filtro: Prioridade -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-prior">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="flag" style="width:11px;height:11px;"></i>
+            Prioridade
+          </div>
+          <div class="sd-wrap" id="sd-prioridadeTabela"></div>
+        </div>
+
+        <!-- Filtro: Mês/Ano -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-mes">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="calendar" style="width:11px;height:11px;"></i>
+            Mês / Ano
+          </div>
+          <div class="sd-wrap" id="sd-mesTabela"></div>
+        </div>
+
+        <!-- Filtro: Saldo -->
+        <div class="ci-filtro-item ci-filtro-select" id="ci-fi-saldo">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="circle-dollar-sign" style="width:11px;height:11px;"></i>
+            Saldo Utilizado
+          </div>
+          <select id="saldoFilter" class="ci-filtro-native-select">
+            <option value="">Todos</option>
+            <option value="com">Com saldo</option>
+            <option value="sem">Sem saldo</option>
+            <option value="parcial">Parcial (saldo &lt; total)</option>
+          </select>
+        </div>
+
+      </div><!-- /ci-filtros-grade -->
+
+      <!-- Linha de controle de visualização -->
+      <div class="ci-filtros-vis">
+
+        <div class="ci-vis-item">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="arrow-up-down" style="width:11px;height:11px;"></i>
+            Ordenar por
+          </div>
+          <select id="valorSort" class="ci-filtro-native-select">
+            <option value="">Sequencial</option>
+            <option value="asc">Valor ↑</option>
+            <option value="desc">Valor ↓</option>
+            <option value="saldo_desc">Saldo ↓</option>
+            <option value="saldo_asc">Saldo ↑</option>
+            <option value="dt_atualiz_desc">Últ. atualização ↓</option>
+            <option value="dt_atualiz_asc">Últ. atualização ↑</option>
+          </select>
+        </div>
+
+        <div class="ci-vis-item">
+          <div class="ci-filtro-item-label">
+            <i data-lucide="list" style="width:11px;height:11px;"></i>
+            Itens por página
+          </div>
+          <select id="itensPorPagina" class="ci-filtro-native-select">
+            <option value="25">25 itens</option>
+            <option value="50" selected>50 itens</option>
+            <option value="100">100 itens</option>
+            <option value="999999">Todos</option>
+          </select>
+        </div>
+
+        <div class="ci-vis-spacer"></div>
+
+        <button class="ci-excel-btn" onclick="exportarExcel()">
+          <i data-lucide="download" style="width:14px;height:14px;"></i>
+          Exportar Excel
+        </button>
+
+      </div><!-- /ci-filtros-vis -->
+
+    </div><!-- /ci-filtros-painel -->
+
+    <!-- Selects ocultos — compatibilidade total com SearchableDropdown -->
+    <div class="filtro-hidden-selects">
+      <select id="localTabela"></select>
+      <select id="classTabela"></select>
+      <select id="dominioTabela"></select>
+      <select id="prioridadeTabela"></select>
+      <select id="mesTabela"></select>
+    </div>
+
+  </div><!-- /controls -->
+
+  <!-- TABELA DE ITENS -->
+  <div class="tabela-moderna-wrap">
+    <div class="table-wrapper">
+      <table id="tabelaItens">
+        <thead>
+          <tr>
+            <th>LOCAL</th><th>SEQ.</th><th>CÓDIGO</th><th>PRODUTO</th>
+            <th>UN.</th><th>CLASSIFICAÇÃO</th><th>DOMÍNIO</th>
+            <th>QTD</th><th>VL. UNIT.</th><th>VL. TOTAL</th>
+            <th>SALDO UTIL.</th><th>QTDE UTIL.</th><th>DATA</th><th>PRIORIDADE</th><th>PROTOCOLO</th><th>DFD</th>
+            <th>ÚLT. ATUALIZ.</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="9" class="center">TOTAL DA PÁGINA</td>
+            <td class="center" id="totalItens">R$ 0,00</td>
+            <td colspan="7"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div><!-- /tabela-moderna-wrap -->
+
+  <div class="tabela-paginacao paginacao">
     <div class="paginacao-info" id="paginacaoInfo">—</div>
     <div class="paginacao-btns" id="paginacaoBtns"></div>
   </div>
 
   </div><!-- /conteudoDashboard -->
 
+  <!-- ═══════════════════════════════════════════════
+       MODAL DE DETALHE DO ITEM (floating panel)
+  ══════════════════════════════════════════════════ -->
+  <div id="itemDetalheOverlay" role="dialog" aria-modal="true" aria-labelledby="itemDetalheTitulo">
+    <div class="id-panel" id="itemDetalhePanel">
+
+      <!-- Header do painel -->
+      <div class="id-header">
+        <div class="id-header-left">
+          <div class="id-header-icon">
+            <i data-lucide="package" style="width:20px;height:20px;"></i>
+          </div>
+          <div class="id-header-info">
+            <span class="id-header-tag" id="itemDetalheTag">SEQ. —</span>
+            <h3 class="id-header-title" id="itemDetalheTitulo">Detalhes do Item</h3>
+          </div>
+        </div>
+        <button class="id-close" id="itemDetalheClose" title="Fechar">
+          <i data-lucide="x" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+
+      <!-- Corpo do painel -->
+      <div class="id-body" id="itemDetalheBody">
+        <!-- Preenchido via JS -->
+      </div>
+
+      <!-- Footer do painel -->
+      <div class="id-footer">
+        <span class="id-footer-hint">
+          <i data-lucide="info" style="width:12px;height:12px;"></i>
+          Clique em outra linha para navegar entre os itens
+        </span>
+        <button class="id-footer-close" onclick="fecharItemDetalhe()">Fechar</button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- CONTEÚDO: DOCUMENTOS (aba 2) -->
   <div id="conteudoDocumentos" style="display:none">
     <div class="docs-page">
 
-      <!-- Cabeçalho da seção -->
-      <div class="section-header" style="margin-bottom:0">
-        <h2 class="section-title">📁 Documentos Importantes</h2>
-        <span class="section-pill">Google Drive</span>
+      <!-- Cabeçalho moderno da seção -->
+      <div class="docs-section-header">
+        <div class="docs-section-header-left">
+          <div class="docs-section-icon">
+            <i data-lucide="folder-open" style="width:22px;height:22px;"></i>
+          </div>
+          <div>
+            <h2 class="docs-section-title">Documentos Importantes</h2>
+            <p class="docs-section-sub">Acesse os documentos armazenados no Google Drive</p>
+          </div>
+        </div>
+        <span class="docs-drive-badge">
+          <i data-lucide="hard-drive" style="width:12px;height:12px;"></i>
+          Google Drive
+        </span>
       </div>
 
-      <!-- Config da pasta -->
+      <!-- Config da pasta (oculto por padrão) -->
       <div class="docs-config-bar" style="display:none">
         <div class="docs-config-input-wrap">
-          <span class="docs-config-label">📂 ID da Pasta</span>
+          <span class="docs-config-label">
+            <i data-lucide="folder" style="width:13px;height:13px;"></i>
+            ID da Pasta
+          </span>
           <input type="text" id="driveFolderId" class="docs-config-input"
             placeholder="Cole o ID da pasta do Google Drive..."
             value="">
         </div>
-        <button class="btn btn-primary btn-sm" onclick="buscarDocumentos()">
-          🔍 Buscar Documentos
+        <button class="btn btn-primary btn-sm" onclick="buscarDocumentos()" style="display:flex;align-items:center;gap:7px;">
+          <i data-lucide="search" style="width:13px;height:13px;"></i>
+          Buscar Documentos
         </button>
       </div>
 
-      <!-- Filtro de busca -->
+      <!-- Barra de filtro de busca modernizada -->
       <div class="docs-search-bar" id="docsSearchBar" style="display:none">
+        <span class="docs-search-bar-icon">
+          <i data-lucide="search" style="width:16px;height:16px;"></i>
+        </span>
         <input id="docsBusca" class="docs-search-input"
-          placeholder="Filtrar por nome..."
+          placeholder="Filtrar por nome do documento..."
           oninput="filtrarDocs()">
         <span id="docsCount" class="docs-count"></span>
       </div>
@@ -6997,20 +8540,27 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
       <!-- Estado: carregando -->
       <div id="docsLoading" class="docs-estado" style="display:none">
         <div class="docs-spinner"></div>
-        <p>Buscando documentos...</p>
+        <p style="font-weight:600;color:var(--text);">Buscando documentos...</p>
+        <p style="font-size:12px;">Conectando ao Google Drive</p>
       </div>
 
       <!-- Estado: erro -->
       <div id="docsErro" class="docs-estado docs-erro" style="display:none">
-        <div style="font-size:36px">⚠️</div>
-        <p id="docsErroMsg">Erro ao acessar a pasta.</p>
-        <p style="font-size:12px;color:var(--text-muted)">Verifique o ID da pasta e se ela é pública.</p>
+        <div class="docs-estado-icon vermelho">
+          <i data-lucide="alert-triangle" style="width:24px;height:24px;"></i>
+        </div>
+        <p style="font-weight:700;font-size:15px;color:#dc2626;">Erro ao acessar a pasta</p>
+        <p id="docsErroMsg" style="font-size:13px;">Erro ao acessar a pasta.</p>
+        <p style="font-size:12px;color:var(--text-muted);">Verifique o ID da pasta e se ela é pública.</p>
       </div>
 
       <!-- Estado: vazio -->
       <div id="docsVazio" class="docs-estado" style="display:none">
-        <div style="font-size:36px">📭</div>
-        <p>Nenhum PDF encontrado nesta pasta.</p>
+        <div class="docs-estado-icon cinza">
+          <i data-lucide="inbox" style="width:24px;height:24px;"></i>
+        </div>
+        <p style="font-weight:600;color:var(--text);">Nenhum documento encontrado</p>
+        <p style="font-size:12px;">Não há arquivos PDF nesta pasta.</p>
       </div>
 
       <!-- Grade de documentos -->
@@ -7025,57 +8575,86 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
      FLOATING DOCK — Menu flutuante iOS-style
 ===================================================== -->
 <div id="floatingDock" role="navigation" aria-label="Ações rápidas">
+  <!-- Wrapper interno com scroll horizontal -->
+  <div class="dock-scroll-inner">
 
-  <!-- Consultar Itens -->
-  <button class="dock-btn" data-action="consultar"
-    onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens')"
-    title="Consultar Itens do PCA"
-    aria-label="Consultar Itens">
-    <div class="dock-btn-icon">
-      <i data-lucide="search" style="width:18px;height:18px;color:#4361ee;"></i>
-    </div>
-    <span class="dock-btn-label">Consultar</span>
-  </button>
+    <!-- Indicadores Gerais -->
+    <button class="dock-btn" data-action="indicadores"
+      onclick="mudarAba('dashboard');scrollToSection('kpiGrid')"
+      title="Indicadores Gerais"
+      aria-label="Indicadores Gerais">
+      <div class="dock-btn-icon">
+        <i data-lucide="bar-chart-2" style="width:18px;height:18px;color:#0ea5e9;"></i>
+      </div>
+      <span class="dock-btn-label">Indicadores</span>
+    </button>
 
-  <div class="dock-separator"></div>
+    <div class="dock-separator"></div>
 
-  <!-- Gerar PCA -->
-  <button class="dock-btn" data-action="gerar-pca"
-    onclick="exportarPDF()"
-    title="Gerar PDF do PCA"
-    aria-label="Gerar PCA">
-    <div class="dock-btn-icon">
-      <i data-lucide="file-text" style="width:18px;height:18px;color:#dc2626;"></i>
-    </div>
-    <span class="dock-btn-label">Gerar PCA</span>
-  </button>
+    <!-- Análise Orçamentária -->
+    <button class="dock-btn" data-action="orcamento"
+      onclick="mudarAba('dashboard');scrollToSectionByText('Análise Orçamentária')"
+      title="Análise Orçamentária"
+      aria-label="Análise Orçamentária">
+      <div class="dock-btn-icon">
+        <i data-lucide="landmark" style="width:18px;height:18px;color:#f59e0b;"></i>
+      </div>
+      <span class="dock-btn-label">Orçamento</span>
+    </button>
 
-  <div class="dock-separator"></div>
+    <div class="dock-separator"></div>
 
-  <!-- Consulta de Declaração -->
-  <button class="dock-btn" data-action="declaracao"
-    onclick="abrirConsultaDeclaracao()"
-    title="Consultar Declaração"
-    aria-label="Consulta de Declaração">
-    <div class="dock-btn-icon">
-      <i data-lucide="file-badge" style="width:18px;height:18px;color:#059669;"></i>
-    </div>
-    <span class="dock-btn-label">Declaração</span>
-  </button>
+    <!-- Consultar Itens -->
+    <button class="dock-btn" data-action="consultar"
+      onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens')"
+      title="Consultar Itens do PCA"
+      aria-label="Consultar Itens">
+      <div class="dock-btn-icon">
+        <i data-lucide="search" style="width:18px;height:18px;color:#4361ee;"></i>
+      </div>
+      <span class="dock-btn-label">Consultar</span>
+    </button>
 
-  <div class="dock-separator"></div>
+    <div class="dock-separator"></div>
 
-  <!-- Documentos Importantes -->
-  <button class="dock-btn" data-action="documentos"
-    onclick="mudarAba('documentos')"
-    title="Documentos Importantes"
-    aria-label="Documentos Importantes">
-    <div class="dock-btn-icon">
-      <i data-lucide="folder-open" style="width:18px;height:18px;color:#7c3aed;"></i>
-    </div>
-    <span class="dock-btn-label">Documentos</span>
-  </button>
+    <!-- Gerar PCA -->
+    <button class="dock-btn" data-action="gerar-pca"
+      onclick="exportarPDF()"
+      title="Gerar PDF do PCA"
+      aria-label="Gerar PCA">
+      <div class="dock-btn-icon">
+        <i data-lucide="file-text" style="width:18px;height:18px;color:#dc2626;"></i>
+      </div>
+      <span class="dock-btn-label">Gerar PCA</span>
+    </button>
 
+    <div class="dock-separator"></div>
+
+    <!-- Consulta de Declaração -->
+    <button class="dock-btn" data-action="declaracao"
+      onclick="abrirConsultaDeclaracao()"
+      title="Consultar Declaração"
+      aria-label="Consulta de Declaração">
+      <div class="dock-btn-icon">
+        <i data-lucide="file-badge" style="width:18px;height:18px;color:#059669;"></i>
+      </div>
+      <span class="dock-btn-label">Declaração</span>
+    </button>
+
+    <div class="dock-separator"></div>
+
+    <!-- Documentos Importantes -->
+    <button class="dock-btn" data-action="documentos"
+      onclick="mudarAba('documentos')"
+      title="Documentos Importantes"
+      aria-label="Documentos Importantes">
+      <div class="dock-btn-icon">
+        <i data-lucide="folder-open" style="width:18px;height:18px;color:#7c3aed;"></i>
+      </div>
+      <span class="dock-btn-label">Documentos</span>
+    </button>
+
+  </div><!-- /dock-scroll-inner -->
 </div>
 
 <!-- =====================================================
@@ -8920,45 +10499,71 @@ function filtrarDocs() {
 }
 
 function _renderizarDocs(arquivos) {
-  const grid = document.getElementById("docsGrid")
+  const grid  = document.getElementById("docsGrid")
   const count = document.getElementById("docsCount")
   count.textContent = `${arquivos.length} documento${arquivos.length !== 1 ? "s" : ""}`
 
   if (arquivos.length === 0) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--text-muted)">
-      <div style="font-size:28px">🔍</div>
-      <p style="margin-top:8px">Nenhum documento encontrado para esta busca.</p>
-    </div>`
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:48px 20px;color:var(--text-muted);text-align:center;">
+        <div style="width:52px;height:52px;background:var(--surface2);border-radius:14px;display:flex;align-items:center;justify-content:center;">
+          <i data-lucide="search-x" style="width:22px;height:22px;"></i>
+        </div>
+        <p style="font-weight:600;color:var(--text);margin:0;">Nenhum documento encontrado</p>
+        <p style="font-size:12px;margin:0;">Tente outros termos de busca.</p>
+      </div>`
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] })
     return
   }
 
   grid.innerHTML = arquivos.map(f => {
-    const nome      = f.name.replace(/\.pdf$/i, "")
-    const tamanho   = f.size ? _formatarTamanho(parseInt(f.size)) : "—"
-    const data      = f.modifiedTime
+    const nome    = f.name.replace(/\.pdf$/i, "")
+    const tamanho = f.size ? _formatarTamanho(parseInt(f.size)) : "—"
+    const data    = f.modifiedTime
       ? new Date(f.modifiedTime).toLocaleDateString("pt-BR", { day:"2-digit", month:"short", year:"numeric" })
       : "—"
-    const viewUrl   = `https://drive.google.com/file/d/${f.id}/view`
-    const dlUrl     = `https://drive.google.com/uc?export=download&id=${f.id}`
+    const viewUrl = `https://drive.google.com/file/d/${f.id}/view`
+    const dlUrl   = `https://drive.google.com/uc?export=download&id=${f.id}`
 
     return `
     <div class="doc-card">
-      <div class="doc-icon">📄</div>
-      <div class="doc-name" title="${f.name}">${nome}</div>
-      <div class="doc-meta">
-        <span>📅 ${data}</span>
-        <span>💾 ${tamanho}</span>
+      <div class="doc-card-top"></div>
+      <div class="doc-card-body">
+        <div class="doc-card-title-row">
+          <div class="doc-card-icon-wrap">
+            <i data-lucide="file-text" style="width:20px;height:20px;"></i>
+          </div>
+          <div class="doc-card-title-col">
+            <p class="doc-card-title" title="${f.name}">${nome}</p>
+            <div class="doc-card-meta">
+              <span class="doc-card-meta-item">
+                <i data-lucide="calendar" style="width:11px;height:11px;"></i>
+                ${data}
+              </span>
+              <span class="doc-card-meta-item">
+                <i data-lucide="hard-drive" style="width:11px;height:11px;"></i>
+                ${tamanho}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="doc-actions">
+      <div class="doc-card-divider"></div>
+      <div class="doc-card-actions">
         <a href="${viewUrl}" target="_blank" class="doc-btn">
-          👁️ Visualizar
+          <i data-lucide="eye" style="width:13px;height:13px;"></i>
+          Visualizar
         </a>
         <a href="${dlUrl}" target="_blank" download class="doc-btn doc-btn-primary">
-          ⬇️ Baixar
+          <i data-lucide="download" style="width:13px;height:13px;"></i>
+          Baixar
         </a>
       </div>
     </div>`
   }).join("")
+
+  // Inicializa ícones Lucide nos cards recém-criados
+  if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [grid] })
 }
 
 function _formatarTamanho(bytes) {
@@ -8992,10 +10597,11 @@ function scrollToSection(id) {
   _scrollToEl(document.getElementById(id))
 }
 function scrollToSectionByText(text) {
-  const headers = document.querySelectorAll(".section-title")
+  // Busca em .section-title E .ci-banner-title (banner moderno)
+  const headers = document.querySelectorAll(".section-title, .ci-banner-title")
   for (const h of headers) {
     if (h.textContent.includes(text)) {
-      _scrollToEl(h.closest(".section-header") || h)
+      _scrollToEl(h.closest(".ci-banner") || h.closest(".section-header") || h)
       return
     }
   }
@@ -11756,6 +13362,8 @@ function renderizarPagina() {
   document.getElementById("paginacaoInfo").textContent =
     total === 0 ? "Nenhum item encontrado" : `Exibindo ${inicio+1}–${fim} de ${total} itens`
 
+  if (typeof _atualizarContadorPill === 'function') _atualizarContadorPill(total)
+
   const btns = document.getElementById("paginacaoBtns")
   btns.innerHTML = ""
   const addBtn = (label, pag, disabled, ativa) => {
@@ -11813,7 +13421,7 @@ function imprimirLista(data) {
       <td class="center" style="font-size:11px;color:var(--text-muted);">${r[COL.DT_ATUALIZACAO]||"—"}</td>
     `
 
-    /* Linha de detalhe (expandida ao clicar) */
+    /* Linha de detalhe inline — mantida para compatibilidade (oculta, sem exibição) */
     const trDetalhe = document.createElement("tr")
     trDetalhe.classList.add("linha-detalhe")
     trDetalhe.style.display = "none"
@@ -11826,7 +13434,7 @@ function imprimirLista(data) {
           <div class="detalhe-campo"><span>Código</span><span>${r[COL.CODIGO]||"—"}</span></div>
           <div class="detalhe-campo"><span>Unidade</span><span>${norm(r[COL.UNIDADE])||"—"}</span></div>
           <div class="detalhe-campo"><span>Classificação</span><span>${norm(r[COL.CLASSIFICACAO])||"—"}</span></div>
-          <div class="detalhe-campo"><span>Domínio</span><span>${norm(r[COL.DOMINIO])||"—"}</span></div>
+          <div class="detalhe-campo"><span>Domínio</span><span>${norm(r[COL.DOMINIO])}</span></div>
           <div class="detalhe-campo"><span>Quantidade</span><span>${r[COL.QUANTIDADE]||"—"}</span></div>
           <div class="detalhe-campo"><span>Valor Unitário</span><span>${formatBRL(valorUnit)}</span></div>
           <div class="detalhe-campo"><span>Valor Total</span><span>${formatBRL(valorTotal)}</span></div>
@@ -11841,16 +13449,23 @@ function imprimirLista(data) {
       </td>
     `
 
+    /* Click — abre modal floating ao invés do inline row */
     tr.addEventListener("click", () => {
-      /* Fecha detalhe anterior */
+      /* Mantém lógica de seleção visual na linha */
       if (linhaSelecionada && linhaSelecionada !== tr) {
         linhaSelecionada.classList.remove("selecionada")
         linhaSelecionada.nextElementSibling.style.display = "none"
       }
-      const aberto = trDetalhe.style.display !== "none"
-      tr.classList.toggle("selecionada", !aberto)
-      trDetalhe.style.display = aberto ? "none" : ""
-      linhaSelecionada = aberto ? null : tr
+      const jaSelecionada = tr.classList.contains("selecionada")
+      if (jaSelecionada) {
+        tr.classList.remove("selecionada")
+        linhaSelecionada = null
+        fecharItemDetalhe()
+      } else {
+        tr.classList.add("selecionada")
+        linhaSelecionada = tr
+        _abrirItemDetalhe(r, valorUnit, valorTotal, produto)
+      }
     })
 
     f.appendChild(tr)
@@ -11862,13 +13477,354 @@ function imprimirLista(data) {
 }
 
 /* =====================================================
+   MODAL DE DETALHE DO ITEM — lógica JS
+===================================================== */
+function _abrirItemDetalhe(r, valorUnit, valorTotal, produto) {
+  const overlay = document.getElementById("itemDetalheOverlay")
+  if (!overlay) return
+
+  /* Preenche header */
+  const seq = r[COL.SEQUENCIAL] || "—"
+  document.getElementById("itemDetalheTag").textContent  = "SEQ. " + seq
+  document.getElementById("itemDetalheTitulo").textContent = produto || "Item sem nome"
+
+  /* Monta conteúdo do body */
+  const saldoUtil = parseFloat(r[COL.SALDO_UTIL]) || 0
+  const qtdeUtil  = parseFloat(r[COL.QTDE_UTIL])  || 0
+
+  const classSaldo = saldoUtil > 0
+    ? (saldoUtil >= valorTotal ? "destaque-verde" : "destaque-amarelo")
+    : "vazio"
+  const classQtde  = qtdeUtil > 0 ? "destaque-azul" : "vazio"
+
+  document.getElementById("itemDetalheBody").innerHTML = `
+    <!-- Produto completo em destaque -->
+    <div class="id-produto-destaque">
+      <div class="id-produto-destaque-label">Produto / Serviço</div>
+      <div class="id-produto-destaque-nome">${produto || "—"}</div>
+    </div>
+
+    <!-- Seção 1: Identificação -->
+    <div class="id-secao">
+      <div class="id-secao-titulo">
+        <i data-lucide="fingerprint" style="width:12px;height:12px;"></i>
+        Identificação
+      </div>
+      <div class="id-grid">
+        <div class="id-campo">
+          <span class="id-campo-label">Sequencial</span>
+          <span class="id-campo-valor">${r[COL.SEQUENCIAL]||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Código</span>
+          <span class="id-campo-valor">${r[COL.CODIGO]||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Local</span>
+          <span class="id-campo-valor">${norm(r[COL.LOCAL])||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Unidade</span>
+          <span class="id-campo-valor">${norm(r[COL.UNIDADE])||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Classificação</span>
+          <span class="id-campo-valor">${norm(r[COL.CLASSIFICACAO])||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Domínio</span>
+          <span class="id-campo-valor">${norm(r[COL.DOMINIO])||"—"}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 2: Valores -->
+    <div class="id-secao">
+      <div class="id-secao-titulo">
+        <i data-lucide="banknote" style="width:12px;height:12px;"></i>
+        Valores e Quantidades
+      </div>
+      <div class="id-grid">
+        <div class="id-campo">
+          <span class="id-campo-label">Quantidade</span>
+          <span class="id-campo-valor">${r[COL.QUANTIDADE]||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Valor Unitário</span>
+          <span class="id-campo-valor">${formatBRL(valorUnit)}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Valor Total</span>
+          <span class="id-campo-valor" style="font-size:15px;font-weight:800;color:var(--accent);">${formatBRL(valorTotal)}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Saldo Utilizado</span>
+          <span class="id-campo-valor ${classSaldo}">${saldoUtil > 0 ? formatBRL(saldoUtil) : "—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Qtde Utilizada</span>
+          <span class="id-campo-valor ${classQtde}">${qtdeUtil > 0 ? qtdeUtil : "—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">Data Contratação</span>
+          <span class="id-campo-valor">${normData(r[COL.DATA])||"—"}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seção 3: Rastreabilidade -->
+    <div class="id-secao">
+      <div class="id-secao-titulo">
+        <i data-lucide="file-search" style="width:12px;height:12px;"></i>
+        Rastreabilidade
+      </div>
+      <div class="id-grid">
+        <div class="id-campo">
+          <span class="id-campo-label">Prioridade</span>
+          <span class="id-campo-valor">${normPrioridade(r[COL.PRIORIDADE])||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">ID Protocolo</span>
+          <span class="id-campo-valor">${r[COL.ID_PROTO]||"—"}</span>
+        </div>
+        <div class="id-campo">
+          <span class="id-campo-label">DFD</span>
+          <span class="id-campo-valor">${r[COL.DFD]||"—"}</span>
+        </div>
+        <div class="id-campo id-grid-full" style="grid-column:1/-1;">
+          <span class="id-campo-label">Última Atualização</span>
+          <span class="id-campo-valor ${!r[COL.DT_ATUALIZACAO]?'vazio':''}">${r[COL.DT_ATUALIZACAO]||"—"}</span>
+        </div>
+      </div>
+    </div>
+  `
+
+  /* Renderiza ícones Lucide no modal */
+  overlay.classList.add("aberto")
+  if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [document.getElementById("itemDetalheBody")] })
+
+  /* Fecha ao clicar no overlay (fora do painel) */
+  overlay._clickHandler = (e) => { if (e.target === overlay) fecharItemDetalhe() }
+  overlay.addEventListener("click", overlay._clickHandler)
+
+  /* Fecha com Escape */
+  overlay._keyHandler = (e) => { if (e.key === "Escape") fecharItemDetalhe() }
+  document.addEventListener("keydown", overlay._keyHandler)
+}
+
+function fecharItemDetalhe() {
+  const overlay = document.getElementById("itemDetalheOverlay")
+  if (!overlay) return
+  overlay.classList.remove("aberto")
+  /* Remove handlers */
+  if (overlay._clickHandler) overlay.removeEventListener("click", overlay._clickHandler)
+  if (overlay._keyHandler)  document.removeEventListener("keydown", overlay._keyHandler)
+  /* Deseleciona linha na tabela */
+  if (linhaSelecionada) {
+    linhaSelecionada.classList.remove("selecionada")
+    linhaSelecionada = null
+  }
+}
+
+/* Botão de fechar no header do modal */
+document.getElementById("itemDetalheClose")?.addEventListener("click", fecharItemDetalhe)
+
+/* =====================================================
 EVENTOS
 ===================================================== */
 let debTimer
 function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
 
-document.getElementById("dfdSearch").addEventListener("keyup",        () => debounce(aplicarFiltrosTabela))
-document.getElementById("produtoSearch").addEventListener("keyup",    () => debounce(aplicarFiltrosTabela))
+// ── Barra de pesquisa unificada — lógica de chips e tipo ──────────────
+;(function _ciSmartSearch() {
+
+  // Mapa: tipo → { campo, placeholder, label }
+  // campo 'dfd' → redireciona para #dfdSearch (busca em SEQ, DFD, PROTOCOLO)
+  // campo 'seq' → busca apenas no SEQUENCIAL via #dfdSearch mas filtro só SEQ
+  var TIPOS = {
+    produto:       { campo: 'produto',    ph: 'Pesquisar por nome do produto ou serviço...',     label: 'Produto ou serviço'  },
+    sequencial:    { campo: 'sequencial', ph: 'Pesquisar por número de sequencial (ex: 42)...',  label: 'Sequencial'          },
+    dfd:           { campo: 'dfd',        ph: 'Pesquisar por número do DFD...',                  label: 'DFD'                 },
+    local:         { campo: 'local',      ph: 'Pesquisar por unidade solicitante (ex: SEMUS)...', label: 'Unidade solicitante' },
+    classificacao: { campo: 'classe',     ph: 'Pesquisar por categoria (Material, Serviço...)...', label: 'Categoria'          },
+    dominio:       { campo: 'dominio',    ph: 'Pesquisar por domínio de contratação...',          label: 'Domínio'            },
+    prioridade:    { campo: 'prioridade', ph: 'Pesquisar por prioridade (Alta, Média, Baixa)...', label: 'Prioridade'         },
+  }
+
+  var tipoAtivo = 'produto'
+
+  function _inp()       { return document.getElementById('produtoSearch') }
+  function _dfdInp()    { return document.getElementById('dfdSearch') }
+  function _clearBtn()  { return document.getElementById('produtoSearchClear') }
+  function _indicText() { return document.getElementById('ciTipoIndicadorText') }
+
+  // Sincroniza placeholder e indicador conforme tipo selecionado
+  function _syncUI() {
+    var conf = TIPOS[tipoAtivo]
+    var inp  = _inp()
+    if (inp) inp.placeholder = conf.ph
+    var t = _indicText()
+    if (t) t.innerHTML = 'Pesquisando por: <strong>' + conf.label + '</strong>'
+  }
+
+  // Aplica o filtro correto no campo correto para o JS existente
+  function _aplicar() {
+    _patchAplicar()
+    aplicarFiltrosTabela()
+  }
+
+  // Botão limpar
+  window._ciLimparBusca = function() {
+    var inp = _inp()
+    var dfd = _dfdInp()
+    if (inp) inp.value = ''
+    if (dfd) dfd.value = ''
+    var btn = _clearBtn()
+    if (btn) btn.classList.remove('visivel')
+    aplicarFiltrosTabela()
+  }
+
+  // Mostra/oculta botão clear conforme digitação
+  function _bindClearVisibility() {
+    var inp = _inp()
+    var btn = _clearBtn()
+    if (!inp || !btn) return
+    function toggle() { btn.classList.toggle('visivel', inp.value.length > 0) }
+    inp.addEventListener('input',  toggle)
+    inp.addEventListener('keyup',  toggle)
+  }
+
+  // Keyup — busca automática ao digitar (debounced)
+  function _bindKeyup() {
+    var inp = _inp()
+    if (!inp) return
+    inp.addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') { _aplicar(); return }
+      debounce(_aplicar)
+    })
+  }
+
+  // Clique nos chips
+  function _bindChips() {
+    var chips = document.querySelectorAll('#ciTipoChips .ci-tipo-chip')
+    chips.forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        // Remove ativo de todos
+        chips.forEach(function(c) {
+          c.classList.remove('ativo')
+          c.setAttribute('aria-checked', 'false')
+        })
+        // Ativa o clicado
+        chip.classList.add('ativo')
+        chip.setAttribute('aria-checked', 'true')
+        tipoAtivo = chip.getAttribute('data-tipo') || 'produto'
+
+        // Limpa o campo de busca ao trocar tipo
+        var inp = _inp()
+        var dfd = _dfdInp()
+        if (inp) inp.value = ''
+        if (dfd) dfd.value = ''
+        var btn = _clearBtn()
+        if (btn) btn.classList.remove('visivel')
+
+        _syncUI()
+        // Foca o campo automaticamente
+        if (inp) inp.focus()
+        aplicarFiltrosTabela()
+      })
+    })
+  }
+
+  // Override cirúrgico de aplicarFiltrosTabela para redirecionar
+  // o valor do input único para o campo correto antes de filtrar.
+  // aplicarFiltrosTabela é function declaration (hoisted) — salvar referência após execução
+  var _origAplicar = null
+  function _patchAplicar() {
+    if (_origAplicar) return // já patchado
+    // Neste ponto a função já existe no escopo global
+    if (typeof aplicarFiltrosTabela !== 'function') return
+    _origAplicar = aplicarFiltrosTabela
+
+    window.aplicarFiltrosTabela = function() {
+      var inp  = _inp()
+      var dfd  = _dfdInp()
+      if (inp && dfd) {
+        var val  = inp.value.trim()
+        var conf = TIPOS[tipoAtivo]
+        if (conf && (conf.campo === 'dfd' || conf.campo === 'sequencial')) {
+          // Redireciona para dfdSearch, limpa produtoSearch temporariamente
+          // O filtro original em dfdSearch busca em SEQ, DFD e PROTOCOLO;
+          // para sequencial isolamos filtrando externamente após chamar original
+          dfd.value = val
+          var prev = inp.value
+          inp.value = ''
+
+          if (conf.campo === 'sequencial') {
+            // Chama original com dfd preenchido (busca em SEQ, DFD, PROTOCOLO)
+            // depois refina para somente SEQUENCIAL
+            _origAplicar()
+            if (val) {
+              // COL é objeto com chaves string (ex: COL.SEQUENCIAL = "SEQUENCIAL")
+              var colSeq = (typeof COL !== 'undefined' && COL.SEQUENCIAL) ? COL.SEQUENCIAL : 'SEQUENCIAL'
+              window.dadosFiltrados = window.dadosFiltrados.filter(function(r) {
+                return String(r[colSeq] || '').toLowerCase().includes(val.toLowerCase())
+              })
+              if (typeof renderizarPagina === 'function') renderizarPagina()
+            }
+          } else {
+            // dfd puro: refina para apenas coluna DFD
+            _origAplicar()
+            if (val) {
+              var colDfd = (typeof COL !== 'undefined' && COL.DFD) ? COL.DFD : 'DFD'
+              window.dadosFiltrados = window.dadosFiltrados.filter(function(r) {
+                return String(r[colDfd] || '').toLowerCase().includes(val.toLowerCase())
+              })
+              if (typeof renderizarPagina === 'function') renderizarPagina()
+            }
+          }
+
+          inp.value = prev // restaura para o usuário continuar digitando
+          dfd.value = ''
+          return
+        } else {
+          dfd.value = ''
+        }
+      }
+      _origAplicar()
+    }
+  }
+
+  // Inicializa após DOM pronto
+  function _init() {
+    _patchAplicar()
+    _syncUI()
+    _bindClearVisibility()
+    _bindKeyup()
+    _bindChips()
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _init)
+  } else {
+    _init()
+  }
+
+})()
+
+// Atualiza pill contador de resultados
+function _atualizarContadorPill(total) {
+  const pill = document.getElementById('consultaContadorPill')
+  if (!pill) return
+  if (total > 0) {
+    pill.textContent = total + ' item' + (total !== 1 ? 's' : '')
+    pill.style.display = 'inline-flex'
+  } else {
+    pill.style.display = 'none'
+  }
+}
+
+// Os eventos de dfdSearch e produtoSearch são gerenciados pelo módulo _ciSmartSearch acima.
+// Os selects de filtro continuam funcionando normalmente:
 document.getElementById("localTabela").addEventListener("change",     aplicarFiltrosTabela)
 document.getElementById("classTabela").addEventListener("change",     aplicarFiltrosTabela)
 document.getElementById("dominioTabela").addEventListener("change",   aplicarFiltrosTabela)
@@ -18345,6 +20301,41 @@ const _pdfCfgOnOpen = (id) => {
     observer.observe(_modalCfg, { attributes: true, attributeFilter: ['class','style'] })
   }
 
+  // ── Esconde/exibe dock ao rolar (scroll-aware) ────────
+  ;(function _bindDockScroll() {
+    var dock = null
+    var lastY = 0
+    var ticking = false
+    var CFG_OPEN_CLASS = 'cfg-open'
+    var HIDE_CLASS = 'dock-scroll-hidden'
+
+    function onScroll() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(function() {
+        ticking = false
+        if (!dock) dock = document.getElementById('floatingDock')
+        if (!dock) return
+
+        // Não interfere se modal de configs estiver aberto
+        var cfg = document.getElementById('modalConfiguracoes')
+        if (cfg && (cfg.classList.contains(CFG_OPEN_CLASS) || cfg.style.display === 'flex')) return
+
+        var y = window.scrollY || document.documentElement.scrollTop
+        if (y > lastY && y > 80) {
+          // Rolando para baixo — esconde e mantém oculto
+          dock.classList.add(HIDE_CLASS)
+        } else if (y < lastY) {
+          // Rolando para cima — mostra
+          dock.classList.remove(HIDE_CLASS)
+        }
+        lastY = y
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+  })()
+
   // ── Formata data ─────────────────────────────────────────
   function _fmtData(str) {
     if (!str) return '—'
@@ -18702,7 +20693,39 @@ const _pdfCfgOnOpen = (id) => {
   // ── Inicialização ─────────────────────────────────────────
   function _init() {
     _bindDockVisibility()
+    _bindStickySearch()
     if (typeof lucide !== 'undefined') lucide.createIcons()
+  }
+
+  // ── Barra de pesquisa sticky — IntersectionObserver ───────
+  function _bindStickySearch() {
+    var banner = document.querySelector('.ci-search-banner')
+    if (!banner) return
+
+    // Insere um sentinel invisível logo ANTES do banner
+    // para detectar quando o banner sai da viewport
+    var sentinel = document.createElement('div')
+    sentinel.id = 'ciSearchSentinel'
+    sentinel.style.cssText = 'height:1px;pointer-events:none;position:relative;z-index:-1;'
+    banner.parentNode.insertBefore(sentinel, banner)
+
+    var observer = new IntersectionObserver(function(entries) {
+      var entry = entries[0]
+      if (!entry.isIntersecting) {
+        // Sentinel saiu da tela → banner passou do topo → fixar
+        banner.classList.add('is-stuck')
+      } else {
+        // Sentinel voltou para a tela → banner está na posição natural
+        banner.classList.remove('is-stuck')
+      }
+    }, {
+      // rootMargin negativo igual à altura do header (68px)
+      // para acionar quando o sentinel atingir o topo do header
+      rootMargin: '-68px 0px 0px 0px',
+      threshold: 0
+    })
+
+    observer.observe(sentinel)
   }
 
   if (document.readyState === 'loading') {
