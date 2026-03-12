@@ -4465,81 +4465,89 @@ PAINEL DE CONFIGURAÇÕES
 ===================================================== */
 
 /* ── Dock container ─────────────────────────────── */
+/* =====================================================
+   FLOATING DOCK — Menu flutuante iOS-style
+   4 ícones visíveis no mobile; scroll horizontal para os demais
+===================================================== */
+
 #floatingDock {
   position: fixed;
   bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 900;
-  /* Limita largura máxima para forçar scroll em telas pequenas */
-  max-width: min(92vw, 600px);
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.60);
   border-radius: 26px;
   box-shadow:
     0 8px 32px rgba(15, 22, 40, 0.12),
     0 2px 8px rgba(15, 22, 40, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  /* Transição suave para ocultar/exibir */
+  transition:
+    opacity 0.35s cubic-bezier(.4,0,.2,1),
+    transform 0.35s cubic-bezier(.4,0,.2,1);
 }
 
-/* Wrapper interno com scroll horizontal */
+/* Wrapper interno — scroll horizontal silencioso */
 .dock-scroll-inner {
   display: flex;
   align-items: center;
   gap: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
 }
 .dock-scroll-inner::-webkit-scrollbar { display: none; }
 
 [data-theme="dark"] #floatingDock {
-  background: rgba(22, 27, 39, 0.78);
+  background: rgba(22, 27, 39, 0.88);
   border-color: rgba(255, 255, 255, 0.10);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.40),
-    0 2px 8px rgba(0, 0, 0, 0.30),
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* Hide dock when configs modal is open */
+/* Oculto pelo modal de configurações */
 #floatingDock.dock-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(16px);
+  transform: translateX(-50%) translateY(20px);
 }
 
-/* Hide dock when scrolling down */
+/* Oculto ao rolar para baixo */
 #floatingDock.dock-scroll-hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateX(-50%) translateY(24px);
+  transform: translateX(-50%) translateY(28px);
 }
 
-/* ── Separator ──────────────────────────────────── */
+/* ── Separador ──────────────────────────────────── */
 .dock-separator {
   width: 1px;
-  height: 30px;
+  height: 28px;
   background: var(--border);
-  margin: 0 4px;
+  margin: 0 3px;
   flex-shrink: 0;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
-/* ── Individual dock button ─────────────────────── */
+/* ── Botão individual ─────────────────────────── */
 .dock-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 10px 14px;
+  padding: 10px 13px;
   border: none;
   background: none;
   border-radius: 18px;
@@ -4547,31 +4555,33 @@ PAINEL DE CONFIGURAÇÕES
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text-muted);
   transition:
-    background 0.25s ease,
-    color 0.25s ease,
+    background 0.22s ease,
+    color 0.22s ease,
     transform 0.2s cubic-bezier(.34, 1.56, .64, 1),
-    box-shadow 0.25s ease;
-  min-width: 62px;
+    box-shadow 0.22s ease;
+  min-width: 64px;
   flex-shrink: 0;
   scroll-snap-align: start;
   position: relative;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .dock-btn:hover {
-  background: rgba(67, 97, 238, 0.09);
+  background: rgba(67, 97, 238, 0.08);
   color: var(--accent);
   transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 4px 14px rgba(67, 97, 238, 0.14);
+  box-shadow: 0 4px 14px rgba(67, 97, 238, 0.13);
 }
 
 .dock-btn:active {
-  transform: translateY(0) scale(0.95);
+  transform: translateY(0) scale(0.94);
   box-shadow: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-/* ── Icon wrapper ───────────────────────────────── */
+/* ── Ícone interno ──────────────────────────── */
 .dock-btn-icon {
   width: 38px;
   height: 38px;
@@ -4579,37 +4589,38 @@ PAINEL DE CONFIGURAÇÕES
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.22s ease, box-shadow 0.22s ease;
 }
 
 .dock-btn:hover .dock-btn-icon {
-  box-shadow: 0 2px 8px rgba(67, 97, 238, 0.18);
+  box-shadow: 0 2px 8px rgba(67, 97, 238, 0.16);
 }
 
-/* Per-button accent colors */
-.dock-btn[data-action="indicadores"] .dock-btn-icon { background: rgba(14,165,233,0.10); }
-.dock-btn[data-action="orcamento"]   .dock-btn-icon { background: rgba(245,158,11,0.10); }
+/* Cores por ação */
 .dock-btn[data-action="consultar"]   .dock-btn-icon { background: rgba(67,97,238,0.10);  }
 .dock-btn[data-action="gerar-pca"]   .dock-btn-icon { background: rgba(220,38,38,0.09);  }
 .dock-btn[data-action="declaracao"]  .dock-btn-icon { background: rgba(16,185,129,0.10); }
 .dock-btn[data-action="documentos"]  .dock-btn-icon { background: rgba(124,58,237,0.10); }
+.dock-btn[data-action="orcamento"]   .dock-btn-icon { background: rgba(245,158,11,0.10); }
+.dock-btn[data-action="indicadores"] .dock-btn-icon { background: rgba(14,165,233,0.10); }
 
-.dock-btn[data-action="indicadores"]:hover .dock-btn-icon { background: rgba(14,165,233,0.18); }
-.dock-btn[data-action="orcamento"]:hover   .dock-btn-icon { background: rgba(245,158,11,0.18); }
 .dock-btn[data-action="consultar"]:hover   .dock-btn-icon { background: rgba(67,97,238,0.16);  }
 .dock-btn[data-action="gerar-pca"]:hover   .dock-btn-icon { background: rgba(220,38,38,0.14);  }
 .dock-btn[data-action="declaracao"]:hover  .dock-btn-icon { background: rgba(16,185,129,0.16); }
 .dock-btn[data-action="documentos"]:hover  .dock-btn-icon { background: rgba(124,58,237,0.16); }
+.dock-btn[data-action="orcamento"]:hover   .dock-btn-icon { background: rgba(245,158,11,0.18); }
+.dock-btn[data-action="indicadores"]:hover .dock-btn-icon { background: rgba(14,165,233,0.18); }
 
-.dock-btn[data-action="indicadores"]:hover { color: #0ea5e9; background: rgba(14,165,233,0.07); }
-.dock-btn[data-action="orcamento"]:hover   { color: #f59e0b; background: rgba(245,158,11,0.07); }
 .dock-btn[data-action="consultar"]:hover   { color: #4361ee; background: rgba(67,97,238,0.07);  }
 .dock-btn[data-action="gerar-pca"]:hover   { color: #dc2626; background: rgba(220,38,38,0.06);  }
 .dock-btn[data-action="declaracao"]:hover  { color: #059669; background: rgba(16,185,129,0.07); }
 .dock-btn[data-action="documentos"]:hover  { color: #7c3aed; background: rgba(124,58,237,0.07); }
+.dock-btn[data-action="orcamento"]:hover   { color: #f59e0b; background: rgba(245,158,11,0.07); }
+.dock-btn[data-action="indicadores"]:hover { color: #0ea5e9; background: rgba(14,165,233,0.07); }
 
-/* ── Label under icon ───────────────────────────── */
+/* ── Label ────────────────────────────────────── */
 .dock-btn-label {
+  font-family: 'Inter', system-ui, sans-serif;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -4618,16 +4629,15 @@ PAINEL DE CONFIGURAÇÕES
   transition: color 0.2s;
 }
 
-/* ── Tablet ─────────────────────────────────────── */
+/* ── Tablet (≤900px) ─────────────────────────── */
 @media (max-width: 900px) {
   #floatingDock {
     bottom: 20px;
     padding: 8px 10px;
-    max-width: 88vw;
   }
   .dock-btn {
     padding: 8px 10px;
-    min-width: 52px;
+    min-width: 56px;
     border-radius: 14px;
   }
   .dock-btn-icon {
@@ -4639,19 +4649,28 @@ PAINEL DE CONFIGURAÇÕES
   .dock-separator { margin: 0 2px; }
 }
 
-/* ── Mobile ─────────────────────────────────────── */
+/* ── Mobile (≤600px) — exibe 4 ícones, resto em scroll ── */
 @media (max-width: 600px) {
   #floatingDock {
     bottom: 16px;
-    padding: 8px 8px;
-    max-width: 86vw;
+    padding: 7px 6px;
     border-radius: 22px;
+    /*
+     * Calcula a largura para exibir exatamente 4 botões visíveis.
+     * Cada botão: min-width 52px + padding 2×7px = 66px
+     * 4 botões = 264px + gap + padding do dock
+     * Usamos ~80vw como limite generoso que força o 5º a ficar oculto
+     * em telas de até 360px (o mais comum no Android).
+     */
+    max-width: min(80vw, 310px);
   }
   .dock-btn {
-    padding: 8px 8px;
-    min-width: 46px;
+    padding: 8px 7px;
+    min-width: 52px;
     border-radius: 12px;
     gap: 3px;
+    /* toque maior para mobile */
+    min-height: 58px;
   }
   .dock-btn-icon {
     width: 32px;
@@ -4659,15 +4678,23 @@ PAINEL DE CONFIGURAÇÕES
     border-radius: 9px;
   }
   .dock-btn-label { font-size: 9px; }
+  /* Separadores ocultados no mobile (espaço é precioso) */
   .dock-separator { display: none; }
 }
 
-/* ── Extra small ─────────────────────────────────── */
+/* ── Extra small (≤380px) ─────────────────────── */
 @media (max-width: 380px) {
-  #floatingDock { padding: 7px 6px; }
-  .dock-btn { min-width: 40px; padding: 7px 5px; }
+  #floatingDock {
+    padding: 6px 4px;
+    max-width: min(84vw, 280px);
+  }
+  .dock-btn {
+    min-width: 44px;
+    padding: 7px 4px;
+    min-height: 52px;
+  }
   .dock-btn-icon { width: 28px; height: 28px; }
-  .dock-btn-label { display: none; }
+  .dock-btn-label { font-size: 8.5px; }
 }
 
 /* =====================================================
@@ -8578,33 +8605,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   <!-- Wrapper interno com scroll horizontal -->
   <div class="dock-scroll-inner">
 
-    <!-- Indicadores Gerais -->
-    <button class="dock-btn" data-action="indicadores"
-      onclick="mudarAba('dashboard');scrollToSection('kpiGrid')"
-      title="Indicadores Gerais"
-      aria-label="Indicadores Gerais">
-      <div class="dock-btn-icon">
-        <i data-lucide="bar-chart-2" style="width:18px;height:18px;color:#0ea5e9;"></i>
-      </div>
-      <span class="dock-btn-label">Indicadores</span>
-    </button>
-
-    <div class="dock-separator"></div>
-
-    <!-- Análise Orçamentária -->
-    <button class="dock-btn" data-action="orcamento"
-      onclick="mudarAba('dashboard');scrollToSectionByText('Análise Orçamentária')"
-      title="Análise Orçamentária"
-      aria-label="Análise Orçamentária">
-      <div class="dock-btn-icon">
-        <i data-lucide="landmark" style="width:18px;height:18px;color:#f59e0b;"></i>
-      </div>
-      <span class="dock-btn-label">Orçamento</span>
-    </button>
-
-    <div class="dock-separator"></div>
-
-    <!-- Consultar Itens -->
+    <!-- 1. Consultar Itens -->
     <button class="dock-btn" data-action="consultar"
       onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens')"
       title="Consultar Itens do PCA"
@@ -8617,7 +8618,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
     <div class="dock-separator"></div>
 
-    <!-- Gerar PCA -->
+    <!-- 2. Gerar PCA -->
     <button class="dock-btn" data-action="gerar-pca"
       onclick="exportarPDF()"
       title="Gerar PDF do PCA"
@@ -8630,7 +8631,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
     <div class="dock-separator"></div>
 
-    <!-- Consulta de Declaração -->
+    <!-- 3. Consulta de Declaração -->
     <button class="dock-btn" data-action="declaracao"
       onclick="abrirConsultaDeclaracao()"
       title="Consultar Declaração"
@@ -8643,7 +8644,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
     <div class="dock-separator"></div>
 
-    <!-- Documentos Importantes -->
+    <!-- 4. Documentos Importantes -->
     <button class="dock-btn" data-action="documentos"
       onclick="mudarAba('documentos')"
       title="Documentos Importantes"
@@ -8652,6 +8653,32 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
         <i data-lucide="folder-open" style="width:18px;height:18px;color:#7c3aed;"></i>
       </div>
       <span class="dock-btn-label">Documentos</span>
+    </button>
+
+    <div class="dock-separator"></div>
+
+    <!-- 5. Análise Orçamentária -->
+    <button class="dock-btn" data-action="orcamento"
+      onclick="mudarAba('dashboard');scrollToSectionByText('Análise Orçamentária')"
+      title="Análise Orçamentária"
+      aria-label="Análise Orçamentária">
+      <div class="dock-btn-icon">
+        <i data-lucide="landmark" style="width:18px;height:18px;color:#f59e0b;"></i>
+      </div>
+      <span class="dock-btn-label">Orçamento</span>
+    </button>
+
+    <div class="dock-separator"></div>
+
+    <!-- 6. Indicadores Gerais -->
+    <button class="dock-btn" data-action="indicadores"
+      onclick="mudarAba('dashboard');scrollToSection('kpiGrid')"
+      title="Indicadores Gerais"
+      aria-label="Indicadores Gerais">
+      <div class="dock-btn-icon">
+        <i data-lucide="bar-chart-2" style="width:18px;height:18px;color:#0ea5e9;"></i>
+      </div>
+      <span class="dock-btn-label">Indicadores</span>
     </button>
 
   </div><!-- /dock-scroll-inner -->
@@ -20301,34 +20328,62 @@ const _pdfCfgOnOpen = (id) => {
     observer.observe(_modalCfg, { attributes: true, attributeFilter: ['class','style'] })
   }
 
-  // ── Esconde/exibe dock ao rolar (scroll-aware) ────────
+  // ── Esconde/exibe dock ao rolar (scroll-aware com threshold) ──
   ;(function _bindDockScroll() {
-    var dock = null
-    var lastY = 0
-    var ticking = false
+    var dock       = null
+    var lastY      = 0      // última posição Y registrada
+    var upDelta    = 0      // acúmulo de scroll para cima desde que ficou oculto
+    var hidden     = false  // estado atual: dock oculto?
+    var ticking    = false
     var CFG_OPEN_CLASS = 'cfg-open'
-    var HIDE_CLASS = 'dock-scroll-hidden'
+    var HIDE_CLASS     = 'dock-scroll-hidden'
+
+    // Distância mínima de scroll para cima necessária para reexibir o dock.
+    // Evita que micro-movimentos (tremor de mão) reexibam o menu.
+    var SHOW_THRESHOLD = 80  // px
+
+    // Distância mínima descendo antes de ocultar (evita ocultar logo ao tocar)
+    var HIDE_AFTER = 80      // px da posição de topo
 
     function onScroll() {
       if (ticking) return
       ticking = true
       requestAnimationFrame(function() {
         ticking = false
+
         if (!dock) dock = document.getElementById('floatingDock')
         if (!dock) return
 
-        // Não interfere se modal de configs estiver aberto
+        // Não interfere se o modal de configurações estiver aberto
         var cfg = document.getElementById('modalConfiguracoes')
         if (cfg && (cfg.classList.contains(CFG_OPEN_CLASS) || cfg.style.display === 'flex')) return
 
         var y = window.scrollY || document.documentElement.scrollTop
-        if (y > lastY && y > 80) {
-          // Rolando para baixo — esconde e mantém oculto
-          dock.classList.add(HIDE_CLASS)
-        } else if (y < lastY) {
-          // Rolando para cima — mostra
-          dock.classList.remove(HIDE_CLASS)
+        var delta = y - lastY
+
+        if (delta > 0) {
+          // ── Rolando para BAIXO ──────────────────────────────
+          // Oculta quando passou do topo + margem de segurança
+          if (y > HIDE_AFTER && !hidden) {
+            dock.classList.add(HIDE_CLASS)
+            hidden = true
+          }
+          // Zera o acumulador de scroll para cima ao rolar para baixo
+          upDelta = 0
+
+        } else if (delta < 0) {
+          // ── Rolando para CIMA ───────────────────────────────
+          // Acumula a distância percorrida para cima
+          upDelta += Math.abs(delta)
+
+          // Só reexibe quando o usuário rolou para cima o suficiente
+          if (hidden && upDelta >= SHOW_THRESHOLD) {
+            dock.classList.remove(HIDE_CLASS)
+            hidden = false
+            upDelta = 0
+          }
         }
+
         lastY = y
       })
     }
