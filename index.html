@@ -1108,6 +1108,9 @@ BOTÃO PNG
 
 /* ── Histórico — abas de tabela ─────────────────────────── */
 .hist-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 7px 16px;
   border: 1.5px solid var(--border);
   border-bottom: none;
@@ -1117,10 +1120,23 @@ BOTÃO PNG
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
   transition: all .15s;
 }
 .hist-tab:hover  { background: var(--surface); color: var(--text); }
 .hist-tab-active { background: var(--surface); color: #6366f1; border-color: #6366f1; border-bottom-color: var(--surface); }
+/* Botões de paginação do histórico */
+.hist-pag-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; height: 30px; padding: 0 8px;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  background: var(--surface); color: var(--text);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  font-family: inherit; transition: border-color .15s, color .15s, background .15s;
+}
+.hist-pag-btn:hover:not(:disabled):not(.hist-pag-ativo) { border-color: #6366f1; color: #6366f1; }
+.hist-pag-ativo  { background: #6366f1; border-color: #6366f1; color: #fff; font-weight: 700; cursor: default; }
+.hist-pag-btn:disabled { opacity: .35; cursor: default; }
 #histTabela th { background:#f8f9ff;color:var(--text);font-weight:700;font-size:11px;padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap; }
 #histTabela td { padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);font-size:12px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 #histTabela tr:last-child td { border-bottom:none; }
@@ -2726,6 +2742,912 @@ PAINEL DE CONFIGURAÇÕES
     line-height: 1.2;
   }
 
+/* =====================================================
+   RESPONSIVIDADE — MODAL DE CONFIGURAÇÕES
+   Breakpoints:
+     Desktop  ≥ 1200px  → sidebar fixa, content pleno
+     Tablet   768–1199px → sidebar colapsável
+     Mobile   < 768px   → hamburger, 1 coluna
+===================================================== */
+
+/* ── Wrapper principal do modal ── */
+#modalConfiguracoes {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--bg);
+  flex-direction: column;
+  overflow: hidden;
+}
+#modalConfiguracoes.cfg-open {
+  display: flex !important;
+}
+
+/* ── Top bar responsiva ── */
+#cfgTopBar {
+  height: 60px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  gap: 8px;
+  overflow: hidden;
+}
+
+#cfgTopBarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#cfgTopBarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+#cfgTopBarSelectors {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+/* ── Body (sidebar + content) ── */
+#cfgBody {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Sidebar de configurações ── */
+#cfgSidebar {
+  width: 236px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s ease;
+}
+
+/* ── Content area ── */
+#cfgContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 36px 44px;
+  min-width: 0;
+}
+
+/* ── Botão hambúrguer para sidebar de configurações ── */
+#cfgSidebarToggle {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer;
+  color: var(--text-muted);
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, border-color .15s;
+  flex-shrink: 0;
+}
+#cfgSidebarToggle:hover {
+  background: var(--surface3);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* ── Overlay da sidebar mobile ── */
+#cfgSidebarOverlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+#cfgSidebarOverlay.open {
+  opacity: 1;
+}
+
+/* ── Grid de cards responsivo dentro das seções ── */
+.cfg-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 12px;
+}
+
+/* ── Grid principal de configurações (2 colunas em desktop) ── */
+.cfg-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.cfg-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ── Campos de formulário responsivos ── */
+.cfg-form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cfg-form-row > .cfg-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ── Ocultação inteligente no top bar ── */
+.cfg-topbar-separator {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Chip do usuário responsivo ── */
+#cfgUsuarioChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─────────────────────────────────────────
+   TABLET  768px – 1199px
+───────────────────────────────────────── */
+@media (max-width: 1199px) {
+  #cfgSidebar {
+    width: 210px;
+  }
+  #cfgContent {
+    padding: 28px 32px;
+  }
+  .cfg-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  #cfgTopBarSelectors {
+    gap: 8px;
+  }
+  /* Esconde o status do PCA no tablet para economizar espaço */
+  #cfgGlobalPcaStatus {
+    display: none !important;
+  }
+}
+
+@media (max-width: 960px) {
+  #cfgSidebar {
+    width: 190px;
+  }
+  #cfgContent {
+    padding: 24px 20px;
+  }
+  /* Oculta o texto "Configurações do Sistema" no tablet menor */
+  #cfgTopBarTitle {
+    display: none;
+  }
+  .cfg-topbar-separator:not(:first-of-type) {
+    display: none;
+  }
+  /* Selectors ficam mais compactos */
+  #cfgGlobalPcaSelector,
+  #cfgGlobalReptSelector {
+    min-width: 90px !important;
+    font-size: 12px !important;
+  }
+  .cfg-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE  < 768px
+───────────────────────────────────────── */
+@media (max-width: 767px) {
+
+  /* Top bar mais compacta */
+  #cfgTopBar {
+    height: 56px;
+    padding: 0 14px;
+    gap: 6px;
+  }
+
+  /* Mostra o botão hambúrguer da sidebar de configurações */
+  #cfgSidebarToggle {
+    display: flex;
+  }
+
+  /* Sidebar vira drawer deslizante */
+  #cfgSidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    z-index: 20;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+  }
+  #cfgSidebar.cfg-sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* Overlay aparece quando sidebar está aberta */
+  #cfgSidebarOverlay {
+    display: block;
+    pointer-events: none;
+  }
+  #cfgSidebarOverlay.open {
+    pointer-events: all;
+  }
+
+  /* Content ocupa 100% da largura */
+  #cfgContent {
+    padding: 20px 16px;
+    width: 100%;
+  }
+
+  /* Oculta título e separadores no mobile */
+  #cfgTopBarTitle { display: none; }
+  .cfg-topbar-separator { display: none; }
+
+  /* Selectors ficam menores ou ocultos */
+  #cfgGlobalPcaBanner,
+  #cfgGlobalReptBanner {
+    display: none !important;
+  }
+
+  /* Chip do usuário: mostra só o avatar */
+  #cfgUsuarioChip .cfg-usuario-info {
+    display: none;
+  }
+
+  /* Botão voltar: texto curto */
+  #cfgBtnVoltar span {
+    display: none;
+  }
+
+  /* Grid de info: 1 coluna */
+  .cfg-info-grid,
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Campos de formulário: largura total */
+  .cfg-field,
+  .cfg-form-row > .cfg-field {
+    min-width: 100%;
+  }
+
+  /* Inputs e botões maiores para toque */
+  .cfg-input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .cfg-btn-save {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 14px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Grids de 2+ colunas viram 1 coluna */
+  .cfg-grid-2,
+  .cfg-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Seção de usuários / repartições — tabelas com scroll */
+  #cfgSec-usuarios .table-wrapper,
+  #cfgSec-reparticoes .table-wrapper,
+  #cfgSec-historico .table-wrapper,
+  #cfgSec-aprovacao .table-wrapper,
+  #cfgSec-adicionar-itens .table-wrapper,
+  #cfgSec-editar-itens .table-wrapper,
+  #cfgSec-excluir-itens .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Controls de filtro: 1 coluna */
+  .controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .controls > * {
+    width: 100%;
+  }
+  .controls input,
+  .controls select {
+    width: 100%;
+  }
+
+  /* Declaracao PCA — cards compactos */
+  #cdeclModal .modal-box {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Seção h2 títulos */
+  #cfgContent h2 {
+    font-size: 18px !important;
+  }
+
+  /* Men-editor: 1 coluna */
+  .men-editor {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tab bar horizontal com scroll */
+  .tab-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 0;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    white-space: nowrap;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  /* PDF toggle rows: texto menor */
+  .pdf-toggle-row {
+    padding: 11px 12px;
+    gap: 10px;
+  }
+
+  /* Botões inline do top bar */
+  #cfgTopBarRight button span {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE MUITO PEQUENO  < 380px
+───────────────────────────────────────── */
+@media (max-width: 380px) {
+  #cfgTopBar {
+    padding: 0 10px;
+  }
+  #cfgContent {
+    padding: 16px 12px;
+  }
+  .cfg-input {
+    font-size: 16px; /* previne zoom no iOS */
+  }
+}
+
+
+/* =====================================================
+   FLOATING DOCK — iOS-style glass menu
+===================================================== */
+
+/* ── Dock container ─────────────────────────────── */
+#floatingDock {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 26px;
+  box-shadow:
+    0 8px 32px rgba(15, 22, 40, 0.12),
+    0 2px 8px rgba(15, 22, 40, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+[data-theme="dark"] #floatingDock {
+  background: rgba(22, 27, 39, 0.78);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.40),
+    0 2px 8px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Hide dock when configs modal is open */
+#floatingDock.dock-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(16px);
+}
+
+/* ── Separator ──────────────────────────────────── */
+.dock-separator {
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* ── Individual dock button ─────────────────────── */
+.dock-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text-muted);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow 0.25s ease;
+  min-width: 62px;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dock-btn:hover {
+  background: rgba(67, 97, 238, 0.09);
+  color: var(--accent);
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 4px 14px rgba(67, 97, 238, 0.14);
+}
+
+.dock-btn:active {
+  transform: translateY(0) scale(0.95);
+  box-shadow: none;
+}
+
+/* ── Icon wrapper ───────────────────────────────── */
+.dock-btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dock-btn:hover .dock-btn-icon {
+  box-shadow: 0 2px 8px rgba(67, 97, 238, 0.18);
+}
+
+/* Per-button accent colors */
+.dock-btn[data-action="consultar"] .dock-btn-icon  { background: rgba(67,97,238,0.10);  }
+.dock-btn[data-action="gerar-pca"] .dock-btn-icon  { background: rgba(220,38,38,0.09);  }
+.dock-btn[data-action="declaracao"] .dock-btn-icon { background: rgba(16,185,129,0.10); }
+.dock-btn[data-action="documentos"] .dock-btn-icon { background: rgba(124,58,237,0.10); }
+
+.dock-btn[data-action="consultar"]:hover  .dock-btn-icon { background: rgba(67,97,238,0.16);  }
+.dock-btn[data-action="gerar-pca"]:hover  .dock-btn-icon { background: rgba(220,38,38,0.14);  }
+.dock-btn[data-action="declaracao"]:hover .dock-btn-icon { background: rgba(16,185,129,0.16); }
+.dock-btn[data-action="documentos"]:hover .dock-btn-icon { background: rgba(124,58,237,0.16); }
+
+.dock-btn[data-action="consultar"]  { color: var(--text-muted); }
+.dock-btn[data-action="gerar-pca"]  { color: var(--text-muted); }
+.dock-btn[data-action="declaracao"] { color: var(--text-muted); }
+.dock-btn[data-action="documentos"] { color: var(--text-muted); }
+
+.dock-btn[data-action="consultar"]:hover  { color: #4361ee;  background: rgba(67,97,238,0.07);  }
+.dock-btn[data-action="gerar-pca"]:hover  { color: #dc2626;  background: rgba(220,38,38,0.06);  }
+.dock-btn[data-action="declaracao"]:hover { color: #059669;  background: rgba(16,185,129,0.07); }
+.dock-btn[data-action="documentos"]:hover { color: #7c3aed;  background: rgba(124,58,237,0.07); }
+
+/* ── Label under icon ───────────────────────────── */
+.dock-btn-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+/* ── Tablet ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  #floatingDock {
+    bottom: 20px;
+    padding: 8px 12px;
+    gap: 4px;
+  }
+  .dock-btn {
+    padding: 8px 10px;
+    min-width: 52px;
+    border-radius: 14px;
+  }
+  .dock-btn-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+  .dock-btn-label { font-size: 9.5px; }
+  .dock-separator { margin: 0 2px; }
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  #floatingDock {
+    bottom: 16px;
+    padding: 8px 10px;
+    gap: 2px;
+    border-radius: 22px;
+  }
+  .dock-btn {
+    padding: 8px 8px;
+    min-width: 46px;
+    border-radius: 12px;
+    gap: 3px;
+  }
+  .dock-btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+  .dock-btn-label { font-size: 9px; }
+  .dock-separator { display: none; }
+}
+
+/* ── Extra small ─────────────────────────────────── */
+@media (max-width: 380px) {
+  #floatingDock { padding: 7px 8px; }
+  .dock-btn { min-width: 40px; padding: 7px 6px; }
+  .dock-btn-icon { width: 28px; height: 28px; }
+  .dock-btn-label { display: none; }
+}
+
+/* =====================================================
+   MODAL DE CONSULTA RÁPIDA DE DECLARAÇÃO
+   (acessível pela tela inicial, sem precisar de login)
+===================================================== */
+#modalConsultaDecl {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  background: rgba(10, 14, 30, 0.52);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+#modalConsultaDecl.ativo { display: flex; }
+
+.mcd-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18), 0 6px 16px rgba(0,0,0,0.08);
+  animation: mcdIn 0.28s cubic-bezier(.16,1,.3,1);
+  scrollbar-width: thin;
+}
+@keyframes mcdIn {
+  from { opacity:0; transform:translateY(20px) scale(.97); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+.mcd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
+  border-radius: 20px 20px 0 0;
+}
+.mcd-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mcd-header-icon {
+  width: 38px;
+  height: 38px;
+  background: rgba(16,185,129,.12);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #059669;
+}
+.mcd-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+.mcd-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+.mcd-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--surface2);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.mcd-close:hover { background: var(--surface3); color: var(--text); }
+
+.mcd-body { padding: 20px 24px 24px; }
+
+/* Search row */
+.mcd-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.mcd-search-wrap {
+  position: relative;
+  flex: 1;
+}
+.mcd-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+}
+.mcd-search-input {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  border: 1.5px solid var(--input-bord);
+  border-radius: 10px;
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 13px;
+  font-family: 'Inter', system-ui, sans-serif;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .18s, box-shadow .18s;
+}
+.mcd-search-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.11);
+}
+.mcd-search-input::placeholder { color: var(--text-light); }
+
+.mcd-btn-buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(5,150,105,.25);
+}
+.mcd-btn-buscar:hover { opacity: .88; transform: translateY(-1px); }
+.mcd-btn-buscar:active { transform: scale(.97); }
+.mcd-btn-buscar:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* Status / result area */
+.mcd-status {
+  display: none;
+  font-size: 12.5px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1px solid;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.mcd-status.info  { background: rgba(14,165,233,.07); border-color: rgba(14,165,233,.2); color: #0369a1; }
+.mcd-status.ok    { background: rgba(16,185,129,.07); border-color: rgba(16,185,129,.2); color: #047857; }
+.mcd-status.erro  { background: rgba(220,38,38,.07);  border-color: rgba(220,38,38,.2);  color: #dc2626; }
+
+/* Result card */
+.mcd-result {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+.mcd-result.visivel { display: flex; }
+
+.mcd-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 480px) { .mcd-result-grid { grid-template-columns: 1fr; } }
+
+.mcd-info-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.mcd-info-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 5px;
+}
+.mcd-info-card-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.mcd-autent-box {
+  background: linear-gradient(135deg, rgba(5,150,105,.09), rgba(5,150,105,.03));
+  border: 1.5px solid rgba(5,150,105,.22);
+  border-radius: 11px;
+  padding: 14px 16px;
+}
+.mcd-autent-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #047857;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mcd-autent-code {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #047857;
+  word-break: break-all;
+  letter-spacing: .04em;
+}
+
+.mcd-itens-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 8px;
+}
+.mcd-itens-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.mcd-itens-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.mcd-itens-table th {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--th-color);
+  background: var(--th-bg);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.mcd-itens-table td {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+.mcd-itens-table tr:hover td { background: var(--row-hover); }
+
+/* Actions bar */
+.mcd-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+  flex-wrap: wrap;
+}
+.mcd-btn-imprimir {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #4361ee, #7c3aed);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .18s, transform .15s;
+  box-shadow: 0 3px 12px rgba(67,97,238,.25);
+}
+.mcd-btn-imprimir:hover { opacity:.88; transform:translateY(-1px); }
+.mcd-btn-imprimir:active { transform:scale(.97); }
+.mcd-btn-fechar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.mcd-btn-fechar:hover { border-color: var(--accent); color: var(--accent); }
+
 </style>
 </head>
 <body>
@@ -2860,6 +3782,9 @@ SEÇÃO 3 — ESTRUTURA HTML
       <span class="menu-icon"><i data-lucide="folder-open" style="width:17px;height:17px;"></i></span> Documentos Importantes
       <span class="menu-badge">Drive</span>
     </button>
+    <button class="side-menu-item" onclick="fecharMenu();abrirConsultaDeclaracao()">
+      <span class="menu-icon"><i data-lucide="file-badge" style="width:17px;height:17px;"></i></span> Consulta de Declaração
+    </button>
 
     <div class="side-menu-divider"></div>
     <div class="side-menu-section">Exportação</div>
@@ -2907,18 +3832,22 @@ MODAL DE CONFIGURAÇÕES
 <div id="modalConfiguracoes" style="display:none;position:fixed;inset:0;z-index:1100;background:var(--bg);flex-direction:column;overflow:hidden;">
 
   <!-- Top bar -->
-  <div style="height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:var(--shadow-sm);flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:12px;">
+  <div id="cfgTopBar" style="height:60px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:var(--shadow-sm);flex-shrink:0;">
+    <div id="cfgTopBarLeft" style="display:flex;align-items:center;gap:12px;">
+      <!-- Botão hambúrguer para sidebar de configurações (mobile) -->
+      <button id="cfgSidebarToggle" onclick="cfgToggleSidebar()" title="Menu de configurações">
+        <i data-lucide="menu" style="width:16px;height:16px;"></i>
+      </button>
       <button onclick="fecharConfiguracoes()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:all .15s;" title="Voltar">
         <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
       </button>
-      <div style="display:flex;align-items:center;gap:14px;">
+      <div id="cfgTopBarSelectors" style="display:flex;align-items:center;gap:14px;">
         <div style="width:34px;height:34px;background:var(--accent-soft);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <i data-lucide="settings" style="width:17px;height:17px;color:var(--accent);"></i>
         </div>
-        <span style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;">Configurações do Sistema</span>
+        <span id="cfgTopBarTitle" style="font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;">Configurações do Sistema</span>
         <!-- Separador -->
-        <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;"></div>
+        <div class="cfg-topbar-separator" style="width:1px;height:22px;background:var(--border);flex-shrink:0;"></div>
         <!-- Seletor global de PCA -->
         <div id="cfgGlobalPcaBanner" style="display:flex;align-items:center;gap:8px;">
           <i data-lucide="layers" style="width:15px;height:15px;color:var(--accent);flex-shrink:0;"></i>
@@ -2933,7 +3862,7 @@ MODAL DE CONFIGURAÇÕES
           <span id="cfgGlobalPcaStatus" style="font-size:11px;color:var(--text-muted);white-space:nowrap;display:flex;align-items:center;gap:4px;"></span>
         </div>
         <!-- Separador -->
-        <div style="width:1px;height:22px;background:var(--border);flex-shrink:0;"></div>
+        <div class="cfg-topbar-separator" style="width:1px;height:22px;background:var(--border);flex-shrink:0;"></div>
         <!-- Seletor global de Repartição -->
         <div id="cfgGlobalReptBanner" style="display:flex;align-items:center;gap:8px;">
           <i data-lucide="building-2" style="width:15px;height:15px;color:#7c3aed;flex-shrink:0;"></i>
@@ -2949,7 +3878,7 @@ MODAL DE CONFIGURAÇÕES
         </div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div id="cfgTopBarRight" style="display:flex;align-items:center;gap:10px;">
       <!-- Chip do usuário logado -->
       <div id="cfgUsuarioChip" title="Usuário autenticado">
         <div class="cfg-usuario-avatar" id="cfgUsuarioAvatar">?</div>
@@ -2959,14 +3888,17 @@ MODAL DE CONFIGURAÇÕES
         </div>
       </div>
       <!-- Voltar -->
-      <button onclick="fecharConfiguracoes()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i>Dashboard
+      <button id="cfgBtnVoltar" onclick="fecharConfiguracoes()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        <i data-lucide="arrow-left" style="width:14px;height:14px;"></i><span>Dashboard</span>
       </button>
     </div>
   </div>
 
   <!-- Body: sidebar + content -->
-  <div style="display:flex;flex:1;overflow:hidden;">
+  <div id="cfgBody" style="display:flex;flex:1;overflow:hidden;position:relative;">
+
+    <!-- Overlay para fechar sidebar no mobile -->
+    <div id="cfgSidebarOverlay" onclick="cfgToggleSidebar()"></div>
 
     <!-- Sidebar -->
     <div id="cfgSidebar" style="width:236px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:3px;overflow-y:auto;">
@@ -2990,6 +3922,11 @@ MODAL DE CONFIGURAÇÕES
       <button class="cfg-nav-item" id="cfgNav-aparencia"   onclick="cfgMostrarSecao('aparencia')"><i data-lucide="palette" style="width:15px;height:15px;flex-shrink:0;"></i><span>Aparência</span></button>
       <button class="cfg-nav-item" id="cfgNav-sobre"       onclick="cfgMostrarSecao('sobre')"><i data-lucide="info" style="width:15px;height:15px;flex-shrink:0;"></i><span>Sobre</span></button>
 
+      <!-- ── Documentos ─────────────────────────────────────── -->
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:16px 12px 8px;">Documentos</div>
+      <button class="cfg-nav-item" id="cfgNav-declaracao-pca" onclick="cfgMostrarSecao('declaracao-pca')" style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.05));color:#059669;font-weight:700;"><i data-lucide="file-badge" style="width:15px;height:15px;flex-shrink:0;"></i><span>Declaracao PCA</span></button>
+      <button class="cfg-nav-item" id="cfgNav-consulta-declaracao" onclick="cfgMostrarSecao('consulta-declaracao')" style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.02));color:#047857;font-weight:700;"><i data-lucide="search" style="width:15px;height:15px;flex-shrink:0;"></i><span>Consulta Declaracao</span></button>
+
       <!-- ── Edições ────────────────────────────────────────── -->
       <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:16px 12px 8px;">Edições</div>
       <button class="cfg-nav-item" id="cfgNav-historico"       onclick="cfgMostrarSecao('historico');"       style="background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(99,102,241,.04));color:#6366f1;font-weight:700;"><i data-lucide="activity" style="width:15px;height:15px;flex-shrink:0;"></i><span>Histórico</span></button>
@@ -3001,7 +3938,7 @@ MODAL DE CONFIGURAÇÕES
     </div>
 
     <!-- Main content area -->
-    <div style="flex:1;overflow-y:auto;padding:36px 44px;">
+    <div id="cfgContent" style="flex:1;overflow-y:auto;padding:36px 44px;">
 
       <!-- Google Sheets -->
       <div id="cfgSec-sheets" class="cfg-section">
@@ -3026,7 +3963,7 @@ MODAL DE CONFIGURAÇÕES
             <span style="font-size:16px;">📋</span>
             <span style="font-size:13px;font-weight:700;color:var(--text);">Configuração ativa — lida da <code style="background:rgba(67,97,238,.1);color:#4361ee;border-radius:4px;padding:1px 6px;font-size:12px;">PCA_CONFIG</code></span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;">
+          <div class="cfg-info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;">
 
             <!-- Col A -->
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
@@ -4082,6 +5019,27 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
               <li>Cole a URL em <strong>Google Sheets → URL do Web App</strong></li>
             </ol>
           </div>
+          <!-- Pasta Declarações -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <i data-lucide="folder-open" style="width:14px;height:14px;color:#059669;flex-shrink:0;"></i>
+              <div style="font-size:13px;font-weight:700;color:var(--text);">Pasta Declaracoes</div>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.6;">
+              Link da pasta do Google Drive onde os PDFs das declaracoes serao armazenados.
+              Vinculado ao PCA selecionado no topo.
+            </div>
+            <input type="text" id="declPastaLinkInput" placeholder="https://drive.google.com/drive/folders/ID_DA_PASTA"
+              style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid var(--input-bord);background:var(--input-bg);color:var(--text);font-size:12px;font-family:monospace;outline:none;transition:border-color .15s;margin-bottom:10px;"
+              onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='var(--input-bord)'">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <button onclick="declSalvarPasta()" class="cfg-btn-save" style="background:linear-gradient(135deg,#059669,#047857);padding:8px 20px;font-size:12px;display:inline-flex;align-items:center;gap:6px;">
+                <i data-lucide="save" style="width:13px;height:13px;"></i> Salvar Pasta
+              </button>
+              <div id="declPastaStatus" style="font-size:12px;color:var(--text-muted);"></div>
+            </div>
+          </div>
+
           <div id="cfgStatusMsg3" style="font-size:12px;color:var(--text-muted);padding:10px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--border);min-height:20px;"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <button onclick="bootstrapSistema().then(ok=>{ _preencherCamposCfg(); document.getElementById('cfgFileIdDisplay').textContent=CONFIG_SHEET_ID||'—'; mostrarToast(ok?'Config recarregada!':'Verifique conexão','warn') })" class="cfg-btn-save">⬇️ Reler PCA_CONFIG</button>
@@ -4089,6 +5047,223 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
           </div>
         </div>
       </div>
+
+      <!-- CONSULTA DECLARAÇÃO -->
+      <div id="cfgSec-consulta-declaracao" class="cfg-section" style="display:none;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 5px;">Consulta de Declaracoes</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin:0;">Pesquise, visualize e baixe declaracoes ja geradas. Os dados sao lidos da aba DECLARACOES FEITAS da PCA_CONFIG.</p>
+          </div>
+          <button onclick="cdeclCarregar()" id="cdeclBtnAtualizar"
+            style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border:1.5px solid #047857;border-radius:9px;background:linear-gradient(135deg,#047857,#065f46);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">
+            <i data-lucide="refresh-cw" style="width:14px;height:14px;flex-shrink:0;"></i>Atualizar
+          </button>
+        </div>
+        <div id="cdeclStatus" style="display:none;font-size:13px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;"></div>
+
+        <!-- Barra de busca -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+          <div style="position:relative;flex:1;min-width:200px;">
+            <i data-lucide="search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text-muted);pointer-events:none;"></i>
+            <input id="cdeclBusca" type="text" placeholder="Pesquisar por ID, usuario, reparticao, sequencial..."
+              oninput="cdeclFiltrar()"
+              style="width:100%;padding:10px 14px 10px 32px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;outline:none;box-sizing:border-box;font-family:inherit;"
+              onfocus="this.style.borderColor='#047857'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+          <select id="cdeclFiltroAno" onchange="cdeclFiltrar()"
+            style="padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;min-width:120px;">
+            <option value="">Todos os anos</option>
+          </select>
+          <select id="cdeclFiltroRept" onchange="cdeclFiltrar()"
+            style="padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;min-width:160px;">
+            <option value="">Todas as reparticoes</option>
+          </select>
+          <button onclick="cdeclLimparFiltros()"
+            style="padding:10px 14px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;"
+            onmouseover="this.style.borderColor='#047857';this.style.color='#047857'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+            <i data-lucide="x-circle" style="width:13px;height:13px;"></i> Limpar
+          </button>
+        </div>
+
+        <!-- Tabela de declarações -->
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--th-bg);">
+                <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">ID / Autenticidade</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Data / Hora</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">PCA / Ano</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Reparticao</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Usuario</th>
+                <th style="padding:11px 10px;text-align:center;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Itens</th>
+                <th style="padding:11px 10px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Valor Total</th>
+                <th style="padding:11px 14px;text-align:center;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Acoes</th>
+              </tr>
+            </thead>
+            <tbody id="cdeclTbody">
+              <tr><td colspan="8" style="text-align:center;padding:48px;color:var(--text-muted);">Clique em Atualizar para carregar as declaracoes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginação -->
+        <div id="cdeclPaginacao" style="display:none;justify-content:center;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button onclick="cdeclPaginar(-1)"
+            style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+            onmouseover="this.style.borderColor='#047857'" onmouseout="this.style.borderColor='var(--border)'">
+            <i data-lucide="chevron-left" style="width:13px;height:13px;"></i> Anterior
+          </button>
+          <span id="cdeclPagInfo" style="font-size:12px;color:var(--text-muted);font-weight:600;"></span>
+          <button onclick="cdeclPaginar(1)"
+            style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;"
+            onmouseover="this.style.borderColor='#047857'" onmouseout="this.style.borderColor='var(--border)'">
+            Proxima <i data-lucide="chevron-right" style="width:13px;height:13px;"></i>
+          </button>
+        </div>
+
+        <!-- Modal de detalhes -->
+        <div id="cdeclModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px;">
+          <div style="background:var(--surface);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);border:1px solid var(--border);">
+            <div style="padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Declaracao PCA</div>
+                <h3 id="cdeclModalTitle" style="font-size:18px;font-weight:800;color:var(--text);margin:0;font-family:'DM Sans','Inter',sans-serif;"></h3>
+              </div>
+              <button onclick="cdeclFecharModal()"
+                style="border:none;background:var(--surface2);color:var(--text-muted);border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="x" style="width:15px;height:15px;"></i>
+              </button>
+            </div>
+            <div id="cdeclModalBody" style="padding:24px 28px;"></div>
+            <div style="padding:16px 28px 24px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap;">
+              <button id="cdeclModalBtnBaixar" onclick="cdeclBaixarPdf()"
+                style="padding:9px 18px;border:none;border-radius:9px;background:linear-gradient(135deg,#047857,#065f46);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
+                <i data-lucide="download" style="width:14px;height:14px;"></i> Baixar PDF
+              </button>
+              <button onclick="cdeclFecharModal()"
+                style="padding:9px 18px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;">
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /cfgSec-consulta-declaracao -->
+
+      <!-- DECLARAÇÃO PCA -->
+      <div id="cfgSec-declaracao-pca" class="cfg-section" style="display:none;">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 5px;">Declaracao PCA</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin:0;">Selecione itens do PCA ativo para gerar a declaracao de previsao de contratacao em PDF.</p>
+          </div>
+          <span id="declContador" style="font-size:12px;color:var(--text-muted);background:var(--surface2);padding:5px 12px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;margin-top:4px;"></span>
+        </div>
+
+        <!-- Seletores ocultos sincronizados -->
+        <select id="declPcaSelector" style="display:none;" onchange="declTrocarPca()"></select>
+        <span id="declPcaStatus" style="display:none;"></span>
+
+        <!-- Barra de busca e filtros -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+          <div style="display:flex;gap:8px;align-items:stretch;">
+            <select id="declCampoBusca" onchange="declFiltrar()"
+              style="padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;font-weight:600;min-width:170px;flex-shrink:0;"
+              onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='var(--border)'">
+              <option value="todos">Todos os campos</option>
+              <option value="produto">Nomenclatura</option>
+              <option value="codigo">Codigo</option>
+              <option value="seq">Sequencial</option>
+            </select>
+            <div style="position:relative;flex:1;">
+              <input id="declBusca" type="text" placeholder="Pesquisar item..."
+                oninput="declFiltrar()"
+                style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-size:14px;outline:none;box-sizing:border-box;transition:border-color .2s;"
+                onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='var(--border)'">
+              <button id="declBuscaLimpar" onclick="document.getElementById('declBusca').value='';declFiltrar()"
+                style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:0;">x</button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
+            <select id="declFiltroClassif" onchange="declFiltrar()"
+              style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;width:100%;">
+              <option value="">Classificacao</option>
+            </select>
+            <select id="declFiltroDominio" onchange="declFiltrar()"
+              style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;width:100%;">
+              <option value="">Dominio</option>
+            </select>
+            <button onclick="declLimparFiltros()"
+              style="padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;transition:all .15s;"
+              onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+              <i data-lucide="x-circle" style="width:13px;height:13px;"></i> Limpar
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de selecao ativa -->
+        <div id="declBarraSel" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:linear-gradient(135deg,rgba(5,150,105,.08),rgba(5,150,105,.03));border:1.5px solid rgba(5,150,105,.25);border-radius:12px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:180px;">
+            <div style="width:28px;height:28px;background:rgba(5,150,105,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i data-lucide="check-square" style="width:14px;height:14px;color:#059669;"></i>
+            </div>
+            <span id="declSelContador" style="font-size:13px;font-weight:700;color:#059669;"></span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="declDesmarcarTodos()"
+              style="padding:7px 14px;border:1.5px solid rgba(5,150,105,.3);border-radius:8px;background:none;color:#059669;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;">
+              Limpar selecao
+            </button>
+            <button onclick="declGerarDeclaracao()" id="declBtnGerar"
+              style="padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:opacity .15s;white-space:nowrap;box-shadow:0 2px 10px rgba(5,150,105,.3);">
+              <i data-lucide="file-text" style="width:14px;height:14px;"></i> Gerar Declaracao PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de itens -->
+        <div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--th-bg);">
+                <th style="padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;width:40px;">
+                  <input type="checkbox" id="declCheckAll" onchange="declToggleTodos(this.checked)"
+                    style="width:15px;height:15px;cursor:pointer;accent-color:#059669;">
+                </th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Seq.</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">ID Protocolo</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Local</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Item</th>
+                <th style="padding:11px 10px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Classif.</th>
+                <th style="padding:11px 10px;text-align:center;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Controle</th>
+                <th style="padding:11px 10px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Valor Total</th>
+                <th style="padding:11px 10px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);text-transform:uppercase;letter-spacing:.6px;">Disponivel</th>
+              </tr>
+            </thead>
+            <tbody id="declTbody">
+              <tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text-muted);">Carregando itens...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginacao -->
+        <div id="declPaginacao" style="display:none;justify-content:center;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button onclick="declPaginar(-1)"
+            style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;"
+            onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i data-lucide="chevron-left" style="width:13px;height:13px;"></i> Anterior
+          </button>
+          <span id="declPagInfo" style="font-size:12px;color:var(--text-muted);font-weight:600;"></span>
+          <button onclick="declPaginar(1)"
+            style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;"
+            onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+            Proxima <i data-lucide="chevron-right" style="width:13px;height:13px;"></i>
+          </button>
+        </div>
+
+      </div><!-- /cfgSec-declaracao-pca -->
 
       <!-- ✏️ EDITAR ITENS -->
       <div id="cfgSec-editar-itens" class="cfg-section" style="display:none;">
@@ -5199,53 +6374,71 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
            HISTÓRICO — ADICIONADOS / MODIFICADOS / EXCLUÍDOS
            ══════════════════════════════════════════════════════ -->
       <div id="cfgSec-historico" class="cfg-section" style="display:none;">
+
+        <!-- ── Cabeçalho ───────────────────────────────────── -->
         <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
           <div>
-            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 4px;">Histórico de Operações</h2>
+            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 4px;font-family:'DM Sans','Inter',sans-serif;">Histórico de Operações</h2>
             <p style="font-size:13px;color:var(--text-muted);margin:0;">Registros de itens adicionados, modificados e excluídos. Dados lidos diretamente das abas da planilha do PCA selecionado.</p>
           </div>
-          <button onclick="histCarregar()" style="padding:7px 16px;border:1.5px solid #6366f1;border-radius:8px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">🔄 Atualizar</button>
+          <button onclick="histCarregar()"
+            style="display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border:1.5px solid #6366f1;border-radius:9px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">
+            <i data-lucide="refresh-cw" style="width:14px;height:14px;flex-shrink:0;"></i>Atualizar
+          </button>
         </div>
 
-        <!-- Selector oculto — sincronizado com cfgGlobalPcaSelector -->
+        <!-- Selector oculto -->
         <select id="histPcaSelector" style="display:none;" onchange="histCarregar()"></select>
         <span id="histPcaStatus" style="display:none;"></span>
-
-        <!-- Status -->
         <div id="histStatus" style="display:none;font-size:13px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;"></div>
 
-        <!-- Cards de resumo -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;">
+        <!-- ── Cards de resumo ─────────────────────────────── -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
           <div style="background:linear-gradient(135deg,rgba(16,185,129,.10),rgba(16,185,129,.04));border:1.5px solid rgba(16,185,129,.25);border-radius:12px;padding:18px 20px;">
-            <div style="font-size:11px;font-weight:700;color:#059669;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Adicionados</div>
-            <div id="histCardAdd" style="font-size:32px;font-weight:800;color:#059669;">—</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <i data-lucide="plus-circle" style="width:14px;height:14px;color:#059669;flex-shrink:0;"></i>
+              <span style="font-size:11px;font-weight:700;color:#059669;letter-spacing:.06em;text-transform:uppercase;">Adicionados</span>
+            </div>
+            <div id="histCardAdd" style="font-size:32px;font-weight:800;color:#059669;font-family:'DM Sans','Inter',sans-serif;">—</div>
             <div style="font-size:11px;color:#6b7280;margin-top:4px;">registros em HISTORICO_ADICIONADOS</div>
           </div>
           <div style="background:linear-gradient(135deg,rgba(245,158,11,.10),rgba(245,158,11,.04));border:1.5px solid rgba(245,158,11,.25);border-radius:12px;padding:18px 20px;">
-            <div style="font-size:11px;font-weight:700;color:#d97706;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Modificados</div>
-            <div id="histCardMod" style="font-size:32px;font-weight:800;color:#d97706;">—</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <i data-lucide="pencil" style="width:14px;height:14px;color:#d97706;flex-shrink:0;"></i>
+              <span style="font-size:11px;font-weight:700;color:#d97706;letter-spacing:.06em;text-transform:uppercase;">Modificados</span>
+            </div>
+            <div id="histCardMod" style="font-size:32px;font-weight:800;color:#d97706;font-family:'DM Sans','Inter',sans-serif;">—</div>
             <div style="font-size:11px;color:#6b7280;margin-top:4px;">registros em HISTORICO_MODIFICADOS</div>
           </div>
           <div style="background:linear-gradient(135deg,rgba(239,68,68,.10),rgba(239,68,68,.04));border:1.5px solid rgba(239,68,68,.25);border-radius:12px;padding:18px 20px;">
-            <div style="font-size:11px;font-weight:700;color:#dc2626;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">Excluídos</div>
-            <div id="histCardExcl" style="font-size:32px;font-weight:800;color:#dc2626;">—</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <i data-lucide="trash-2" style="width:14px;height:14px;color:#dc2626;flex-shrink:0;"></i>
+              <span style="font-size:11px;font-weight:700;color:#dc2626;letter-spacing:.06em;text-transform:uppercase;">Excluídos</span>
+            </div>
+            <div id="histCardExcl" style="font-size:32px;font-weight:800;color:#dc2626;font-family:'DM Sans','Inter',sans-serif;">—</div>
             <div style="font-size:11px;color:#6b7280;margin-top:4px;">registros em HISTORICO_EXCLUIDOS</div>
+          </div>
+          <div style="background:linear-gradient(135deg,rgba(4,120,87,.10),rgba(4,120,87,.04));border:1.5px solid rgba(4,120,87,.25);border-radius:12px;padding:18px 20px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
+              <i data-lucide="file-badge" style="width:14px;height:14px;color:#047857;flex-shrink:0;"></i>
+              <span style="font-size:11px;font-weight:700;color:#047857;letter-spacing:.06em;text-transform:uppercase;">Declaracoes</span>
+            </div>
+            <div id="histCardDecl" style="font-size:32px;font-weight:800;color:#047857;font-family:'DM Sans','Inter',sans-serif;">—</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:4px;">registros em DECLARACOES FEITAS</div>
           </div>
         </div>
 
-        <!-- Gráficos -->
+        <!-- ── Gráficos ─────────────────────────────────────── -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;">
-          <!-- Pizza: distribuição -->
           <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:20px;">
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;">Distribuição de Operações</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;font-family:'DM Sans','Inter',sans-serif;">Distribuição de Operações</div>
             <div style="position:relative;height:240px;display:flex;align-items:center;justify-content:center;">
               <canvas id="histChartPizza"></canvas>
               <div id="histChartPizzaEmpty" style="display:none;color:var(--text-muted);font-size:13px;">Sem dados</div>
             </div>
           </div>
-          <!-- Barras: operações por dia (últimos 14 dias) -->
           <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:20px;">
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;">Operações por Dia <span style="font-size:11px;font-weight:400;color:var(--text-muted);">(últimos 14 dias)</span></div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;font-family:'DM Sans','Inter',sans-serif;">Operações por Dia <span style="font-size:11px;font-weight:400;color:var(--text-muted);">(últimos 14 dias)</span></div>
             <div style="position:relative;height:240px;">
               <canvas id="histChartBarra"></canvas>
               <div id="histChartBarraEmpty" style="display:none;color:var(--text-muted);font-size:13px;text-align:center;padding-top:80px;">Sem dados</div>
@@ -5253,54 +6446,101 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
           </div>
         </div>
 
-        <!-- Tabelas de registros recentes -->
-        <div style="display:flex;gap:12px;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:4px;">
-          <button id="histTab-add"  onclick="histMostrarTabela('add')"  class="hist-tab hist-tab-active">➕ Adicionados</button>
-          <button id="histTab-mod"  onclick="histMostrarTabela('mod')"  class="hist-tab">✏️ Modificados</button>
-          <button id="histTab-excl" onclick="histMostrarTabela('excl')" class="hist-tab">🗑️ Excluídos</button>
+        <!-- ── Abas ─────────────────────────────────────────── -->
+        <div style="display:flex;gap:4px;border-bottom:1px solid var(--border);">
+          <button id="histTab-add"  onclick="histMostrarTabela('add')"  class="hist-tab hist-tab-active">
+            <i data-lucide="plus-circle" style="width:13px;height:13px;flex-shrink:0;"></i>Adicionados
+          </button>
+          <button id="histTab-mod"  onclick="histMostrarTabela('mod')"  class="hist-tab">
+            <i data-lucide="pencil" style="width:13px;height:13px;flex-shrink:0;"></i>Modificados
+          </button>
+          <button id="histTab-excl" onclick="histMostrarTabela('excl')" class="hist-tab">
+            <i data-lucide="trash-2" style="width:13px;height:13px;flex-shrink:0;"></i>Excluídos
+          </button>
+          <button id="histTab-decl" onclick="histMostrarTabela('decl')" class="hist-tab">
+            <i data-lucide="file-badge" style="width:13px;height:13px;flex-shrink:0;"></i>Declaracoes
+          </button>
         </div>
 
-        <!-- Filtros -->
-        <div id="histFiltros" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-bottom:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;">
+        <!-- ── Barra de filtros ─────────────────────────────── -->
+        <div id="histFiltros" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin-top:12px;margin-bottom:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;">
+
           <!-- Busca por texto -->
           <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px;">
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Buscar</label>
             <div style="position:relative;">
-              <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:13px;">🔍</span>
+              <i data-lucide="search" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text-muted);pointer-events:none;flex-shrink:0;"></i>
               <input id="histFiltroTexto" type="text" placeholder="Sequencial, produto, campo…"
                 oninput="histAplicarFiltros()"
-                style="width:100%;padding:7px 10px 7px 30px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;">
+                style="width:100%;padding:7px 10px 7px 30px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;box-sizing:border-box;font-family:inherit;">
             </div>
           </div>
+
           <!-- Data início -->
           <div style="display:flex;flex-direction:column;gap:4px;">
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">De</label>
             <input id="histFiltroDataIni" type="date" oninput="histAplicarFiltros()"
-              style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;">
+              style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;">
           </div>
+
           <!-- Data fim -->
           <div style="display:flex;flex-direction:column;gap:4px;">
             <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Até</label>
             <input id="histFiltroDataFim" type="date" oninput="histAplicarFiltros()"
-              style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;">
+              style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;">
           </div>
-          <!-- Botão limpar -->
-          <button onclick="histLimparFiltros()"
-            style="padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;height:36px;"
-            onmouseover="this.style.borderColor='#6366f1';this.style.color='#6366f1'"
-            onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-            ✕ Limpar
-          </button>
-          <!-- Badge de resultados -->
+
+          <!-- Itens por página -->
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Por página</label>
+            <select id="histPerPage" onchange="histAplicarFiltros()"
+              style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;height:36px;min-width:80px;">
+              <option value="7" selected>7</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="0">Todos</option>
+            </select>
+          </div>
+
+          <!-- Ordenação por data -->
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Ordenar</label>
+            <button id="histOrdemBtn" onclick="histToggleOrdem()"
+              style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;height:36px;">
+              <i data-lucide="arrow-down" id="histOrdemIcon" style="width:13px;height:13px;flex-shrink:0;"></i>
+              <span id="histOrdemLabel">Mais recente</span>
+            </button>
+          </div>
+
+          <!-- Limpar filtros -->
+          <div style="display:flex;flex-direction:column;gap:4px;justify-content:flex-end;">
+            <button onclick="histLimparFiltros()"
+              style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text-muted);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;height:36px;font-family:inherit;"
+              onmouseover="this.style.borderColor='#6366f1';this.style.color='#6366f1'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+              <i data-lucide="x" style="width:12px;height:12px;flex-shrink:0;"></i>Limpar
+            </button>
+          </div>
+
+          <!-- Badge de resultados filtrados -->
           <div id="histFiltroBadge" style="display:none;padding:4px 10px;border-radius:20px;background:rgba(99,102,241,.12);color:#6366f1;font-size:12px;font-weight:700;white-space:nowrap;align-self:center;"></div>
         </div>
-        <div id="histTabelaWrap" style="overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;max-height:380px;overflow-y:auto;">
+
+        <!-- ── Tabela ────────────────────────────────────────── -->
+        <div id="histTabelaWrap" style="overflow-x:auto;border:1.5px solid var(--border);border-radius:10px;">
           <table id="histTabela" style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead id="histTabelaHead" style="position:sticky;top:0;z-index:1;"></thead>
             <tbody id="histTabelaBody"></tbody>
           </table>
         </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;" id="histTabelaInfo"></div>
+
+        <!-- ── Rodapé: info + paginação ─────────────────────── -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px;">
+          <div id="histTabelaInfo" style="font-size:11px;color:var(--text-muted);"></div>
+          <div id="histPaginacao" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;"></div>
+        </div>
+
       </div><!-- /cfgSec-historico -->
 
       <!-- ══════════════════════════════════════════════════════
@@ -5780,6 +7020,165 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div><!-- /conteudoDocumentos -->
 
 </div>
+
+<!-- =====================================================
+     FLOATING DOCK — Menu flutuante iOS-style
+===================================================== -->
+<div id="floatingDock" role="navigation" aria-label="Ações rápidas">
+
+  <!-- Consultar Itens -->
+  <button class="dock-btn" data-action="consultar"
+    onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens')"
+    title="Consultar Itens do PCA"
+    aria-label="Consultar Itens">
+    <div class="dock-btn-icon">
+      <i data-lucide="search" style="width:18px;height:18px;color:#4361ee;"></i>
+    </div>
+    <span class="dock-btn-label">Consultar</span>
+  </button>
+
+  <div class="dock-separator"></div>
+
+  <!-- Gerar PCA -->
+  <button class="dock-btn" data-action="gerar-pca"
+    onclick="exportarPDF()"
+    title="Gerar PDF do PCA"
+    aria-label="Gerar PCA">
+    <div class="dock-btn-icon">
+      <i data-lucide="file-text" style="width:18px;height:18px;color:#dc2626;"></i>
+    </div>
+    <span class="dock-btn-label">Gerar PCA</span>
+  </button>
+
+  <div class="dock-separator"></div>
+
+  <!-- Consulta de Declaração -->
+  <button class="dock-btn" data-action="declaracao"
+    onclick="abrirConsultaDeclaracao()"
+    title="Consultar Declaração"
+    aria-label="Consulta de Declaração">
+    <div class="dock-btn-icon">
+      <i data-lucide="file-badge" style="width:18px;height:18px;color:#059669;"></i>
+    </div>
+    <span class="dock-btn-label">Declaração</span>
+  </button>
+
+  <div class="dock-separator"></div>
+
+  <!-- Documentos Importantes -->
+  <button class="dock-btn" data-action="documentos"
+    onclick="mudarAba('documentos')"
+    title="Documentos Importantes"
+    aria-label="Documentos Importantes">
+    <div class="dock-btn-icon">
+      <i data-lucide="folder-open" style="width:18px;height:18px;color:#7c3aed;"></i>
+    </div>
+    <span class="dock-btn-label">Documentos</span>
+  </button>
+
+</div>
+
+<!-- =====================================================
+     MODAL — CONSULTA RÁPIDA DE DECLARAÇÃO
+===================================================== -->
+<div id="modalConsultaDecl" role="dialog" aria-modal="true" aria-labelledby="mcdTitleEl">
+
+  <div class="mcd-card">
+
+    <!-- Header -->
+    <div class="mcd-header">
+      <div class="mcd-header-left">
+        <div class="mcd-header-icon">
+          <i data-lucide="file-badge" style="width:20px;height:20px;"></i>
+        </div>
+        <div>
+          <h2 class="mcd-title" id="mcdTitleEl">Consulta de Declaração</h2>
+          <p class="mcd-subtitle">Pesquise pelo código ou sequencial da declaração</p>
+        </div>
+      </div>
+      <button class="mcd-close" onclick="fecharConsultaDeclaracao()" title="Fechar" aria-label="Fechar">
+        <i data-lucide="x" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="mcd-body">
+
+      <!-- Campo de busca -->
+      <div class="mcd-search-row">
+        <div class="mcd-search-wrap">
+          <span class="mcd-search-icon">
+            <i data-lucide="search" style="width:15px;height:15px;"></i>
+          </span>
+          <input
+            id="mcdBuscaInput"
+            type="text"
+            class="mcd-search-input"
+            placeholder="ID, código de autenticidade, sequencial..."
+            onkeydown="if(event.key==='Enter') buscarDeclaracaoRapida()"
+          >
+        </div>
+        <button class="mcd-btn-buscar" id="mcdBtnBuscar" onclick="buscarDeclaracaoRapida()">
+          <i data-lucide="search" style="width:14px;height:14px;"></i>
+          Buscar
+        </button>
+      </div>
+
+      <!-- Status -->
+      <div id="mcdStatus" class="mcd-status"></div>
+
+      <!-- Resultado -->
+      <div id="mcdResult" class="mcd-result">
+
+        <!-- Grid de informações -->
+        <div class="mcd-result-grid" id="mcdInfoGrid"></div>
+
+        <!-- Código de autenticidade -->
+        <div class="mcd-autent-box" id="mcdAutentBox">
+          <div class="mcd-autent-label">
+            <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+            Código de Autenticidade
+          </div>
+          <div class="mcd-autent-code" id="mcdAutentCode">—</div>
+        </div>
+
+        <!-- Itens -->
+        <div id="mcdItensWrap" style="display:none;">
+          <div class="mcd-itens-title">Itens da Declaração</div>
+          <div class="mcd-itens-table-wrap">
+            <table class="mcd-itens-table">
+              <thead>
+                <tr>
+                  <th>Seq.</th>
+                  <th>ID</th>
+                  <th>Produto / Serviço</th>
+                  <th style="text-align:right;">Qtd.</th>
+                  <th style="text-align:right;">Valor</th>
+                </tr>
+              </thead>
+              <tbody id="mcdItensTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="mcd-actions">
+          <button class="mcd-btn-imprimir" id="mcdBtnImprimir" onclick="imprimirDeclaracaoRapida()">
+            <i data-lucide="printer" style="width:14px;height:14px;"></i>
+            Imprimir Declaração
+          </button>
+          <button class="mcd-btn-fechar" onclick="fecharConsultaDeclaracao()">
+            Fechar
+          </button>
+        </div>
+
+      </div><!-- /mcdResult -->
+
+    </div><!-- /mcd-body -->
+
+  </div><!-- /mcd-card -->
+
+</div><!-- /modalConsultaDecl -->
 
 <!-- MODAL PDF POR LOCAL -->
 <!-- PDF Progress Overlay -->
@@ -6555,9 +7954,10 @@ function aparMostrarTab(id) {
     { id:"sobre",          label:"Sobre",           icon:"info",          cor:"#6b7280" },
     { id:"historico",      label:"Histórico",       icon:"activity",      cor:"#6366f1" },
     { id:"aprovacao",      label:"Aprovação",       icon:"check-square",  cor:"#ea580c" },
-    { id:"adicionar-itens",label:"Adicionar Item",  icon:"plus-circle",   cor:"#059669" },
-    { id:"editar-itens",   label:"Editar Itens",    icon:"edit-3",        cor:"#d97706" },
-    { id:"excluir-itens",  label:"Excluir Itens",   icon:"trash-2",       cor:"#dc2626" },
+    { id:"adicionar-itens",   label:"Adicionar Item",  icon:"plus-circle",   cor:"#059669" },
+    { id:"editar-itens",      label:"Editar Itens",    icon:"edit-3",        cor:"#d97706" },
+    { id:"excluir-itens",     label:"Excluir Itens",   icon:"trash-2",       cor:"#dc2626" },
+    { id:"declaracao-pca",    label:"Declaracao PCA",  icon:"file-badge",    cor:"#059669" },
   ]
 
   /* ── Estado interno ───────────────────────────────────────── */
@@ -7187,6 +8587,7 @@ function aparMostrarTab(id) {
     "adicionar-itens":{ label:"Adicionar Item",  icon:"plus-circle",  cor:"#059669", gradiente:"rgba(16,185,129,.10),rgba(16,185,129,.04)" },
     "editar-itens":   { label:"Editar Itens",    icon:"edit-3",       cor:"#d97706", gradiente:"rgba(245,158,11,.10),rgba(245,158,11,.04)" },
     "excluir-itens":  { label:"Excluir Itens",   icon:"trash-2",      cor:"#dc2626", gradiente:"rgba(239,68,68,.10),rgba(239,68,68,.04)" },
+    "declaracao-pca": { label:"Declaracao PCA",  icon:"file-badge",   cor:"#059669", gradiente:"rgba(16,185,129,.10),rgba(16,185,129,.04)" },
   }
 
   /* Gera o HTML de um botão de nav idêntico ao original */
@@ -7604,6 +9005,34 @@ function scrollToSectionByText(text) {
 /* =====================================================
 CONFIGURAÇÕES DO SISTEMA
 ===================================================== */
+// ── Sidebar de configurações: toggle mobile ──────────────────────────────
+function cfgToggleSidebar() {
+  const sidebar  = document.getElementById('cfgSidebar')
+  const overlay  = document.getElementById('cfgSidebarOverlay')
+  const isOpen   = sidebar && sidebar.classList.contains('cfg-sidebar-open')
+  if (!sidebar) return
+  if (isOpen) {
+    sidebar.classList.remove('cfg-sidebar-open')
+    if (overlay) { overlay.classList.remove('open') }
+  } else {
+    sidebar.classList.add('cfg-sidebar-open')
+    if (overlay) { overlay.classList.add('open') }
+  }
+}
+
+// Ao navegar para uma seção no mobile, fecha a sidebar automaticamente
+const _cfgMostrarSecaoOrigResponsive = typeof cfgMostrarSecao !== 'undefined' ? cfgMostrarSecao : null
+function cfgMostrarSecaoWrapper(id) {
+  if (_cfgMostrarSecaoOrigResponsive) _cfgMostrarSecaoOrigResponsive(id)
+  // Fecha sidebar no mobile após seleção
+  if (window.innerWidth < 768) {
+    const sidebar = document.getElementById('cfgSidebar')
+    const overlay = document.getElementById('cfgSidebarOverlay')
+    if (sidebar) sidebar.classList.remove('cfg-sidebar-open')
+    if (overlay) overlay.classList.remove('open')
+  }
+}
+
 function abrirConfiguracoes() {
   fecharMenu()
   // Verifica sessão: se não autenticado, exibe banner de login e aguarda
@@ -7667,7 +9096,7 @@ function _cfgAplicarRestricoesSessao(sessao) {
       const optHtml = listaFinal.map(p =>
         `<option value="${p.id}" ${p.id === globalSel.value ? "selected" : ""}>${p.nome}</option>`
       ).join("")
-      ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector"]
+      ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector","declPcaSelector"]
         .forEach(id => {
           const s = document.getElementById(id)
           if (s) { s.innerHTML = optHtml; s.value = globalSel.value }
@@ -7752,6 +9181,13 @@ function cfgMostrarSecao(id) {
   // Ao abrir Histórico: re-renderiza tabela respeitando filtro de repartição ativo
   if (id === "historico" && typeof window._histAplicarFiltroReparticao === "function") {
     window._histAplicarFiltroReparticao()
+  }
+  // Fecha sidebar automaticamente no mobile após selecionar seção
+  if (window.innerWidth < 768) {
+    const sidebar = document.getElementById('cfgSidebar')
+    const overlay = document.getElementById('cfgSidebarOverlay')
+    if (sidebar) sidebar.classList.remove('cfg-sidebar-open')
+    if (overlay) overlay.classList.remove('open')
   }
 }
 /* salvarConfiguracoes definida no bloco bootstrap abaixo */
@@ -8036,7 +9472,7 @@ function cfgMostrarSecao(id) {
     const optionsHtml = pcasAtivos.map(p =>
       `<option value="${p.id}" ${p.id === selectedId ? "selected" : ""}>${p.nome}</option>`
     ).join("")
-    ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector"]
+    ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector","declPcaSelector"]
       .forEach(id => {
         const s = document.getElementById(id)
         if (s) { s.innerHTML = optionsHtml; s.value = selectedId }
@@ -8080,7 +9516,7 @@ function cfgMostrarSecao(id) {
       `<option value="${p.id}" ${p.id === selectedId ? "selected" : ""}>${p.nome}</option>`
     ).join("")
     // Sincroniza todos os selects ocultos
-    ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector"]
+    ;["editPcaSelector","addPcaSelector","exclPcaSelector","histPcaSelector","aprovPcaSelector","declPcaSelector"]
       .forEach(id => {
         const s = document.getElementById(id)
         if (s) { s.innerHTML = optionsHtml; s.value = selectedId }
@@ -8090,6 +9526,7 @@ function cfgMostrarSecao(id) {
       window._moduloCtx.editar    = { pca: null, dados: null }
       window._moduloCtx.adicionar = { pca: null, dados: null }
       window._moduloCtx.excluir   = { pca: null, dados: null }
+      window._moduloCtx.declaracao = { pca: null, dados: null }
     }
     _pcaAtualizarStatusBanners()
 
@@ -14127,8 +15564,8 @@ const _pdfCfgOnOpen = (id) => {
    ══════════════════════════════════════════════════════════════ */
 ;(function() {
 
-  /* ── Estado interno ───────────────────────────────────────── */
-  let _dados     = { add: [], mod: [], excl: [] }   // linhas brutas das 3 abas
+  /* ── Estado interno ───────────────────────────────────── */
+  let _dados     = { add: [], mod: [], excl: [], decl: [] }   // linhas brutas das 4 abas
   let _abaAtiva  = 'add'                            // aba de tabela ativa
   let _chartPizza = null                             // instância Chart.js pizza
   let _chartBarra = null                             // instância Chart.js barras
@@ -14202,7 +15639,7 @@ const _pdfCfgOnOpen = (id) => {
     el.textContent       = msg
   }
 
-  /* ── Carrega as 3 abas em paralelo ─────────────────────── */
+  /* ── Carrega as abas em paralelo ─────────────────────── */
   window.histCarregar = async function() {
     const sel = document.getElementById('histPcaSelector')
     if (!sel || !sel.value) { _setStatus('⚠️ Selecione um PCA.', 'info'); return }
@@ -14215,6 +15652,7 @@ const _pdfCfgOnOpen = (id) => {
     _setStatus('⏳ Carregando histórico...', 'info')
 
     try {
+      // Abas do PCA + aba de declarações da PCA_CONFIG (lidas em paralelo)
       const [rowsAdd, rowsMod, rowsExcl] = await Promise.all([
         _lerAba(pca.sheetId, 'HISTORICO_ADICIONADOS'),
         _lerAba(pca.sheetId, 'HISTORICO_MODIFICADOS'),
@@ -14224,6 +15662,17 @@ const _pdfCfgOnOpen = (id) => {
       _dados.add  = _toObjetos(rowsAdd)
       _dados.mod  = _toObjetos(rowsMod)
       _dados.excl = _toObjetos(rowsExcl)
+
+      // Carrega declarações da PCA_CONFIG (filtrado pelo pcaId)
+      _dados.decl = []
+      if (CONFIG_SHEET_ID && GS_API_KEY) {
+        try {
+          const rowsDecl = await _lerAba(CONFIG_SHEET_ID, 'DECLARAÇÕES FEITAS')
+          const todos = _toObjetos(rowsDecl)
+          // Filtra pelo PCA selecionado
+          _dados.decl = todos.filter(r => !r['PCA_ID'] || r['PCA_ID'] === sel.value || r['PCA_ID'] === '')
+        } catch(_) { _dados.decl = [] }
+      }
 
       _setStatus('', '')
       _renderCards()
@@ -14241,6 +15690,7 @@ const _pdfCfgOnOpen = (id) => {
     set('histCardAdd',  _dados.add.length)
     set('histCardMod',  _dados.mod.length)
     set('histCardExcl', _dados.excl.length)
+    set('histCardDecl', _dados.decl.length)
   }
 
   /* ── Gráficos ──────────────────────────────────────────── */
@@ -14361,42 +15811,59 @@ const _pdfCfgOnOpen = (id) => {
     add : ['DATA_ADICAO', 'SEQUENCIAL', 'PRODUTO', 'CÓDIGO', 'QUANTIDADE', 'VALOR UNITÁRIO', 'LOCAL'],
     mod : ['DATA_HORA',   'SEQUENCIAL', 'CAMPO',   'VALOR_ANTES', 'VALOR_DEPOIS', 'OPERADOR'],
     excl: ['DATA_EXCLUSAO','SEQUENCIAL','PRODUTO',  'CÓDIGO', 'QUANTIDADE', 'LOCAL'],
+    decl: ['DATA_CRIACAO','ID','PCA_NOME','REPARTICAO','USUARIO','QTD_ITENS','VALOR_TOTAL','CODIGO_AUTENTICIDADE'],
   }
 
   // Campo de data canônico por aba
-  const _CAMPO_DATA = { add:'DATA_ADICAO', mod:'DATA_HORA', excl:'DATA_EXCLUSAO' }
+  const _CAMPO_DATA = { add:'DATA_ADICAO', mod:'DATA_HORA', excl:'DATA_EXCLUSAO', decl:'DATA_CRIACAO' }
 
+  /* ── Estado interno: paginação e ordem ──────────────────── */
+  let _histPagina = 1
+  let _histDesc   = true   // true = mais recente primeiro
+
+  /* ── Troca de aba: reseta página ─────────────────────────── */
   window.histMostrarTabela = function(aba) {
-    _abaAtiva = aba
-    ;['add','mod','excl'].forEach(a => {
+    _abaAtiva   = aba
+    _histPagina = 1
+    ;['add','mod','excl','decl'].forEach(a => {
       const btn = document.getElementById('histTab-' + a)
       if (btn) btn.classList.toggle('hist-tab-active', a === aba)
     })
     _renderTabela(aba)
   }
 
-  /* ── Lê filtros da UI e devolve registros filtrados ───────── */
+  /* ── Toggle de ordenação por data ────────────────────────── */
+  window.histToggleOrdem = function() {
+    _histDesc   = !_histDesc
+    _histPagina = 1
+    const icon  = document.getElementById('histOrdemIcon')
+    const label = document.getElementById('histOrdemLabel')
+    if (icon) {
+      icon.setAttribute('data-lucide', _histDesc ? 'arrow-down' : 'arrow-up')
+      if (typeof lucide !== 'undefined') lucide.createIcons()
+    }
+    if (label) label.textContent = _histDesc ? 'Mais recente' : 'Mais antigo'
+    _renderTabela(_abaAtiva)
+  }
+
+  /* ── Aplica filtros de texto, data e repartição ───────────── */
   function _filtrar(registros, campoData) {
     const texto      = (document.getElementById('histFiltroTexto')?.value  || '').toLowerCase().trim()
     const dataIni    = document.getElementById('histFiltroDataIni')?.value || ''
     const dataFim    = document.getElementById('histFiltroDataFim')?.value || ''
-    const reptFiltro = window._reptFiltroAtivo || null   // { codigo, nome } ou null = Geral
+    const reptFiltro = window._reptFiltroAtivo || null
 
     return registros.filter(r => {
-      // Filtro de repartição — aplica somente nas abas que têm campo LOCAL
       if (reptFiltro && 'LOCAL' in r) {
         if ((r['LOCAL'] || '').trim().toUpperCase() !== reptFiltro.codigo.trim().toUpperCase()) return false
       }
-      // Filtro de texto — busca em todos os campos visíveis
       if (texto) {
         const haystack = Object.values(r).join(' ').toLowerCase()
         if (!haystack.includes(texto)) return false
       }
-      // Filtro de data
       if (dataIni || dataFim) {
         const d = _parseData(r[campoData])
         if (!d) return false
-        // Normaliza para meia-noite local
         const ts = new Date(d.getFullYear(), d.getMonth(), d.getDate())
         if (dataIni) {
           const [ai, mi, di] = dataIni.split('-').map(Number)
@@ -14411,67 +15878,151 @@ const _pdfCfgOnOpen = (id) => {
     })
   }
 
-  // Expõe re-renderização para o filtro global chamar sem recarregar a aba
   window._histAplicarFiltroReparticao = function() { _renderTabela(_abaAtiva) }
 
-  /* ── Renderiza tabela com filtros aplicados ───────────────── */
+  /* ── Renderiza botões de paginação ───────────────────────── */
+  function _renderPaginacao(total, perPage) {
+    const wrap = document.getElementById('histPaginacao')
+    if (!wrap) return
+    wrap.innerHTML = ''
+    if (perPage === 0 || total === 0 || total <= perPage) return
+
+    const totalPags = Math.ceil(total / perPage)
+    const cur       = _histPagina
+
+    const _btn = (conteudo, pagAlvo, ativo, desabilitado, ehIcone) => {
+      const b  = document.createElement('button')
+      b.className = 'hist-pag-btn' + (ativo ? ' hist-pag-ativo' : '')
+      b.disabled  = desabilitado || ativo
+      if (ehIcone) b.innerHTML = `<i data-lucide="${conteudo}" style="width:13px;height:13px;pointer-events:none;"></i>`
+      else         b.textContent = conteudo
+      if (!desabilitado && !ativo) {
+        b.addEventListener('click', () => { _histPagina = pagAlvo; _renderTabela(_abaAtiva) })
+      }
+      wrap.appendChild(b)
+    }
+
+    // Anterior
+    _btn('chevron-left', cur - 1, false, cur === 1, true)
+
+    // Páginas numeradas com reticências
+    const delta = 1
+    let ultimoExibido = 0
+    for (let p = 1; p <= totalPags; p++) {
+      const visivel = p === 1 || p === totalPags || (p >= cur - delta && p <= cur + delta)
+      if (visivel) {
+        if (ultimoExibido && p - ultimoExibido > 1) {
+          const sp = document.createElement('span')
+          sp.textContent = '…'
+          sp.style.cssText = 'padding:0 4px;color:var(--text-muted);font-size:12px;line-height:30px;user-select:none;'
+          wrap.appendChild(sp)
+        }
+        _btn(p, p, p === cur, false, false)
+        ultimoExibido = p
+      }
+    }
+
+    // Próxima
+    _btn('chevron-right', cur + 1, false, cur === totalPags, true)
+
+    if (typeof lucide !== 'undefined') lucide.createIcons()
+  }
+
+  /* ── Renderiza tabela: ordem → filtro → paginação ────────── */
   function _renderTabela(aba) {
     const head = document.getElementById('histTabelaHead')
     const body = document.getElementById('histTabelaBody')
     const info = document.getElementById('histTabelaInfo')
     if (!head || !body) return
 
-    const campoData  = _CAMPO_DATA[aba]
-    const todos      = (_dados[aba] || []).slice().reverse()   // mais recente primeiro
-    const filtrados  = _filtrar(todos, campoData)
-    const cols       = _COLUNAS[aba] || Object.keys(todos[0] || {}).slice(0, 7)
+    const campoData = _CAMPO_DATA[aba]
 
-    // Badge de resultados do filtro
+    // 1. Cópia e ordenação por data
+    const ordenados = (_dados[aba] || []).slice().sort((a, b) => {
+      const da = _parseData(a[campoData])
+      const db = _parseData(b[campoData])
+      if (!da && !db) return 0
+      if (!da) return 1
+      if (!db) return -1
+      return _histDesc ? db - da : da - db
+    })
+
+    // 2. Filtros
+    const filtrados = _filtrar(ordenados, campoData)
+    const cols      = _COLUNAS[aba] || Object.keys(ordenados[0] || {}).slice(0, 7)
+
+    // 3. Badge de resultados
     const badge   = document.getElementById('histFiltroBadge')
-    const filtrou = filtrados.length !== todos.length
+    const filtrou = filtrados.length !== ordenados.length
     if (badge) {
       badge.style.display = filtrou ? 'inline-block' : 'none'
-      badge.textContent   = filtrou ? `${filtrados.length} de ${todos.length} resultado(s)` : ''
+      badge.textContent   = filtrou ? `${filtrados.length} de ${ordenados.length} resultado(s)` : ''
     }
 
-    // Cabeçalho
-    head.innerHTML = '<tr>' + cols.map(c => `<th title="${c}">${c}</th>`).join('') + '</tr>'
+    // 4. Paginação
+    const perPageEl = document.getElementById('histPerPage')
+    const perPage   = perPageEl ? (parseInt(perPageEl.value) || 0) : 7
+    const total     = filtrados.length
+    const totalPags = perPage === 0 ? 1 : Math.max(1, Math.ceil(total / perPage))
+    if (_histPagina > totalPags) _histPagina = 1
 
-    // Corpo — limita a 200 linhas para performance
-    const MAX_DISP = 200
-    const exibidos = filtrados.slice(0, MAX_DISP)
+    const exibidos = perPage === 0
+      ? filtrados
+      : filtrados.slice((_histPagina - 1) * perPage, _histPagina * perPage)
 
+    // 5. Cabeçalho da tabela
+    head.innerHTML = '<tr>' + cols.map(col => `<th title="${col}">${col}</th>`).join('') + '</tr>'
+
+    // 6. Corpo vazio
     if (exibidos.length === 0) {
       const msg = filtrou ? 'Nenhum registro corresponde aos filtros.' : 'Nenhum registro encontrado.'
-      body.innerHTML = `<tr><td colspan="${cols.length}" style="text-align:center;padding:24px;color:var(--text-muted);">${msg}</td></tr>`
+      body.innerHTML = `<tr><td colspan="${cols.length}" style="text-align:center;padding:28px;color:var(--text-muted);font-size:13px;">${msg}</td></tr>`
       if (info) info.textContent = ''
+      _renderPaginacao(0, perPage)
       return
     }
 
+    // 7. Corpo com dados
     body.innerHTML = exibidos.map((r, idx) => {
-      const tds = cols.map(c => {
-        let v = r[c] ?? '—'
-        if (c === campoData) v = _formatarData(v)
-        return `<td title="${v}">${v}</td>`
+      const tds = cols.map(col => {
+        let v = r[col] ?? '—'
+        if (col === campoData) v = _formatarData(v)
+        return `<td title="${String(v)}">${v}</td>`
       }).join('')
-      const bg = idx % 2 === 0 ? '' : 'background:var(--surface2)'
-      return `<tr style="${bg}">${tds}</tr>`
+      return `<tr style="${idx % 2 !== 0 ? 'background:var(--surface2)' : ''}">${tds}</tr>`
     }).join('')
 
+    // 8. Rodapé informativo
     if (info) {
-      const extra = filtrados.length > MAX_DISP ? ` — mostrando primeiros ${MAX_DISP}` : ''
-      info.textContent = `${filtrados.length} registro(s)${extra} · mais recentes primeiro.`
+      const direcao = _histDesc ? 'mais recente primeiro' : 'mais antigo primeiro'
+      if (perPage === 0) {
+        info.textContent = `${total} registro(s) · ${direcao}`
+      } else {
+        const ini = (_histPagina - 1) * perPage + 1
+        const fim = Math.min(_histPagina * perPage, total)
+        info.textContent = `Exibindo ${ini}–${fim} de ${total} registro(s) · ${direcao}`
+      }
     }
+
+    _renderPaginacao(total, perPage)
   }
 
-  /* ── API pública dos filtros ──────────────────────────────── */
-  window.histAplicarFiltros = function() { _renderTabela(_abaAtiva) }
+  /* ── API pública ─────────────────────────────────────────── */
+  window.histAplicarFiltros = function() { _histPagina = 1; _renderTabela(_abaAtiva) }
 
   window.histLimparFiltros = function() {
-    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v }
-    set('histFiltroTexto',   '')
-    set('histFiltroDataIni', '')
-    set('histFiltroDataFim', '')
+    const _set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v }
+    _set('histFiltroTexto', '')
+    _set('histFiltroDataIni', '')
+    _set('histFiltroDataFim', '')
+    const pp = document.getElementById('histPerPage')
+    if (pp) pp.value = '7'
+    _histDesc   = true
+    _histPagina = 1
+    const icon  = document.getElementById('histOrdemIcon')
+    const label = document.getElementById('histOrdemLabel')
+    if (icon) { icon.setAttribute('data-lucide', 'arrow-down'); if (typeof lucide !== 'undefined') lucide.createIcons() }
+    if (label) label.textContent = 'Mais recente'
     _renderTabela(_abaAtiva)
   }
 
@@ -14491,7 +16042,7 @@ const _pdfCfgOnOpen = (id) => {
     if (id === 'historico') {
       _preencherSelector()
       // Só carrega se ainda não tem dados
-      if (_dados.add.length === 0 && _dados.mod.length === 0 && _dados.excl.length === 0) {
+      if (_dados.add.length === 0 && _dados.mod.length === 0 && _dados.excl.length === 0 && _dados.decl.length === 0) {
         histCarregar()
       }
     }
@@ -16045,5 +17596,1121 @@ const _pdfCfgOnOpen = (id) => {
   })()
 
 })() // fim MÓDULO LOGIN
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO: DECLARAÇÃO PCA  — v17
+   ─ Gera PDF de declaracao de previsao de contratacao no PCA
+   ─ Valida pasta de destino obrigatoria antes de gerar
+   ─ Controle por tipo: SALDO / QTDE / AMBOS com abatimento
+   ─ Bloqueio de itens sem disponibilidade
+   ─ Codigo de autenticidade unico por declaracao
+   ─ Registro com data/hora exata
+   ─ Modulo Consulta Declaracao integrado
+══════════════════════════════════════════════════════════════ */
+;(function() {
+  'use strict'
+
+  const PG = 50
+
+  // ── Estado interno — Declaracao PCA ──────────────────────
+  let _itens       = []
+  let _filtrados   = []
+  let _selecionados = new Set()
+  let _pagAtual    = 0
+  let _carregado   = false
+  let _pcaAtual    = null
+  let _pastaLink   = ''
+
+  // ── Estado interno — Consulta Declaracao ─────────────────
+  let _cdDecls     = []
+  let _cdFiltrados = []
+  let _cdPag       = 0
+  let _cdModalReg  = null
+  const CD_PG      = 20
+
+  // ── Helper de coluna ─────────────────────────────────────
+  function _col(key) {
+    if (typeof COL === 'undefined') return key
+    return COL[key] ?? key
+  }
+
+  // ── Disponibilidade de item por tipo de controle ─────────
+  function _getDisponibilidade(r) {
+    const tipo     = String(r[_col('TIPO_CONTROLE')] || '').trim().toUpperCase()
+    const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')]) || 0
+    const saldoUtil = parseFloat(r[_col('SALDO_UTIL')]) || 0
+    const qtdeUtil  = parseFloat(r[_col('QTDE_UTIL')]) || 0
+    const qtdTotal  = parseFloat(r[_col('QUANTIDADE')]) || 0
+
+    if (tipo === 'SALDO') {
+      const disponivel = vlTotal - saldoUtil
+      return { tipo, disponivel, disponQtde: null, bloqueado: disponivel <= 0 }
+    }
+    if (tipo === 'QTDE') {
+      const disponivel = qtdTotal - qtdeUtil
+      return { tipo, disponivel, disponQtde: disponivel, bloqueado: disponivel <= 0 }
+    }
+    if (tipo === 'AMBOS') {
+      const dispSaldo = vlTotal - saldoUtil
+      const dispQtde  = qtdTotal - qtdeUtil
+      return { tipo, disponivel: dispSaldo, disponQtde: dispQtde, bloqueado: dispSaldo <= 0 || dispQtde <= 0 }
+    }
+    return { tipo: '', disponivel: vlTotal, disponQtde: null, bloqueado: false }
+  }
+
+  function _fmtBRL(v) { return (v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) }
+
+  // ── Formatar disponibilidade ──────────────────────────────
+  function _fmtDisp(r) {
+    const d = _getDisponibilidade(r)
+    if (d.bloqueado) return '<span style="color:#dc2626;font-weight:700;font-size:11px;">Esgotado</span>'
+    if (d.tipo === 'QTDE')  return '<span style="color:#06b6d4;font-weight:700;font-size:11px;">' + d.disponivel + ' un.</span>'
+    if (d.tipo === 'AMBOS') return '<span style="color:#8b5cf6;font-weight:700;font-size:11px;">' + _fmtBRL(d.disponivel) + '<br><small style="font-size:10px;">' + d.disponQtde + ' un.</small></span>'
+    if (d.tipo === 'SALDO') return '<span style="color:#10b981;font-weight:700;font-size:11px;">' + _fmtBRL(d.disponivel) + '</span>'
+    return '<span style="color:var(--text-muted);font-size:11px;">—</span>'
+  }
+
+  function _fmtTipo(r) {
+    const tipo = String(r[_col('TIPO_CONTROLE')] || '').trim().toUpperCase()
+    const cores = { SALDO:'#10b981', QTDE:'#06b6d4', AMBOS:'#8b5cf6' }
+    const cor = cores[tipo] || 'var(--text-muted)'
+    return tipo ? '<span style="background:' + cor + '20;color:' + cor + ';border-radius:5px;padding:2px 7px;font-size:10px;font-weight:700;">' + tipo + '</span>' : '—'
+  }
+
+  // ── Gerar codigo de autenticidade unico ───────────────────
+  function _gerarCodAutenticidade(declId, ano) {
+    const ts   = Date.now().toString(36).toUpperCase()
+    const rand = Math.random().toString(36).slice(2, 6).toUpperCase()
+    return 'DECL-' + ano + '-' + ts + '-' + rand
+  }
+
+  // ── Filtrar lista ─────────────────────────────────────────
+  function _aplicarFiltros() {
+    const busca   = (document.getElementById('declBusca')?.value || '').toLowerCase().trim()
+    const campo   = document.getElementById('declCampoBusca')?.value || 'todos'
+    const classif = document.getElementById('declFiltroClassif')?.value || ''
+    const dominio = document.getElementById('declFiltroDominio')?.value || ''
+    const btnLimpar = document.getElementById('declBuscaLimpar')
+    if (btnLimpar) btnLimpar.style.display = busca ? '' : 'none'
+
+    _filtrados = _itens.filter(r => {
+      if (busca) {
+        let haystack = ''
+        if (campo === 'produto')     haystack = String(r[_col('PRODUTO')] || '').toLowerCase()
+        else if (campo === 'codigo') haystack = String(r[_col('CODIGO')] || '').toLowerCase()
+        else if (campo === 'seq')    haystack = String(r[_col('SEQUENCIAL')] || '').toLowerCase()
+        else haystack = [r[_col('PRODUTO')], r[_col('CODIGO')], r[_col('SEQUENCIAL')], r[_col('ID_PROTO')]].map(v => String(v||'').toLowerCase()).join(' ')
+        if (!haystack.includes(busca)) return false
+      }
+      if (classif && String(r[_col('CLASSIFICACAO')]||'').trim() !== classif) return false
+      if (dominio && String(r[_col('DOMINIO')]||'').trim() !== dominio) return false
+      return true
+    })
+    _pagAtual = 0
+    _renderizar()
+  }
+
+  // ── Renderizar tabela de itens ────────────────────────────
+  function _renderizar() {
+    const tbody    = document.getElementById('declTbody')
+    const contador = document.getElementById('declContador')
+    if (!tbody) return
+
+    if (contador) contador.textContent = _filtrados.length.toLocaleString('pt-BR') + ' item(s)'
+
+    const ini    = _pagAtual * PG
+    const pagina = _filtrados.slice(ini, ini + PG)
+
+    if (pagina.length === 0) {
+      const pca  = _pcaAtual
+      const rept = window._reptFiltroAtivo
+      let msg = 'Nenhum item encontrado.'
+      if (!_carregado) msg = 'Carregando itens...'
+      else if (rept && pca) msg = 'Nenhum item da reparticao <strong>' + rept.codigo + ' — ' + rept.nome + '</strong> no PCA <strong>' + pca.nome + '</strong>.'
+      else if (pca) msg = 'Nenhum item no PCA <strong>' + pca.nome + '</strong>.'
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:48px;color:var(--text-muted);line-height:1.7;">' + msg + '</td></tr>'
+      _atualizarPaginacao()
+      return
+    }
+
+    tbody.innerHTML = pagina.map(function(r) {
+      const idx       = r.__localIdx
+      const checked   = _selecionados.has(idx)
+      const disp      = _getDisponibilidade(r)
+      const bloqueado = disp.bloqueado
+      const seq    = r[_col('SEQUENCIAL')] || '—'
+      const proto  = r[_col('ID_PROTO')]   || '—'
+      const local  = r[_col('LOCAL')]      || '—'
+      const prod   = r[_col('PRODUTO')]    || '—'
+      const classif= r[_col('CLASSIFICACAO')] || '—'
+      const vlTotal= parseFloat(r[_col('VALOR_TOTAL')]) || 0
+
+      const rowStyle = bloqueado
+        ? 'border-bottom:1px solid var(--border);background:rgba(239,68,68,.04);opacity:.7;'
+        : 'border-bottom:1px solid var(--border);transition:background .12s;'
+      const cbExtra = bloqueado ? 'disabled style="width:15px;height:15px;cursor:not-allowed;opacity:.4;"' : 'style="width:15px;height:15px;cursor:pointer;accent-color:#059669;"'
+      const prodHtml = bloqueado ? '<s style="color:var(--text-muted);">' + prod + '</s>' : prod
+
+      return '<tr style="' + rowStyle + '" onmouseover="' + (bloqueado?'':'this.style.background=\'var(--hover)\'') + '" onmouseout="' + (bloqueado?'':'this.style.background=\'\'') + '" data-localidx="' + idx + '" title="' + (bloqueado?'Item sem disponibilidade':'') + '">' +
+        '<td style="padding:10px 14px;"><input type="checkbox" data-localidx="' + idx + '" ' + (checked?'checked':'') + ' ' + cbExtra + '></td>' +
+        '<td style="padding:10px 10px;font-family:monospace;font-weight:700;font-size:12px;color:var(--accent);">' + seq + '</td>' +
+        '<td style="padding:10px 10px;font-size:11px;color:var(--text-muted);font-family:monospace;">' + proto + '</td>' +
+        '<td style="padding:10px 10px;font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap;">' + local + '</td>' +
+        '<td style="padding:10px 10px;font-size:12px;max-width:260px;">' + prodHtml + '</td>' +
+        '<td style="padding:10px 10px;font-size:11px;color:var(--text-muted);white-space:nowrap;">' + classif + '</td>' +
+        '<td style="padding:10px 10px;text-align:center;">' + _fmtTipo(r) + '</td>' +
+        '<td style="padding:10px 10px;font-size:12px;font-family:monospace;font-weight:700;text-align:right;white-space:nowrap;">' + (vlTotal>0 ? _fmtBRL(vlTotal) : '—') + '</td>' +
+        '<td style="padding:10px 10px;text-align:right;white-space:nowrap;">' + _fmtDisp(r) + '</td>' +
+      '</tr>'
+    }).join('')
+
+    tbody.querySelectorAll('input[type=checkbox]:not([disabled])').forEach(function(cb) {
+      cb.addEventListener('change', function(e) {
+        const i = parseInt(e.target.dataset.localidx)
+        if (!isNaN(i)) {
+          e.target.checked ? _selecionados.add(i) : _selecionados.delete(i)
+          _atualizarBarraSel()
+          _syncCheckAll()
+        }
+      })
+    })
+    _atualizarPaginacao()
+    _atualizarBarraSel()
+    _syncCheckAll()
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [tbody] })
+  }
+
+  function _atualizarPaginacao() {
+    const total  = Math.ceil(_filtrados.length / PG)
+    const el     = document.getElementById('declPagInfo')
+    const pagDiv = document.getElementById('declPaginacao')
+    if (el) el.textContent = total > 0 ? 'Pagina ' + (_pagAtual + 1) + ' de ' + total : ''
+    if (pagDiv) pagDiv.style.display = total > 1 ? 'flex' : 'none'
+  }
+
+  function _atualizarBarraSel() {
+    const barra = document.getElementById('declBarraSel')
+    const ct    = document.getElementById('declSelContador')
+    const n     = _selecionados.size
+    if (barra) barra.style.display = n > 0 ? 'flex' : 'none'
+    if (ct)    ct.textContent = n + ' item(s) selecionado(s)'
+  }
+
+  function _syncCheckAll() {
+    const cb = document.getElementById('declCheckAll')
+    if (!cb) return
+    const ini  = _pagAtual * PG
+    const idxs = _filtrados.slice(ini, ini + PG).filter(function(r) { return !_getDisponibilidade(r).bloqueado }).map(function(r) { return r.__localIdx })
+    const marc = idxs.filter(function(i) { return _selecionados.has(i) }).length
+    cb.checked       = marc > 0 && marc === idxs.length
+    cb.indeterminate = marc > 0 && marc < idxs.length
+  }
+
+  // ── Popular selects de filtro ─────────────────────────────
+  function _popularFiltros() {
+    function _unicos(col) {
+      const s = new Set(_itens.map(function(r) { return String(r[_col(col)]||'').trim() }).filter(Boolean))
+      return Array.from(s).sort()
+    }
+    const selClassif = document.getElementById('declFiltroClassif')
+    if (selClassif) {
+      const prev = selClassif.value
+      selClassif.innerHTML = '<option value="">Classificacao</option>'
+      _unicos('CLASSIFICACAO').forEach(function(v) { const o = document.createElement('option'); o.value = v; o.textContent = v; selClassif.appendChild(o) })
+      if (prev) selClassif.value = prev
+    }
+    const selDom = document.getElementById('declFiltroDominio')
+    if (selDom) {
+      const prev = selDom.value
+      selDom.innerHTML = '<option value="">Dominio</option>'
+      _unicos('DOMINIO').forEach(function(v) { const o = document.createElement('option'); o.value = v; o.textContent = v; selDom.appendChild(o) })
+      if (prev) selDom.value = prev
+    }
+  }
+
+  // ── Carregar dados do PCA ─────────────────────────────────
+  async function _carregar() {
+    const sel = document.getElementById('declPcaSelector')
+    if (!sel || !sel.value) return
+    const lista = typeof window.pcaGetLista === 'function' ? window.pcaGetLista() : []
+    const pca   = lista.find(function(p) { return p.id === sel.value })
+    if (!pca || !pca.sheetId) {
+      const ct = document.getElementById('declContador')
+      if (ct) ct.textContent = 'PCA sem planilha configurada'
+      return
+    }
+    const rept = window._reptFiltroAtivo
+    try {
+      const dadosBrutos = await carregarDadosDoPca(pca)
+      _pcaAtual  = pca
+      _carregado = true
+      const dadosFilt = rept
+        ? dadosBrutos.filter(function(r) { const local = String(r[_col('LOCAL')]||'').trim(); return local === rept.codigo || local === rept.nome })
+        : dadosBrutos
+      _itens = dadosFilt.map(function(r, i) { return Object.assign({}, r, { __localIdx: i }) })
+      _selecionados.clear()
+      _popularFiltros()
+      _aplicarFiltros()
+    } catch(e) {
+      mostrarToast('Erro ao carregar itens: ' + e.message, 'erro')
+    }
+  }
+
+  // ── API publica ───────────────────────────────────────────
+  window.declFiltrar     = function() { _aplicarFiltros() }
+  window.declTrocarPca   = function() { _carregado=false; _itens=[]; _filtrados=[]; _selecionados.clear(); _carregar() }
+  window.declLimparFiltros = function() {
+    const _s = function(id, v) { const el=document.getElementById(id); if(el) el.value=v }
+    _s('declBusca',''); _s('declCampoBusca','todos'); _s('declFiltroClassif',''); _s('declFiltroDominio','')
+    const b = document.getElementById('declBuscaLimpar'); if(b) b.style.display='none'
+    _pagAtual=0; _aplicarFiltros()
+  }
+  window.declToggleTodos = function(marcar) {
+    const ini = _pagAtual * PG
+    _filtrados.slice(ini, ini+PG).forEach(function(r) {
+      if (!_getDisponibilidade(r).bloqueado) { marcar ? _selecionados.add(r.__localIdx) : _selecionados.delete(r.__localIdx) }
+    })
+    _renderizar()
+  }
+  window.declDesmarcarTodos = function() { _selecionados.clear(); _renderizar() }
+  window.declPaginar = function(dir) {
+    const total = Math.ceil(_filtrados.length/PG); const nova = _pagAtual+dir
+    if (nova>=0 && nova<total) { _pagAtual=nova; _renderizar() }
+  }
+
+  // ── Salvar link da pasta ──────────────────────────────────
+  window.declSalvarPasta = async function() {
+    const input  = document.getElementById('declPastaLinkInput')
+    const status = document.getElementById('declPastaStatus')
+    if (!input) return
+    const link = input.value.trim()
+    if (!link) { if(status){status.textContent='Informe o link da pasta.';status.style.color='#dc2626'} return }
+    if (!CONFIG_SHEET_ID) { if(status){status.textContent='PCA_CONFIG nao configurado.';status.style.color='#dc2626'} return }
+    if (!WEBAPP_URL)      { if(status){status.textContent='Web App nao configurado.';status.style.color='#dc2626'} return }
+    const pcaId = document.getElementById('cfgGlobalPcaSelector')?.value || ''
+    if (status) { status.textContent='Salvando...'; status.style.color='var(--text-muted)' }
+    try {
+      const body = new URLSearchParams({ acao:'salvarLinkDeclaracoes', configId:CONFIG_SHEET_ID, pcaId, link })
+      const res  = await fetch(WEBAPP_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:body.toString() })
+      const json = await res.json()
+      if (!json.ok) throw new Error(json.erro||'Erro')
+      _pastaLink = link
+      if (status) { status.textContent='Salvo com sucesso.'; status.style.color='#059669' }
+      mostrarToast('Pasta Declaracoes salva.', 'ok')
+      setTimeout(function(){ if(status) status.textContent='' }, 4000)
+    } catch(_) {
+      await fetch(WEBAPP_URL + '?' + new URLSearchParams({ acao:'salvarLinkDeclaracoes', configId:CONFIG_SHEET_ID, pcaId, link }), { method:'GET', mode:'no-cors', cache:'no-store' })
+      await new Promise(function(r){ setTimeout(r, 1800) })
+      _pastaLink = link
+      if (status) { status.textContent='Salvo (sem confirmacao).'; status.style.color='#d97706' }
+      mostrarToast('Pasta Declaracoes salva.', 'ok')
+    }
+  }
+
+  // ── Carregar link da pasta ────────────────────────────────
+  window.declCarregarPastaLink = async function() {
+    const input = document.getElementById('declPastaLinkInput')
+    if (!CONFIG_SHEET_ID || !GS_API_KEY) return
+    const pcaId = document.getElementById('cfgGlobalPcaSelector')?.value || ''
+    try {
+      const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG_SHEET_ID + '/values/LINK%20DECLARA%C3%87%C3%95ES!A1:B100?valueRenderOption=UNFORMATTED_VALUE&key=' + GS_API_KEY
+      const res  = await fetch(url)
+      if (!res.ok) return
+      const data = await res.json()
+      const rows = data.values || []
+      const linha = rows.find(function(r) { return String(r[0]||'') === pcaId })
+      if (linha && linha[1]) { if (input) input.value = linha[1]; _pastaLink = linha[1] }
+      else _pastaLink = ''
+    } catch(_) { _pastaLink = '' }
+  }
+
+  // ── Gerar declaracao PDF ───────────────────────────────────
+  window.declGerarDeclaracao = async function() {
+    const n = _selecionados.size
+    if (n === 0) { mostrarToast('Selecione pelo menos um item.', 'warn'); return }
+
+    await declCarregarPastaLink()
+    if (!_pastaLink) {
+      mostrarToast('Configure a pasta de destino em Sync com Drive antes de gerar.', 'erro')
+      const input = document.getElementById('declPastaLinkInput')
+      if (input) { input.style.borderColor='#dc2626'; input.style.background='rgba(220,38,38,.06)'; setTimeout(function(){input.style.borderColor='';input.style.background=''}, 4000) }
+      cfgMostrarSecao('drive-sync')
+      return
+    }
+
+    if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
+      mostrarToast('Biblioteca PDF nao carregada. Recarregue a pagina.', 'erro'); return
+    }
+
+    const itensSel = Array.from(_selecionados).map(function(idx){ return _itens[idx] }).filter(Boolean)
+      .sort(function(a,b){ return parseFloat(a[_col('SEQUENCIAL')]||0)-parseFloat(b[_col('SEQUENCIAL')]||0) })
+
+    const bloqueados = itensSel.filter(function(r){ return _getDisponibilidade(r).bloqueado })
+    if (bloqueados.length > 0) {
+      mostrarToast(bloqueados.length + ' item(s) sem disponibilidade. Desmarque-os antes de gerar.', 'erro'); return
+    }
+
+    const pca      = _pcaAtual
+    const sessao   = typeof window.loginGetSessao === 'function' ? window.loginGetSessao() : null
+    const rept     = window._reptFiltroAtivo
+    const reptNome = rept ? (rept.nome||rept.codigo) : (itensSel[0] ? String(itensSel[0][_col('LOCAL')]||'') : '')
+    const ano      = pca?.ano || new Date().getFullYear()
+    const vlTotal  = itensSel.reduce(function(s,r){ return s+(parseFloat(r[_col('VALOR_TOTAL')])||0) }, 0)
+
+    const declId    = String(Date.now()).slice(-8)
+    const codAutent = _gerarCodAutenticidade(declId, ano)
+    const agora     = new Date()
+    const dataISO   = agora.toISOString()
+    const dataFmt   = agora.toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'})
+    const horaFmt   = agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit',second:'2-digit'})
+
+    const btn = document.getElementById('declBtnGerar')
+    if (btn) { btn.disabled=true; btn.innerHTML='<i data-lucide="loader" style="width:14px;height:14px;"></i> Gerando...' }
+
+    try {
+      const { jsPDF } = window.jspdf || { jsPDF: window.jsPDF }
+      const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+      const W=210, H=297, ML=20, MR=20, TW=170
+      const AZUL=[30,42,74], VERDE=[5,150,105], CINZA=[100,116,139], BRANCO=[255,255,255]
+
+      doc.setFillColor(...AZUL); doc.rect(0,0,W,18,'F')
+      doc.setTextColor(...BRANCO); doc.setFont('helvetica','bold'); doc.setFontSize(8)
+      doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL', W/2, 11, {align:'center'})
+
+      doc.setFillColor(240,242,247); doc.rect(ML,22,TW,20,'F')
+      doc.setDrawColor(...VERDE); doc.setLineWidth(0.8); doc.line(ML,22,ML,42)
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','bold'); doc.setFontSize(12)
+      doc.text('DEMONSTRAÇÃO DA PREVISÃO DA CONTRATAÇÃO NO PLANO DE CONTRATAÇÕES ANUAL', W/2, 30, {align:'center',maxWidth:TW-4})
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CINZA)
+      doc.text('Plano de Contratações Anual ' + ano + ' — ' + (pca?.nome||''), W/2, 38, {align:'center'})
+
+      let y = 50
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
+
+      const t1 = 'A presente contratação, destinada a atender às demandas da ' + (reptNome||'unidade demandante') + ', encontra-se devidamente alinhada aos objetivos estratégicos da Administração Municipal.'
+      const l1 = doc.splitTextToSize(t1, TW); doc.text(l1,ML,y); y+=l1.length*5.5+4
+
+      const t2 = 'O fornecimento dos itens é essencial para o adequado funcionamento das unidades administrativas e operacionais do Município, garantindo suporte às atividades institucionais desenvolvidas no âmbito da Prefeitura, bem como assegurando a continuidade e a eficiência dos serviços públicos prestados.'
+      const l2 = doc.splitTextToSize(t2, TW); doc.text(l2,ML,y); y+=l2.length*5.5+4
+
+      const t3 = 'A demanda encontra-se regularmente prevista no Plano de Contratações Anual (PCA), conforme os sequenciais e respectivos IDs constantes na tabela a seguir, os quais identificam precisamente os itens a serem contratados:'
+      const l3 = doc.splitTextToSize(t3, TW); doc.text(l3,ML,y); y+=l3.length*5.5+6
+
+      const cabTab  = [['Sequencial','ID Protocolo','Item','Qtd.','Valor Total']]
+      const bodyTab = itensSel.map(function(r){ return [String(r[_col('SEQUENCIAL')]||''), String(r[_col('ID_PROTO')]||'—'), String(r[_col('PRODUTO')]||''), String(parseFloat(r[_col('QUANTIDADE')])||'—'), _fmtBRL(parseFloat(r[_col('VALOR_TOTAL')])||0)] })
+      const footTab = [['','','TOTAL GERAL (' + itensSel.length + ' item(s))','', _fmtBRL(vlTotal)]]
+
+      doc.autoTable({
+        startY:y, head:cabTab, body:bodyTab, foot:footTab, theme:'grid',
+        headStyles:{fillColor:AZUL,textColor:BRANCO,fontStyle:'bold',fontSize:8,halign:'center'},
+        footStyles:{fillColor:[240,242,247],textColor:AZUL,fontStyle:'bold',fontSize:8},
+        bodyStyles:{fontSize:8,textColor:[30,42,74]},
+        alternateRowStyles:{fillColor:[248,249,252]},
+        columnStyles:{0:{cellWidth:24,halign:'center'},1:{cellWidth:28,halign:'center'},2:{cellWidth:80,halign:'left'},3:{cellWidth:14,halign:'center'},4:{cellWidth:24,halign:'right'}},
+        tableWidth:TW, margin:{left:ML,right:MR}, showHead:'firstPage', showFoot:'lastPage',
+        didDrawPage:function(d){ if(d.pageNumber>1){ doc.setFillColor(...AZUL);doc.rect(0,0,W,12,'F');doc.setTextColor(...BRANCO);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL',W/2,8,{align:'center'}) } }
+      })
+
+      y = doc.lastAutoTable.finalY + 10
+      if (y > H-70) { doc.addPage(); y=30 }
+
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
+      const t4 = 'Dessa forma, resta evidenciado que a contratação encontra-se compatível com o planejamento anual das contratações, atendendo ao disposto no artigo 12 da Lei n.º 14.133/2021, assegurando a adequada vinculação entre a demanda identificada, o Plano de Contratações Anual e a futura contratação.'
+      const l4 = doc.splitTextToSize(t4, TW); doc.text(l4,ML,y); y+=l4.length*5.5+14
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CINZA)
+      doc.text('Rio Verde — GO, ' + dataFmt + ', às ' + horaFmt, ML, y); y+=16
+
+      const userNome = sessao?.nome||sessao?.matricula||''
+      const userMatr = sessao?.matricula||''
+      if (y > H-50) { doc.addPage(); y=30 }
+      doc.setDrawColor(...CINZA); doc.setLineWidth(0.3); doc.line(ML,y,ML+90,y); y+=5
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...AZUL)
+      if (userNome) doc.text(userNome,ML,y); y+=4.5
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...CINZA)
+      if (reptNome) doc.text(reptNome,ML,y)
+      if (userMatr) { y+=4; doc.text('Matricula: '+userMatr,ML,y) }
+
+      const totalPgs = doc.internal.getNumberOfPages()
+      for (let p=1; p<=totalPgs; p++) {
+        doc.setPage(p)
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...CINZA)
+        doc.text('Pag. '+p+' / '+totalPgs, W-MR, H-8, {align:'right'})
+        doc.text('Plano de Contratações Anual — Rio Verde/GO', ML, H-8)
+        if (p === totalPgs) {
+          doc.setFillColor(245,246,250); doc.rect(ML,H-22,TW,10,'F')
+          doc.setDrawColor(...CINZA); doc.setLineWidth(0.2); doc.rect(ML,H-22,TW,10,'S')
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...AZUL)
+          doc.text('Codigo de Autenticidade: ' + codAutent, ML+3, H-16)
+          doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...CINZA)
+          doc.text('Documento gerado pelo Sistema PCA — Prefeitura Municipal de Rio Verde/GO', ML+3, H-12)
+        }
+      }
+
+      const nomeArquivo = 'DECLARACAO_PCA_' + ano + '_' + declId + '.pdf'
+      doc.save(nomeArquivo)
+
+      _abaterERegistrar({ id:declId, codAutent, pcaId:pca?.id||'', pcaNome:pca?.nome||'', ano:String(ano), reparticao:reptNome, itens:itensSel, vlTotal, usuario:userNome, matricula:userMatr, arquivo:nomeArquivo, dataISO, dataFmt, horaFmt })
+      mostrarToast('Declaracao gerada: ' + nomeArquivo, 'ok')
+      _selecionados.clear(); _renderizar()
+    } catch(e) {
+      console.error('[DECL]', e)
+      mostrarToast('Erro ao gerar PDF: ' + e.message, 'erro')
+    } finally {
+      if (btn) {
+        btn.disabled = false
+        btn.innerHTML = '<i data-lucide="file-text" style="width:14px;height:14px;"></i> Gerar Declaracao PDF'
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] })
+      }
+    }
+  }
+
+  // ── Abater itens e registrar declaracao ───────────────────
+  async function _abaterERegistrar(info) {
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) return
+    const abatimentos = info.itens.map(function(r) {
+      const tipo      = String(r[_col('TIPO_CONTROLE')]||'').trim().toUpperCase()
+      const vlTotal   = parseFloat(r[_col('VALOR_TOTAL')])||0
+      const qtd       = parseFloat(r[_col('QUANTIDADE')])||0
+      const saldoAtu  = parseFloat(r[_col('SALDO_UTIL')])||0
+      const qtdeAtu   = parseFloat(r[_col('QTDE_UTIL')])||0
+      let novoSaldo = null, novaQtde = null
+      if (tipo==='SALDO'||tipo==='AMBOS') novoSaldo = Math.min(saldoAtu+vlTotal, vlTotal)
+      if (tipo==='QTDE' ||tipo==='AMBOS') novaQtde  = Math.min(qtdeAtu+qtd, qtd)
+      return { seq:String(r[_col('SEQUENCIAL')]||''), tipo, saldo:novoSaldo!==null?String(novoSaldo):'NULL', qtde:novaQtde!==null?String(novaQtde):'NULL' }
+    })
+    const seqList = info.itens.map(function(r){ return String(r[_col('SEQUENCIAL')]||'') }).join(', ')
+    try {
+      const body = new URLSearchParams({
+        acao:'registrarDeclaracaoV2', configId:CONFIG_SHEET_ID,
+        declId:info.id, codAutenticidade:info.codAutent,
+        pcaId:info.pcaId, pcaNome:info.pcaNome, ano:info.ano,
+        reparticao:info.reparticao, usuario:info.usuario, matricula:info.matricula,
+        qtdItens:String(info.itens.length), vlTotal:String(info.vlTotal),
+        sequenciais:seqList, arquivo:info.arquivo,
+        dataCriacao:info.dataISO, dataFmt:info.dataFmt, horaFmt:info.horaFmt,
+        abatimentosJson:JSON.stringify(abatimentos),
+        itensJson:JSON.stringify(info.itens.map(function(r){ return {seq:r[_col('SEQUENCIAL')],id:r[_col('ID_PROTO')],prod:r[_col('PRODUTO')],vl:r[_col('VALOR_TOTAL')],qtd:r[_col('QUANTIDADE')],tipo:r[_col('TIPO_CONTROLE')]} }))
+      })
+      await fetch(WEBAPP_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:body.toString() })
+        .catch(function(){ return fetch(WEBAPP_URL+'?acao=registrarDeclaracaoV2&configId='+CONFIG_SHEET_ID+'&declId='+info.id, { method:'GET', mode:'no-cors', cache:'no-store' }) })
+      setTimeout(function(){ if (_pcaAtual) { _carregado=false; _carregar() } }, 2500)
+    } catch(e) {
+      console.warn('[DECL] Registro falhou (nao critico):', e.message)
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  MODULO CONSULTA DECLARACAO
+  // ══════════════════════════════════════════════════════════
+
+  function _cdSetStatus(msg, tipo) {
+    const el = document.getElementById('cdeclStatus')
+    if (!el) return
+    const cores = { ok:'#dcfce7', erro:'#fee2e2', info:'#eff6ff', '':'var(--surface2)' }
+    const txts  = { ok:'#166534', erro:'#991b1b', info:'#1e40af', ''  :'var(--text-muted)' }
+    el.style.display=msg?'block':'none'; el.style.background=cores[tipo]||cores['']
+    el.style.color=txts[tipo]||txts['']
+    el.textContent = msg
+  }
+
+  window.cdeclCarregar = async function() {
+    if (!CONFIG_SHEET_ID || !GS_API_KEY) { _cdSetStatus('PCA_CONFIG ou API Key nao configurados.','erro'); return }
+    const btn = document.getElementById('cdeclBtnAtualizar')
+    if (btn) btn.disabled = true
+    _cdSetStatus('Carregando declaracoes...','info')
+    try {
+      const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + CONFIG_SHEET_ID + '/values/DECLARA%C3%87%C3%95ES%20FEITAS!A1:Z500?valueRenderOption=FORMATTED_VALUE&key=' + GS_API_KEY
+      const res  = await fetch(url)
+      if (!res.ok) {
+        const e = await res.json().catch(function(){return {}})
+        if (res.status===400||res.status===404) {
+          _cdSetStatus('Nenhuma declaracao encontrada. A aba sera criada ao gerar a primeira.','info')
+          _cdDecls=[]; _cdFiltrados=[]; _cdRenderTabela(); return
+        }
+        throw new Error(e?.error?.message||'HTTP '+res.status)
+      }
+      const data = await res.json()
+      const rows = data.values||[]
+      if (rows.length < 2) {
+        _cdSetStatus('Nenhuma declaracao registrada ainda.','info')
+        _cdDecls=[]; _cdFiltrados=[]; _cdRenderTabela(); return
+      }
+      const cab = rows[0]
+      _cdDecls = rows.slice(1).map(function(r){ const o={}; cab.forEach(function(h,i){ o[String(h).trim()]=(r[i]??'').toString().trim() }); return o }).reverse()
+      _cdSetStatus('','')
+      _cdPopularFiltros()
+      _cdAplicarFiltros()
+    } catch(e) {
+      _cdSetStatus('Erro ao carregar: '+e.message,'erro'); console.error('[CDECL]',e)
+    } finally {
+      if (btn) btn.disabled = false
+    }
+  }
+
+  function _cdPopularFiltros() {
+    const selAno = document.getElementById('cdeclFiltroAno')
+    if (selAno) {
+      const prev = selAno.value
+      const anos = Array.from(new Set(_cdDecls.map(function(d){return d['ANO']||''}).filter(Boolean))).sort().reverse()
+      selAno.innerHTML = '<option value="">Todos os anos</option>'
+      anos.forEach(function(a){ const o=document.createElement('option'); o.value=a; o.textContent=a; selAno.appendChild(o) })
+      if (prev) selAno.value = prev
+    }
+    const selR = document.getElementById('cdeclFiltroRept')
+    if (selR) {
+      const prev = selR.value
+      const repts = Array.from(new Set(_cdDecls.map(function(d){return d['REPARTICAO']||''}).filter(Boolean))).sort()
+      selR.innerHTML = '<option value="">Todas as reparticoes</option>'
+      repts.forEach(function(r){ const o=document.createElement('option'); o.value=r; o.textContent=r; selR.appendChild(o) })
+      if (prev) selR.value = prev
+    }
+  }
+
+  function _cdAplicarFiltros() {
+    const busca = (document.getElementById('cdeclBusca')?.value||'').toLowerCase().trim()
+    const ano   = document.getElementById('cdeclFiltroAno')?.value||''
+    const rept  = document.getElementById('cdeclFiltroRept')?.value||''
+    _cdFiltrados = _cdDecls.filter(function(d) {
+      if (ano  && (d['ANO']||'')!==ano)   return false
+      if (rept && (d['REPARTICAO']||'')!==rept) return false
+      if (busca && !Object.values(d).join(' ').toLowerCase().includes(busca)) return false
+      return true
+    })
+    _cdPag = 0; _cdRenderTabela()
+  }
+
+  function _cdFmtDT(v) {
+    if (!v) return '—'
+    const dt = new Date(v)
+    if (!isNaN(dt)) return dt.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+    return v
+  }
+
+  function _cdRenderTabela() {
+    const tbody  = document.getElementById('cdeclTbody')
+    const pagDiv = document.getElementById('cdeclPaginacao')
+    const pagInf = document.getElementById('cdeclPagInfo')
+    if (!tbody) return
+    const ini   = _cdPag * CD_PG
+    const pag   = _cdFiltrados.slice(ini, ini+CD_PG)
+    const total = Math.ceil(_cdFiltrados.length/CD_PG)
+    if (pagInf) pagInf.textContent = total>0 ? 'Pagina '+(_cdPag+1)+' de '+total : ''
+    if (pagDiv) pagDiv.style.display = total>1 ? 'flex' : 'none'
+    if (pag.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--text-muted);">' + (_cdDecls.length===0?'Nenhuma declaracao encontrada.':'Nenhum resultado para os filtros aplicados.') + '</td></tr>'
+      return
+    }
+    tbody.innerHTML = pag.map(function(d) {
+      const cod = d['CODIGO_AUTENTICIDADE']||d['COD_AUTENTICIDADE']||'—'
+      const vlFmt = (parseFloat(d['VALOR_TOTAL'])||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+      const jsonStr = JSON.stringify(JSON.stringify(d))
+      return '<tr style="border-bottom:1px solid var(--border);transition:background .12s;" onmouseover="this.style.background=\'var(--hover)\'" onmouseout="this.style.background=\'\'">' +
+        '<td style="padding:10px 14px;"><div style="font-family:monospace;font-size:12px;font-weight:700;color:var(--accent);">' + (d['ID']||'—') + '</div><div style="font-size:10px;color:#047857;font-family:monospace;margin-top:2px;word-break:break-all;">' + cod + '</div></td>' +
+        '<td style="padding:10px 10px;font-size:12px;white-space:nowrap;">' + _cdFmtDT(d['DATA_CRIACAO']) + '</td>' +
+        '<td style="padding:10px 10px;font-size:12px;"><div style="font-weight:700;color:var(--text);">' + (d['PCA_NOME']||'—') + '</div><div style="font-size:11px;color:var(--text-muted);">' + (d['ANO']||'') + '</div></td>' +
+        '<td style="padding:10px 10px;font-size:12px;">' + (d['REPARTICAO']||'—') + '</td>' +
+        '<td style="padding:10px 10px;font-size:12px;"><div>' + (d['USUARIO']||'—') + '</div><div style="font-size:11px;color:var(--text-muted);">' + (d['MATRICULA']?'Mat. '+d['MATRICULA']:'') + '</div></td>' +
+        '<td style="padding:10px 10px;text-align:center;font-size:13px;font-weight:700;color:var(--accent);">' + (d['QTD_ITENS']||'—') + '</td>' +
+        '<td style="padding:10px 10px;text-align:right;font-family:monospace;font-size:12px;font-weight:700;">' + vlFmt + '</td>' +
+        '<td style="padding:10px 14px;text-align:center;"><button onclick="cdeclAbrirModal(' + jsonStr + ')" style="padding:6px 12px;border:1.5px solid #047857;border-radius:7px;background:none;color:#047857;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;"><i data-lucide="eye" style="width:12px;height:12px;"></i> Ver</button></td>' +
+      '</tr>'
+    }).join('')
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [tbody] })
+  }
+
+  window.cdeclFiltrar       = function() { _cdAplicarFiltros() }
+  window.cdeclLimparFiltros = function() {
+    const _s = function(id,v){ const el=document.getElementById(id); if(el) el.value=v }
+    _s('cdeclBusca',''); _s('cdeclFiltroAno',''); _s('cdeclFiltroRept',''); _cdAplicarFiltros()
+  }
+  window.cdeclPaginar = function(dir) {
+    const total = Math.ceil(_cdFiltrados.length/CD_PG); const nova=_cdPag+dir
+    if (nova>=0&&nova<total) { _cdPag=nova; _cdRenderTabela() }
+  }
+
+  window.cdeclAbrirModal = function(jsonStr) {
+    const d      = JSON.parse(jsonStr)
+    _cdModalReg  = d
+    const modal  = document.getElementById('cdeclModal')
+    const title  = document.getElementById('cdeclModalTitle')
+    const body   = document.getElementById('cdeclModalBody')
+    if (!modal) return
+    const cod    = d['CODIGO_AUTENTICIDADE']||d['COD_AUTENTICIDADE']||'—'
+    const vlFmt  = (parseFloat(d['VALOR_TOTAL'])||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+    if (title) title.textContent = 'Declaracao #' + (d['ID']||'—') + ' — ' + (d['PCA_NOME']||'') + ' ' + (d['ANO']||'')
+    let itensHtml = ''
+    try {
+      const itens = JSON.parse(d['ITENS_JSON']||'[]')
+      if (itens.length > 0) {
+        const rows = itens.map(function(it){ return '<tr style="border-top:1px solid var(--border);"><td style="padding:7px 12px;font-family:monospace;font-weight:700;color:var(--accent);">'+(it.seq||'—')+'</td><td style="padding:7px 12px;font-size:11px;color:var(--text-muted);font-family:monospace;">'+(it.id||'—')+'</td><td style="padding:7px 12px;">'+(it.prod||'—')+'</td><td style="padding:7px 12px;text-align:right;">'+(it.qtd||'—')+'</td><td style="padding:7px 12px;text-align:right;font-family:monospace;">'+(it.vl?(parseFloat(it.vl)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—')+'</td></tr>' }).join('')
+        itensHtml = '<div style="margin-top:16px;"><div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Itens da Declaracao</div><div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:var(--th-bg);"><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Seq.</th><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">ID</th><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Produto</th><th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Qtd.</th><th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Valor</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'
+      }
+    } catch(_) {}
+    if (body) body.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">' +
+      _cdCard('Data de Criacao', _cdFmtDT(d['DATA_CRIACAO'])) +
+      _cdCard('PCA / Ano', (d['PCA_NOME']||'—') + ' — ' + (d['ANO']||'—')) +
+      _cdCard('Reparticao', d['REPARTICAO']||'—') +
+      _cdCard('Usuario', (d['USUARIO']||'—') + (d['MATRICULA'] ? '<br><small style="color:var(--text-muted);">Mat. '+d['MATRICULA']+'</small>' : '')) +
+      _cdCard('Itens / Valor', (d['QTD_ITENS']||'—') + ' item(s)<br><span style="color:#047857;font-weight:700;">' + vlFmt + '</span>') +
+      _cdCard('Arquivo', '<span style="word-break:break-all;font-size:12px;">' + (d['ARQUIVO']||'—') + '</span>') +
+    '</div>' +
+    '<div style="background:linear-gradient(135deg,rgba(4,120,87,.08),rgba(4,120,87,.03));border:1.5px solid rgba(4,120,87,.2);border-radius:10px;padding:14px;margin-top:12px;">' +
+      '<div style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Codigo de Autenticidade</div>' +
+      '<div style="font-family:monospace;font-size:13px;font-weight:700;color:#047857;word-break:break-all;">' + cod + '</div></div>' +
+    itensHtml
+    modal.style.display = 'flex'
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [body, modal] })
+  }
+
+  function _cdCard(label, value) {
+    return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;"><div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">'+label+'</div><div style="font-size:13px;font-weight:700;color:var(--text);">'+value+'</div></div>'
+  }
+
+  window.cdeclFecharModal = function() {
+    const m = document.getElementById('cdeclModal')
+    if (m) m.style.display = 'none'
+    _cdModalReg = null
+  }
+
+  window.cdeclBaixarPdf = function() {
+    if (!_cdModalReg) return
+    const arquivo = _cdModalReg['ARQUIVO']||''
+    if (_pastaLink) {
+      if (window.confirm('O arquivo "' + arquivo + '" esta salvo na pasta configurada.\n\nClique OK para abrir a pasta no Google Drive.')) {
+        window.open(_pastaLink, '_blank')
+      }
+    } else {
+      mostrarToast('Nenhuma pasta de destino configurada. Configure em Sync com Drive.', 'warn')
+    }
+  }
+
+  // ── Hook em cfgMostrarSecao ───────────────────────────────
+  const _cfgMostrarSecaoOrigDecl = cfgMostrarSecao
+  cfgMostrarSecao = function(id) {
+    _cfgMostrarSecaoOrigDecl(id)
+    if (id === 'declaracao-pca') {
+      if (typeof window.pcaPopularSelects === 'function') window.pcaPopularSelects()
+      if (typeof window.declCarregarPastaLink === 'function') window.declCarregarPastaLink()
+      if (!_carregado) _carregar()
+    }
+    if (id === 'consulta-declaracao') {
+      if (_cdDecls.length === 0) window.cdeclCarregar()
+    }
+    if (id === 'drive-sync') {
+      setTimeout(function() {
+        if (typeof window.declCarregarPastaLink === 'function') window.declCarregarPastaLink()
+        if (typeof lucide !== 'undefined') lucide.createIcons()
+      }, 80)
+    }
+  }
+
+  // ── Recarrega ao trocar reparticao global ─────────────────
+  const _cfgGlobalTrocarReptOrigDecl = window.cfgGlobalTrocarReparticao
+  window.cfgGlobalTrocarReparticao = function() {
+    if (typeof _cfgGlobalTrocarReptOrigDecl === 'function') _cfgGlobalTrocarReptOrigDecl()
+    const sec = document.getElementById('cfgSec-declaracao-pca')
+    if (sec && sec.style.display !== 'none') { _carregado=false; _carregar() }
+  }
+
+})() // fim MÓDULO DECLARAÇÃO PCA v17
+
+/* =====================================================
+   FLOATING DOCK + CONSULTA RÁPIDA DE DECLARAÇÃO
+   Versão 1.0
+===================================================== */
+;(function() {
+  'use strict'
+
+  // ── Variável de estado da declaração localizada ───────────
+  var _mcdDeclAtual = null
+
+  // ── Oculta/exibe o dock quando o modal de configs abre ───
+  var _modalCfg = null
+  function _bindDockVisibility() {
+    _modalCfg = document.getElementById('modalConfiguracoes')
+    if (!_modalCfg) return
+
+    var observer = new MutationObserver(function() {
+      var dock = document.getElementById('floatingDock')
+      if (!dock) return
+      var aberto = _modalCfg.classList.contains('cfg-open') ||
+                   _modalCfg.style.display === 'flex'
+      if (aberto) {
+        dock.classList.add('dock-hidden')
+      } else {
+        dock.classList.remove('dock-hidden')
+      }
+    })
+    observer.observe(_modalCfg, { attributes: true, attributeFilter: ['class','style'] })
+  }
+
+  // ── Formata data ─────────────────────────────────────────
+  function _fmtData(str) {
+    if (!str) return '—'
+    try {
+      var d = new Date(str)
+      if (isNaN(d)) return str
+      return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }) +
+             ' ' + d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
+    } catch(_) { return str }
+  }
+
+  // ── Formata moeda BRL ─────────────────────────────────────
+  function _fmtBRL(v) {
+    return (parseFloat(v)||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' })
+  }
+
+  // ── Define status no modal ───────────────────────────────
+  function _mcdStatus(msg, tipo) {
+    var el = document.getElementById('mcdStatus')
+    if (!el) return
+    if (!msg) { el.style.display = 'none'; el.textContent = ''; return }
+    el.className = 'mcd-status ' + (tipo||'info')
+    el.textContent = msg
+    el.style.display = 'block'
+  }
+
+  // ── Abre o modal de consulta ─────────────────────────────
+  window.abrirConsultaDeclaracao = function() {
+    var modal = document.getElementById('modalConsultaDecl')
+    if (!modal) return
+    // Limpa estado anterior
+    _mcdDeclAtual = null
+    _mcdStatus('', '')
+    var res = document.getElementById('mcdResult')
+    if (res) res.classList.remove('visivel')
+    var inp = document.getElementById('mcdBuscaInput')
+    if (inp) { inp.value = ''; }
+    modal.classList.add('ativo')
+    setTimeout(function() {
+      if (typeof lucide !== 'undefined') lucide.createIcons()
+      if (inp) inp.focus()
+    }, 60)
+  }
+
+  // ── Fecha o modal de consulta ─────────────────────────────
+  window.fecharConsultaDeclaracao = function() {
+    var modal = document.getElementById('modalConsultaDecl')
+    if (modal) modal.classList.remove('ativo')
+    _mcdDeclAtual = null
+  }
+
+  // Fecha ao clicar no backdrop
+  document.addEventListener('click', function(e) {
+    var modal = document.getElementById('modalConsultaDecl')
+    if (modal && e.target === modal) window.fecharConsultaDeclaracao()
+  })
+
+  // Fecha com Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var modal = document.getElementById('modalConsultaDecl')
+      if (modal && modal.classList.contains('ativo')) window.fecharConsultaDeclaracao()
+    }
+  })
+
+  // ── Renderiza o resultado ─────────────────────────────────
+  function _mcdRenderizar(d) {
+    _mcdDeclAtual = d
+
+    var cod   = d['CODIGO_AUTENTICIDADE'] || d['COD_AUTENTICIDADE'] || '—'
+    var vlFmt = _fmtBRL(d['VALOR_TOTAL'])
+
+    // Grid de informações
+    var grid = document.getElementById('mcdInfoGrid')
+    if (grid) {
+      grid.innerHTML = [
+        _mcdCard('Data de Criação',   _fmtData(d['DATA_CRIACAO'])),
+        _mcdCard('PCA / Ano',         (d['PCA_NOME']||'—') + ' — ' + (d['ANO']||'—')),
+        _mcdCard('Repartição',        d['REPARTICAO']||'—'),
+        _mcdCard('Usuário / Matrícula', (d['USUARIO']||'—') + (d['MATRICULA'] ? ' · ' + d['MATRICULA'] : '')),
+        _mcdCard('Itens / Valor Total', (d['QTD_ITENS']||'—') + ' item(s) · <span style="color:#047857;font-weight:700;">' + vlFmt + '</span>'),
+        _mcdCard('Arquivo',            '<span style="font-size:11px;word-break:break-all;">' + (d['ARQUIVO']||'—') + '</span>')
+      ].join('')
+    }
+
+    // Autenticidade
+    var autentCode = document.getElementById('mcdAutentCode')
+    if (autentCode) autentCode.textContent = cod
+
+    // Itens
+    var itensWrap  = document.getElementById('mcdItensWrap')
+    var itensTbody = document.getElementById('mcdItensTbody')
+    try {
+      var itens = JSON.parse(d['ITENS_JSON'] || '[]')
+      if (itens.length > 0 && itensTbody && itensWrap) {
+        itensTbody.innerHTML = itens.map(function(it) {
+          return '<tr>' +
+            '<td style="font-family:monospace;font-weight:700;color:var(--accent);">' + (it.seq||'—') + '</td>' +
+            '<td style="font-family:monospace;font-size:11px;color:var(--text-muted);">' + (it.id||'—') + '</td>' +
+            '<td>' + (it.prod||'—') + '</td>' +
+            '<td style="text-align:right;">' + (it.qtd||'—') + '</td>' +
+            '<td style="text-align:right;font-family:monospace;">' + (it.vl ? _fmtBRL(it.vl) : '—') + '</td>' +
+          '</tr>'
+        }).join('')
+        itensWrap.style.display = 'block'
+      } else if (itensWrap) {
+        itensWrap.style.display = 'none'
+      }
+    } catch(_) {
+      if (itensWrap) itensWrap.style.display = 'none'
+    }
+
+    // Exibe resultado
+    var res = document.getElementById('mcdResult')
+    if (res) res.classList.add('visivel')
+
+    setTimeout(function() {
+      if (typeof lucide !== 'undefined') lucide.createIcons()
+    }, 40)
+  }
+
+  function _mcdCard(label, value) {
+    return '<div class="mcd-info-card">' +
+      '<div class="mcd-info-card-label">' + label + '</div>' +
+      '<div class="mcd-info-card-value">' + value + '</div>' +
+    '</div>'
+  }
+
+  // ── Busca a declaração na PCA_CONFIG ─────────────────────
+  window.buscarDeclaracaoRapida = async function() {
+    var inp   = document.getElementById('mcdBuscaInput')
+    var btn   = document.getElementById('mcdBtnBuscar')
+    var termo = (inp ? inp.value : '').trim().toLowerCase()
+
+    if (!termo) {
+      _mcdStatus('Digite um ID, código de autenticidade ou sequencial para buscar.', 'info')
+      return
+    }
+
+    // Verifica variáveis globais necessárias
+    var configId = (typeof CONFIG_SHEET_ID !== 'undefined') ? CONFIG_SHEET_ID : ''
+    var apiKey   = (typeof GS_API_KEY     !== 'undefined') ? GS_API_KEY     : ''
+
+    if (!configId || !apiKey) {
+      _mcdStatus('Sistema não configurado. Configure o Google Sheets nas Configurações.', 'erro')
+      return
+    }
+
+    if (btn) { btn.disabled = true }
+    _mcdStatus('Buscando declaração...', 'info')
+    var res = document.getElementById('mcdResult')
+    if (res) res.classList.remove('visivel')
+
+    try {
+      var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + configId +
+                '/values/DECLARA%C3%87%C3%95ES%20FEITAS!A1:Z1000' +
+                '?valueRenderOption=FORMATTED_VALUE&key=' + apiKey
+
+      var resp = await fetch(url)
+      if (!resp.ok) throw new Error('HTTP ' + resp.status)
+      var json = await resp.json()
+
+      var rows = json.values || []
+      if (rows.length < 2) {
+        _mcdStatus('Nenhuma declaração registrada ainda.', 'info')
+        return
+      }
+
+      var headers = rows[0].map(function(h) { return (h||'').trim().toUpperCase() })
+      var declIdx = -1
+
+      // Busca por ID, CODIGO_AUTENTICIDADE, SEQUENCIAL
+      var keysToSearch = ['ID','CODIGO_AUTENTICIDADE','COD_AUTENTICIDADE','SEQUENCIAL']
+
+      for (var i = 1; i < rows.length; i++) {
+        var row = rows[i]
+        var obj = {}
+        headers.forEach(function(h, idx) { obj[h] = row[idx] || '' })
+
+        var encontrado = keysToSearch.some(function(key) {
+          var val = (obj[key] || '').toLowerCase()
+          return val === termo || val.includes(termo)
+        })
+
+        if (encontrado) { declIdx = i; break }
+      }
+
+      if (declIdx === -1) {
+        _mcdStatus('Declaração não encontrada. Verifique o código e tente novamente.', 'erro')
+        return
+      }
+
+      var row = rows[declIdx]
+      var decl = {}
+      headers.forEach(function(h, idx) { decl[h] = row[idx] || '' })
+
+      _mcdStatus('', '')
+      _mcdRenderizar(decl)
+
+    } catch(e) {
+      console.error('[CONSULTA-DECL]', e)
+      _mcdStatus('Erro ao buscar: ' + e.message, 'erro')
+    } finally {
+      if (btn) { btn.disabled = false }
+    }
+  }
+
+  // ── Imprime a declaração usando o mesmo template do sistema ──
+  window.imprimirDeclaracaoRapida = async function() {
+    if (!_mcdDeclAtual) return
+
+    var d = _mcdDeclAtual
+
+    // Verifica jsPDF
+    if (typeof window.jspdf === 'undefined' && typeof window.jsPDF === 'undefined') {
+      if (typeof mostrarToast === 'function') mostrarToast('Biblioteca PDF não carregada. Recarregue a página.', 'erro')
+      return
+    }
+
+    var btn = document.getElementById('mcdBtnImprimir')
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;"></i> Gerando...'; if(typeof lucide!=='undefined') lucide.createIcons({nodes:[btn]}) }
+
+    try {
+      var { jsPDF } = window.jspdf || { jsPDF: window.jsPDF }
+      var doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' })
+      var W=210, H=297, ML=20, MR=20, TW=170
+      var AZUL=[30,42,74], VERDE=[5,150,105], CINZA=[100,116,139], BRANCO=[255,255,255]
+
+      // Lê campos da declaração
+      var cod      = d['CODIGO_AUTENTICIDADE'] || d['COD_AUTENTICIDADE'] || '—'
+      var pcaNome  = d['PCA_NOME']  || ''
+      var ano      = d['ANO']       || ''
+      var reptNome = d['REPARTICAO'] || ''
+      var userNome = d['USUARIO']   || ''
+      var userMatr = d['MATRICULA'] || ''
+      var dataFmt  = d['DATA_CRIACAO'] ? (function(){
+        try {
+          var dt = new Date(d['DATA_CRIACAO'])
+          return dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})
+        } catch(_){ return d['DATA_CRIACAO'] || '' }
+      })() : ''
+      var horaFmt  = d['DATA_CRIACAO'] ? (function(){
+        try {
+          var dt = new Date(d['DATA_CRIACAO'])
+          return dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})
+        } catch(_){ return '' }
+      })() : ''
+
+      var itens = []
+      try { itens = JSON.parse(d['ITENS_JSON'] || '[]') } catch(_) {}
+      var vlTotal = parseFloat(d['VALOR_TOTAL']) || 0
+
+      // ── Cabeçalho ──
+      doc.setFillColor(...AZUL); doc.rect(0,0,W,18,'F')
+      doc.setTextColor(...BRANCO); doc.setFont('helvetica','bold'); doc.setFontSize(8)
+      doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL', W/2, 11, {align:'center'})
+
+      doc.setFillColor(240,242,247); doc.rect(ML,22,TW,20,'F')
+      doc.setDrawColor(...VERDE); doc.setLineWidth(0.8); doc.line(ML,22,ML,42)
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','bold'); doc.setFontSize(12)
+      doc.text('DEMONSTRAÇÃO DA PREVISÃO DA CONTRATAÇÃO NO PLANO DE CONTRATAÇÕES ANUAL', W/2, 30, {align:'center',maxWidth:TW-4})
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CINZA)
+      doc.text('Plano de Contratações Anual ' + ano + ' — ' + pcaNome, W/2, 38, {align:'center'})
+
+      var y = 50
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
+
+      var t1 = 'A presente contratação, destinada a atender às demandas da ' + (reptNome||'unidade demandante') + ', encontra-se devidamente alinhada aos objetivos estratégicos da Administração Municipal.'
+      var l1 = doc.splitTextToSize(t1, TW); doc.text(l1,ML,y); y+=l1.length*5.5+4
+
+      var t2 = 'O fornecimento dos itens é essencial para o adequado funcionamento das unidades administrativas e operacionais do Município, garantindo suporte às atividades institucionais desenvolvidas no âmbito da Prefeitura, bem como assegurando a continuidade e a eficiência dos serviços públicos prestados.'
+      var l2 = doc.splitTextToSize(t2, TW); doc.text(l2,ML,y); y+=l2.length*5.5+4
+
+      var t3 = 'A demanda encontra-se regularmente prevista no Plano de Contratações Anual (PCA), conforme os sequenciais e respectivos IDs constantes na tabela a seguir, os quais identificam precisamente os itens a serem contratados:'
+      var l3 = doc.splitTextToSize(t3, TW); doc.text(l3,ML,y); y+=l3.length*5.5+6
+
+      // ── Tabela de itens ──
+      var cabTab  = [['Sequencial','ID Protocolo','Item','Qtd.','Valor Total']]
+      var bodyTab = itens.map(function(it){
+        return [
+          String(it.seq||''),
+          String(it.id||'—'),
+          String(it.prod||''),
+          String(it.qtd||'—'),
+          (it.vl ? (parseFloat(it.vl)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : '—')
+        ]
+      })
+
+      var fmtVl = function(v){ return (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) }
+      var footTab = [['','','TOTAL GERAL (' + itens.length + ' item(s))','', fmtVl(vlTotal)]]
+
+      doc.autoTable({
+        startY:y, head:cabTab, body:bodyTab, foot:footTab, theme:'grid',
+        headStyles:{fillColor:AZUL,textColor:BRANCO,fontStyle:'bold',fontSize:8,halign:'center'},
+        footStyles:{fillColor:[240,242,247],textColor:AZUL,fontStyle:'bold',fontSize:8},
+        bodyStyles:{fontSize:8,textColor:[30,42,74]},
+        alternateRowStyles:{fillColor:[248,249,252]},
+        columnStyles:{0:{cellWidth:24,halign:'center'},1:{cellWidth:28,halign:'center'},2:{cellWidth:80,halign:'left'},3:{cellWidth:14,halign:'center'},4:{cellWidth:24,halign:'right'}},
+        tableWidth:TW, margin:{left:ML,right:MR}, showHead:'firstPage', showFoot:'lastPage',
+        didDrawPage:function(dp){ if(dp.pageNumber>1){ doc.setFillColor(...AZUL);doc.rect(0,0,W,12,'F');doc.setTextColor(...BRANCO);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL',W/2,8,{align:'center'}) } }
+      })
+
+      y = doc.lastAutoTable.finalY + 10
+      if (y > H-70) { doc.addPage(); y=30 }
+
+      doc.setTextColor(...AZUL); doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
+      var t4 = 'Dessa forma, resta evidenciado que a contratação encontra-se compatível com o planejamento anual das contratações, atendendo ao disposto no artigo 12 da Lei n.º 14.133/2021, assegurando a adequada vinculação entre a demanda identificada, o Plano de Contratações Anual e a futura contratação.'
+      var l4 = doc.splitTextToSize(t4, TW); doc.text(l4,ML,y); y+=l4.length*5.5+14
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...CINZA)
+      doc.text('Rio Verde — GO, ' + dataFmt + (horaFmt ? ', às ' + horaFmt : ''), ML, y); y+=16
+
+      if (y > H-50) { doc.addPage(); y=30 }
+      doc.setDrawColor(...CINZA); doc.setLineWidth(0.3); doc.line(ML,y,ML+90,y); y+=5
+      doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...AZUL)
+      if (userNome) doc.text(userNome,ML,y); y+=4.5
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...CINZA)
+      if (reptNome) doc.text(reptNome,ML,y)
+      if (userMatr) { y+=4; doc.text('Matricula: '+userMatr,ML,y) }
+
+      // Rodapé com autenticidade
+      var totalPgs = doc.internal.getNumberOfPages()
+      for (var p=1; p<=totalPgs; p++) {
+        doc.setPage(p)
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...CINZA)
+        doc.text('Pag. '+p+' / '+totalPgs, W-MR, H-8, {align:'right'})
+        doc.text('Plano de Contratações Anual — Rio Verde/GO', ML, H-8)
+        if (p === totalPgs) {
+          doc.setFillColor(245,246,250); doc.rect(ML,H-22,TW,10,'F')
+          doc.setDrawColor(...CINZA); doc.setLineWidth(0.2); doc.rect(ML,H-22,TW,10,'S')
+          doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...AZUL)
+          doc.text('Codigo de Autenticidade: ' + cod, ML+3, H-16)
+          doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...CINZA)
+          doc.text('Documento gerado pelo Sistema PCA — Prefeitura Municipal de Rio Verde/GO', ML+3, H-12)
+        }
+      }
+
+      var nomeArquivo = d['ARQUIVO'] || ('DECLARACAO_PCA_' + ano + '_' + (d['ID']||'consulta') + '.pdf')
+      doc.save(nomeArquivo)
+
+      if (typeof mostrarToast === 'function') mostrarToast('Declaração gerada: ' + nomeArquivo, 'ok')
+
+    } catch(e) {
+      console.error('[IMPR-DECL]', e)
+      if (typeof mostrarToast === 'function') mostrarToast('Erro ao gerar PDF: ' + e.message, 'erro')
+    } finally {
+      if (btn) {
+        btn.disabled = false
+        btn.innerHTML = '<i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimir Declaração'
+        if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] })
+      }
+    }
+  }
+
+  // ── Inicialização ─────────────────────────────────────────
+  function _init() {
+    _bindDockVisibility()
+    if (typeof lucide !== 'undefined') lucide.createIcons()
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _init)
+  } else {
+    _init()
+  }
+
+})() // fim FLOATING DOCK + CONSULTA DECLARAÇÃO
 
 </script>
