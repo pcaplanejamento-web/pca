@@ -8,7 +8,7 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title id="pageTitle">PCA - Rio Verde</title>
 <link rel="icon" id="pageFavicon" type="image/png" href="">
 
@@ -1008,6 +1008,22 @@ LAYOUT
 .ci-filtro-item:hover { background: var(--surface2); }
 .ci-filtro-item:focus-within { background: var(--accent-soft); }
 .ci-filtro-item:focus-within::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 0 0 2px 2px;
+}
+/* Filtro com valor ativo — destaque para indicar interconexão */
+.ci-filtro-item.filtro-ativo {
+  background: var(--accent-soft);
+}
+.ci-filtro-item.filtro-ativo .ci-filtro-item-label {
+  color: var(--accent);
+  font-weight: 600;
+}
+.ci-filtro-item.filtro-ativo::after {
   content: '';
   position: absolute;
   bottom: -2px; left: 0; right: 0;
@@ -2468,6 +2484,16 @@ SEARCHABLE DROPDOWN
 .sd-item:hover  { background: var(--accent-soft); }
 .sd-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
+/* Labels de local enriquecidos — legibilidade em telas pequenas */
+@media (max-width: 640px) {
+  .sd-item { white-space: normal; line-height: 1.4; padding: 10px 14px; }
+  #localFilter option,
+  #editFiltroLocal option,
+  #exclFiltroLocal option,
+  #addF-local option,
+  #lote-local option { white-space: normal; }
+}
+
 .orc-positivo { color: #16a34a; font-weight: 700; }
 
 /* ── Progress overlay ── */
@@ -3318,13 +3344,20 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
     font-size: 10px !important;
   }
 
-  /* Oculta actions no mobile — exceto botão dark mode */
+  /* Oculta ações do header no mobile, preserva btnDark no canto direito */
   .header-actions {
-    display: none;
+    display: flex;
+    gap: 4px;
+    align-items: center;
   }
-  /* Mantém botão dark mode sempre visível no mobile */
+  .header-actions > *:not(#btnDark) {
+    display: none !important;
+  }
+  /* btnDark sempre visível e acessível no mobile */
   #btnDark {
     display: inline-flex !important;
+    padding: 8px 10px;
+    flex-shrink: 0;
   }
 
   .header-actions .btn {
@@ -3357,7 +3390,8 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
   .controls     { gap: 0; margin-bottom: 12px; }
   .box          { padding: 10px 12px; }
   label         { font-size: 11px; }
-  input, select { font-size: 14px; padding: 10px 10px; }
+  /* font-size >= 16px em inputs/selects: impede zoom automático no iOS ao focar */
+  input, select { font-size: 16px; padding: 10px 10px; }
 
   /* Filtro painel — mobile */
   .filtro-busca-row {
@@ -3403,7 +3437,48 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
     padding: 5px 0;
   }
 
-  .consulta-header { margin-bottom: 12px; }
+  /* sd-search, sd-display e selects de filtro: >= 16px para evitar zoom iOS */
+  .sd-search,
+  .sd-display,
+  .ci-filtro-native-select,
+  .ci-filtro-text-input {
+    font-size: 16px !important;
+  }
+
+  /* sd-panel: não transbordar a viewport em mobile */
+  .sd-panel {
+    left: 0;
+    right: 0;
+    max-width: calc(100vw - 24px);
+    width: calc(100vw - 24px);
+  }
+
+  /* sd-item: área de toque adequada (mín. 44px — padrão Apple HIG) */
+  .sd-item {
+    padding: 13px 16px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  /* sd-display com altura confortável para toque */
+  .sd-display {
+    min-height: 44px;
+    padding: 10px 36px 10px 14px;
+  }
+
+  /* ci-filtro-item: área generosa para toque */
+  .ci-filtro-item {
+    min-height: 52px;
+  }
+
+  /* Native selects: altura mínima para toque */
+  select,
+  .ci-filtro-native-select {
+    min-height: 44px;
+  }
   .consulta-header-info h2 { font-size: 16px; }
   .consulta-header-info p  { display: none; }
   .tabela-moderna-wrap { border-radius: 12px; }
@@ -12887,6 +12962,10 @@ function unicos(campo) {
 }
 
 /* ── SearchableDropdown: cria dropdown com busca sobre um <select> oculto ── */
+
+/* Registro global de instâncias — controle de accordion (apenas 1 aberto por vez) */
+const _sdRegistry = []
+
 class SearchableDropdown {
   constructor(wrapperId, selectId, onChange) {
     this.wrap     = document.getElementById(wrapperId)
@@ -12894,6 +12973,8 @@ class SearchableDropdown {
     this.onChange = onChange
     this.value    = ""
     this._build()
+    /* Registra para controle de accordion */
+    _sdRegistry.push(this)
   }
 
   _build() {
@@ -12962,19 +13043,149 @@ class SearchableDropdown {
   }
 
   reset() { this._select("", this.opts?.[0]?.t || "Geral") }
-  _toggle() { this.panel.classList.toggle("open"); if (this.panel.classList.contains("open")) { this.search.value = ""; this._render(""); this.search.focus() } }
-  _close()  { this.panel.classList.remove("open") }
+
+  _toggle() {
+    const estaAberto = this.panel.classList.contains("open")
+    /* Fecha todos os outros dropdowns (accordion exclusivo) */
+    _sdRegistry.forEach(sd => { if (sd !== this) sd._close() })
+    if (estaAberto) {
+      this._close()
+    } else {
+      this.panel.classList.add("open")
+      this.search.value = ""
+      this._render("")
+      this.search.focus()
+    }
+  }
+
+  _close() { this.panel.classList.remove("open") }
 }
 
 /* Instâncias dos dropdowns com busca */
 let sdLocal, sdClass, sdDominio, sdPrioridade, sdMes
 
 function iniciarSearchableDropdowns() {
-  sdLocal      = new SearchableDropdown("sd-localTabela",      "localTabela",      aplicarFiltrosTabela)
-  sdClass      = new SearchableDropdown("sd-classTabela",      "classTabela",      aplicarFiltrosTabela)
-  sdDominio    = new SearchableDropdown("sd-dominioTabela",    "dominioTabela",    aplicarFiltrosTabela)
-  sdPrioridade = new SearchableDropdown("sd-prioridadeTabela", "prioridadeTabela", aplicarFiltrosTabela)
-  sdMes        = new SearchableDropdown("sd-mesTabela",        "mesTabela",        aplicarFiltrosTabela)
+  /* callback: filtra E re-popula os demais filtros com opções disponíveis (interconexão) */
+  const comRePopular = () => { aplicarFiltrosTabela(); _rePopularFiltrosConsulta() }
+
+  sdLocal      = new SearchableDropdown("sd-localTabela",      "localTabela",      comRePopular)
+  sdClass      = new SearchableDropdown("sd-classTabela",      "classTabela",      comRePopular)
+  sdDominio    = new SearchableDropdown("sd-dominioTabela",    "dominioTabela",    comRePopular)
+  sdPrioridade = new SearchableDropdown("sd-prioridadeTabela", "prioridadeTabela", comRePopular)
+  sdMes        = new SearchableDropdown("sd-mesTabela",        "mesTabela",        comRePopular)
+
+  /* saldoFilter (select nativo) também participa da interconexão */
+  document.getElementById("saldoFilter")?.addEventListener("change", () => {
+    aplicarFiltrosTabela(); _rePopularFiltrosConsulta()
+  })
+}
+
+/**
+ * _rePopularFiltrosConsulta
+ * Re-popula cada filtro da Consulta de Itens com os valores disponíveis
+ * considerando as seleções ativas nos outros filtros.
+ * Garante que o utilizador só veja opções que realmente existem nos dados filtrados.
+ * Os dados originais (dados[]) nunca são alterados.
+ */
+function _rePopularFiltrosConsulta() {
+  /* Lê os valores actuais de cada filtro */
+  const sel = {
+    local   : document.getElementById("localTabela")?.value      || "",
+    classe  : document.getElementById("classTabela")?.value      || "",
+    dominio : document.getElementById("dominioTabela")?.value    || "",
+    prior   : document.getElementById("prioridadeTabela")?.value || "",
+    mes     : document.getElementById("mesTabela")?.value        || "",
+    saldo   : document.getElementById("saldoFilter")?.value      || "",
+  }
+
+  /**
+   * Retorna subconjunto de dados[] aplicando todos os filtros EXCEPTO o indicado.
+   * Usado para calcular as opções disponíveis de cada filtro.
+   */
+  const _base = (excluir) => {
+    let base = [...dados]
+    if (excluir !== "local"   && sel.local)   base = base.filter(r => norm(r[COL.LOCAL])         === sel.local)
+    if (excluir !== "classe"  && sel.classe)  base = base.filter(r => norm(r[COL.CLASSIFICACAO]) === sel.classe)
+    if (excluir !== "dominio" && sel.dominio) base = base.filter(r => norm(r[COL.DOMINIO])       === sel.dominio)
+    if (excluir !== "prior"   && sel.prior)   base = base.filter(r => normPrioridade(r[COL.PRIORIDADE]) === sel.prior)
+    if (excluir !== "mes"     && sel.mes)     base = base.filter(r => normData(r[COL.DATA])      === sel.mes)
+    if (excluir !== "saldo") {
+      if (sel.saldo === "com")     base = base.filter(r => (parseFloat(r[COL.SALDO_UTIL])||0) > 0)
+      if (sel.saldo === "sem")     base = base.filter(r => (parseFloat(r[COL.SALDO_UTIL])||0) === 0)
+      if (sel.saldo === "parcial") base = base.filter(r => { const s = parseFloat(r[COL.SALDO_UTIL])||0; return s > 0 && s < getValor(r) })
+    }
+    return base
+  }
+
+  /* Valores únicos de um campo num subconjunto */
+  const unicosCampo = (base, campo) =>
+    [...new Set(base.map(r => norm(r[campo])))].filter(Boolean).sort()
+
+  /**
+   * Actualiza um SearchableDropdown com novos opts, preservando a seleção actual
+   * se o valor ainda está disponível, ou limpando caso contrário.
+   * Para sdLocal enriquece o label com _localLabel (mantém v = código puro).
+   */
+  const _atualizar = (sd, novasOpts, labelTodos, isLocal = false) => {
+    if (!sd) return
+    const valorAtual = sd.value
+    /* Re-popula */
+    sd.populate(novasOpts, labelTodos)
+    /* Se era local, enriquece os labels sem alterar os values */
+    if (isLocal) {
+      sd.opts = sd.opts.map(o => o.v ? { v: o.v, t: _localLabel(o.v) } : o)
+      sd.sel.innerHTML = sd.opts.map(o => `<option value="${o.v}">${o.t}</option>`).join("")
+    }
+    /* Restaura seleção quando o valor ainda existe */
+    if (valorAtual && novasOpts.includes(valorAtual)) {
+      sd.value = valorAtual
+      sd.sel.value = valorAtual
+      const label = isLocal ? _localLabel(valorAtual) : valorAtual
+      sd._setDisplay(label)
+    }
+    sd._render("")
+  }
+
+  /* Re-popula cada filtro com o universo restrito pelos demais filtros activos */
+  _atualizar(sdLocal,      unicosCampo(_base("local"),   COL.LOCAL),        "Geral", true)
+  _atualizar(sdClass,      unicosCampo(_base("classe"),  COL.CLASSIFICACAO), "Geral")
+  _atualizar(sdDominio,    unicosCampo(_base("dominio"), COL.DOMINIO),       "Geral")
+
+  /* Prioridade: apenas as que existem no subconjunto */
+  const priorDisp = ["ALTA","MÉDIA","BAIXA"].filter(p =>
+    _base("prior").some(r => normPrioridade(r[COL.PRIORIDADE]) === p)
+  )
+  _atualizar(sdPrioridade, priorDisp, "Geral")
+
+  /* Mês/Ano: datas disponíveis no subconjunto */
+  const mesesDisp = [...new Set(_base("mes").map(r => normData(r[COL.DATA])))].filter(Boolean).sort()
+  _atualizar(sdMes, mesesDisp, "Geral")
+
+  /* Marca visualmente os filtros com seleção ativa */
+  const _marcaAtivo = (id, valor) => {
+    document.getElementById(id)?.classList.toggle("filtro-ativo", !!valor)
+  }
+  _marcaAtivo("ci-fi-local",   sel.local)
+  _marcaAtivo("ci-fi-class",   sel.classe)
+  _marcaAtivo("ci-fi-dominio", sel.dominio)
+  _marcaAtivo("ci-fi-prior",   sel.prior)
+  _marcaAtivo("ci-fi-mes",     sel.mes)
+  _marcaAtivo("ci-fi-saldo",   sel.saldo)
+}
+
+/**
+ * _localLabel — retorna label enriquecido para exibição de código de local.
+ * O value do option permanece sempre o código puro (para filtragem).
+ * @param {string} codigo - código do local (ex: "SMPG")
+ * @returns {string} "SMPG - SECRETARIA MUNICIPAL DE PLANEJAMENTO E GESTÃO" ou "SMPG"
+ */
+function _localLabel(codigo) {
+  if (!codigo) return codigo
+  const lista = (typeof window.reptGetLista === "function") ? window.reptGetLista() : []
+  const rept  = lista.find(r =>
+    String(r.codigo || "").trim().toUpperCase() === String(codigo).trim().toUpperCase()
+  )
+  return (rept && rept.nome) ? `${codigo} - ${rept.nome}` : codigo
 }
 
 function popularSelect(id, vals, labelTodos = "Todos") {
@@ -12988,10 +13199,27 @@ function popularSelect(id, vals, labelTodos = "Todos") {
 }
 
 function popularFiltros() {
-  popularSelect("localFilter", unicos(COL.LOCAL))
+  // localFilter — value = código puro; label = "SIGLA - NOME" quando disponível
+  const _locaisUnicos = unicos(COL.LOCAL)
+  const selLF = document.getElementById("localFilter")
+  if (selLF) {
+    selLF.innerHTML = `<option value="">Todos</option>`
+    _locaisUnicos.forEach(v => {
+      const o = document.createElement("option")
+      o.value = v
+      o.textContent = _localLabel(v)
+      selLF.appendChild(o)
+    })
+  }
 
   /* Popula dropdowns com busca */
-  sdLocal     ?.populate(unicos(COL.LOCAL),         "Geral")
+  // sdLocal — opts enriquecidos: v = código puro, t = "SIGLA - NOME"
+  if (sdLocal) {
+    sdLocal.populate(_locaisUnicos, "Geral")
+    sdLocal.opts = sdLocal.opts.map(o => o.v ? { v: o.v, t: _localLabel(o.v) } : o)
+    sdLocal._render("")
+    sdLocal._setDisplay(sdLocal.value ? _localLabel(sdLocal.value) : (sdLocal.opts[0]?.t || "Geral"))
+  }
   sdClass     ?.populate(unicos(COL.CLASSIFICACAO), "Geral")
   sdDominio   ?.populate(unicos(COL.DOMINIO),       "Geral")
   sdPrioridade?.populate(["ALTA","MÉDIA","BAIXA"],  "Geral")
@@ -13329,6 +13557,15 @@ function limparFiltros() {
   sdLocal?.reset(); sdClass?.reset(); sdDominio?.reset()
   sdPrioridade?.reset(); sdMes?.reset()
   FILTROS_CONFIG.forEach(f => { document.getElementById(f.id).value = "" })
+  /* Reseta saldoFilter */
+  const sf = document.getElementById("saldoFilter")
+  if (sf) sf.value = ""
+  /* Remove indicadores visuais de filtros ativos */
+  ;["ci-fi-local","ci-fi-class","ci-fi-dominio","ci-fi-prior","ci-fi-mes","ci-fi-saldo"].forEach(id => {
+    document.getElementById(id)?.classList.remove("filtro-ativo")
+  })
+  /* Restaura todos os filtros ao universo completo */
+  popularFiltros()
   aplicarFiltrosTabela()
 }
 
@@ -14955,7 +15192,7 @@ document.getElementById("modalPdfLocal").addEventListener("click", e => {
     const locais   = [...new Set(dados.map(r => norm(r[COL.LOCAL])))].filter(Boolean).sort()
     document.getElementById("lote-classif").innerHTML  = `<option value="">— selecione —</option>` + classifs.map(v => `<option>${v}</option>`).join("")
     document.getElementById("lote-dominio").innerHTML  = `<option value="">— selecione —</option>` + dominios.map(v => `<option>${v}</option>`).join("")
-    document.getElementById("lote-local").innerHTML    = `<option value="">— selecione —</option>` + locais.map(v => `<option>${v}</option>`).join("")
+    document.getElementById("lote-local").innerHTML    = `<option value="">— selecione —</option>` + locais.map(v => `<option value="${v}">${_localLabel(v)}</option>`).join("")
     // Reseta toggles
     ;["classif","dominio","prioridade","data","local","unidade","tipoControle","saldo","qtdeUtil","dtAtualizacao"].forEach(k => {
       const ck = document.getElementById(`lote-ck-${k}`)
@@ -15223,7 +15460,7 @@ document.getElementById("modalPdfLocal").addEventListener("click", e => {
     const dominios = [...new Set(_base.map(r => norm(r[COL.DOMINIO])))].filter(Boolean).sort()
     const unidades = [...new Set(_base.map(r => norm(r[COL.UNIDADE])))].filter(Boolean).sort()
 
-    selLocal.innerHTML   = `<option value="">Todos os locais</option>`   + locais.map(l => `<option>${l}</option>`).join("")
+    selLocal.innerHTML   = `<option value="">Todos os locais</option>`   + locais.map(l => `<option value="${l}">${_localLabel(l)}</option>`).join("")
     selClassif.innerHTML = `<option value="">Classificação</option>`     + classifs.map(c => `<option>${c}</option>`).join("")
     selDom.innerHTML     = `<option value="">Domínio</option>`           + dominios.map(d => `<option>${d}</option>`).join("")
     selUn.innerHTML      = `<option value="">Unidade</option>`           + unidades.map(u => `<option>${u}</option>`).join("")
@@ -16028,19 +16265,20 @@ cfgMostrarSecao = function(id) {
     const _dm      = _addDadosModulo()
     const locais   = [...new Set(_dm.map(r => norm(r[COL.LOCAL])).filter(Boolean))].sort()
     const classifs = [...new Set(_dm.map(r => r[COL.CLASSIFICACAO]).filter(Boolean))].sort()
-    const _popular = (id, opcoes) => {
+    const _popular = (id, opcoes, enriquecerLocal = false) => {
       const sel = document.getElementById(id)
       if (!sel) return
       const atual = sel.value
       sel.innerHTML = '<option value="">— selecione —</option>'
       opcoes.forEach(v => {
         const op = document.createElement('option')
-        op.value = op.textContent = v
+        op.value = v
+        op.textContent = enriquecerLocal ? _localLabel(v) : v
         sel.appendChild(op)
       })
       if (atual) sel.value = atual
     }
-    _popular('addF-local',   locais)
+    _popular('addF-local',   locais,   true)
     _popular('addF-classif', classifs)
     // Aplica lock do filtro global de repartição após popular
     if (typeof window._reptAplicarLockAdicionar === "function") window._reptAplicarLockAdicionar()
@@ -16752,13 +16990,14 @@ cfgMostrarSecao = function(id) {
     const locais   = [...new Set(_base.map(r => norm(r[COL.LOCAL])).filter(Boolean))].sort()
     const classifs = [...new Set(_base.map(r => r[COL.CLASSIFICACAO]).filter(Boolean))].sort()
 
-    const _popular = (id, placeholder, opcoes) => {
+    const _popular = (id, placeholder, opcoes, enriquecerLocal = false) => {
       const sel = document.getElementById(id)
       if (!sel) return
       sel.innerHTML = `<option value="">${placeholder}</option>`
       opcoes.forEach(v => {
         const op = document.createElement("option")
-        op.value = op.textContent = v
+        op.value = v
+        op.textContent = enriquecerLocal ? _localLabel(v) : v
         sel.appendChild(op)
       })
     }
@@ -16778,7 +17017,7 @@ cfgMostrarSecao = function(id) {
         lbl.style.display = "inline-flex"
       }
     } else {
-      _popular("exclFiltroLocal", "Local", locais)
+      _popular("exclFiltroLocal", "Local", locais, true)
       if (selLocal) {
         selLocal.disabled = false
         selLocal.classList.remove("rept-locked")
