@@ -2399,6 +2399,142 @@ MODAL PDF POR LOCAL
 }
 #modalPdfLocal.aberto { display: flex; }
 
+/* ── Painel de Relatório — design profissional ──────────────────────── */
+.rpt-panel {
+  background: var(--surface);
+  border-radius: 16px;
+  width: 480px;
+  max-width: 96vw;
+  box-shadow: 0 24px 64px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+  border: 1px solid var(--border);
+  animation: modalIn .22s cubic-bezier(.16,1,.3,1);
+  overflow: hidden;
+}
+
+.rpt-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px 20px;
+}
+.rpt-header-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,rgba(67,97,238,.14),rgba(67,97,238,.06));
+  border: 1px solid rgba(67,97,238,.18);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.rpt-header-text { flex: 1; min-width: 0; }
+.rpt-title {
+  margin: 0 0 2px;
+  font-size: 16px; font-weight: 700;
+  color: var(--text); letter-spacing: -.2px;
+}
+.rpt-subtitle {
+  margin: 0;
+  font-size: 12.5px; color: var(--text-muted);
+}
+.rpt-close-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background .14s, color .14s;
+  flex-shrink: 0;
+}
+.rpt-close-btn:hover { background: var(--surface2); color: var(--text); }
+
+.rpt-divider { height: 1px; background: var(--border); margin: 0; }
+
+.rpt-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+.rpt-field { display: flex; flex-direction: column; gap: 6px; }
+.rpt-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text); letter-spacing: .01em;
+}
+.rpt-select-wrap {
+  position: relative;
+  display: flex; align-items: center;
+}
+.rpt-select-arrow {
+  position: absolute; right: 12px;
+  color: var(--text-muted); pointer-events: none;
+}
+.rpt-select {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.rpt-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(67,97,238,.12);
+}
+.rpt-hint { font-size: 11.5px; color: var(--text-muted); }
+
+.rpt-info-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(67,97,238,.06);
+  border: 1px solid rgba(67,97,238,.14);
+}
+.rpt-info-text {
+  margin: 0;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+}
+
+.rpt-footer {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+}
+.rpt-btn-cancel {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px; font-family: inherit; font-weight: 600;
+  cursor: pointer;
+  transition: background .14s, color .14s, border-color .14s;
+}
+.rpt-btn-cancel:hover {
+  background: var(--surface2); color: var(--text);
+  border-color: var(--text-muted);
+}
+.rpt-btn-ok {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 20px;
+  border-radius: 9px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px; font-family: inherit; font-weight: 700;
+  cursor: pointer;
+  transition: opacity .14s, transform .1s;
+  box-shadow: 0 2px 8px rgba(67,97,238,.28);
+}
+.rpt-btn-ok:hover { opacity: .9; }
+.rpt-btn-ok:active { transform: scale(.97); }
+
 .modal-box {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -2517,23 +2653,47 @@ SEARCHABLE DROPDOWN
 #pdfProgressStep {
   font-size: 12px; color: var(--text-muted); text-align: center; min-height: 18px;
 }
+/* Wrapper que une barra + % lado a lado */
+#pdfProgressTrackWrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 #pdfProgressTrack {
-  width: 100%; height: 8px; background: var(--surface2);
-  border-radius: 99px; overflow: hidden;
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
 }
 #pdfProgressBar {
-  height: 100%; width: 0%; background: linear-gradient(90deg, #2563eb, #7c3aed);
-  border-radius: 99px; transition: width .25s ease;
+  height: 100%;
+  width: 0%;
+  border-radius: 99px;
+  /* Transição suave — mais longa para parecer fluida */
+  transition: width 0.45s cubic-bezier(.25,.8,.25,1);
+  /* Gradiente animado */
+  background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #2563eb 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
+  animation: shimmer 2s infinite linear;
 }
 @keyframes shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }
 }
 #pdfProgressPct {
-  font-size: 11px; color: var(--text-muted); font-weight: 600;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 700;
+  min-width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+  transition: color 0.2s;
 }
+/* Quando em 100% fica verde */
+#pdfProgressPct.completo { color: #059669; }
 
 
 /* ══════════════════════════════════════════════════════════════
@@ -4218,22 +4378,32 @@ PAINEL DE CONFIGURAÇÕES
 /* ── Botão hambúrguer para sidebar de configurações ── */
 #cfgSidebarToggle {
   display: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  border: 1.5px solid var(--border);
-  background: var(--surface2);
-  cursor: pointer;
-  color: var(--text-muted);
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  transition: background .15s, border-color .15s;
+  align-items: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: none;
+  cursor: pointer;
+  padding: 8px 7px;
+  transition: background 0.18s, border-color 0.18s;
   flex-shrink: 0;
 }
 #cfgSidebarToggle:hover {
-  background: var(--surface3);
+  background: var(--hover);
   border-color: var(--accent);
-  color: var(--text);
+}
+#cfgSidebarToggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s, width 0.2s;
+  transform-origin: center;
 }
 
 /* ── Overlay da sidebar mobile ── */
@@ -4692,6 +4862,9 @@ PAINEL DE CONFIGURAÇÕES
 .dock-btn[data-action="documentos"]:hover  { color: #7c3aed; background: rgba(124,58,237,0.07); }
 .dock-btn[data-action="orcamento"]:hover   { color: #f59e0b; background: rgba(245,158,11,0.07); }
 .dock-btn[data-action="indicadores"]:hover { color: #0ea5e9; background: rgba(14,165,233,0.07); }
+.dock-btn[data-action="relatorio"]   .dock-btn-icon { background: rgba(13,148,136,0.10); }
+.dock-btn[data-action="relatorio"]:hover .dock-btn-icon { background: rgba(13,148,136,0.18); }
+.dock-btn[data-action="relatorio"]:hover { color: #0d9488; background: rgba(13,148,136,0.07); }
 
 /* ── Label ────────────────────────────────────── */
 .dock-btn-label {
@@ -5268,7 +5441,7 @@ MODAL DE CONFIGURAÇÕES
     <div id="cfgTopBarLeft" style="display:flex;align-items:center;gap:12px;">
       <!-- Botão hambúrguer para sidebar de configurações (mobile) -->
       <button id="cfgSidebarToggle" onclick="cfgToggleSidebar()" title="Menu de configurações">
-        <i data-lucide="menu" style="width:16px;height:16px;"></i>
+        <span></span><span></span><span></span>
       </button>
       <button onclick="fecharConfiguracoes()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:all .15s;" title="Voltar">
         <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
@@ -8079,19 +8252,6 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div>
   </div><!-- /header-left wrapper -->
   <div class="header-actions">
-    <button class="btn btn-ghost" onclick="carregarDoSheets()" title="Sincronizar" style="gap:7px;">
-      <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
-      <span class="hide-sm">Sincronizar</span>
-    </button>
-    <button class="btn btn-ghost" onclick="exportarPDF()" style="gap:7px;">
-      <i data-lucide="file-text" style="width:15px;height:15px;"></i>
-      <span class="hide-sm">Gerar PCA</span>
-    </button>
-    <button class="btn btn-ghost" onclick="abrirModalPdfLocal()" style="gap:7px;">
-      <i data-lucide="clipboard-list" style="width:15px;height:15px;"></i>
-      <span class="hide-sm">Relatório</span>
-    </button>
-    <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
     <button class="btn btn-ghost" onclick="toggleDarkMode()" id="btnDark" title="Alternar Tema" style="padding:8px 10px;">
       <i data-lucide="moon" id="iconDark" style="width:16px;height:16px;"></i>
     </button>
@@ -8106,9 +8266,8 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
       <span>Sair</span>
     </button>
     <div style="width:1px;height:24px;background:var(--border);margin:0 2px;"></div>
-    <button class="btn btn-primary" onclick="abrirConfiguracoes()" style="gap:7px;">
+    <button class="btn btn-primary" onclick="abrirConfiguracoes()" title="Configurações" style="padding:8px 10px;">
       <i data-lucide="settings" style="width:15px;height:15px;"></i>
-      <span class="hide-sm">Configurações</span>
     </button>
   </div>
 </header>
@@ -8792,6 +8951,19 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
       <span class="dock-btn-label">Indicadores</span>
     </button>
 
+    <div class="dock-separator"></div>
+
+    <!-- 7. Gerar Relatório -->
+    <button class="dock-btn" data-action="relatorio"
+      onclick="abrirModalPdfLocal()"
+      title="Gerar Relatório"
+      aria-label="Gerar Relatório">
+      <div class="dock-btn-icon">
+        <i data-lucide="clipboard-list" style="width:18px;height:18px;color:#0d9488;"></i>
+      </div>
+      <span class="dock-btn-label">Relatório</span>
+    </button>
+
   </div><!-- /dock-scroll-inner -->
 </div>
 
@@ -9090,26 +9262,76 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
     <div id="pdfProgressTitle">Gerando PDF Oficial...</div>
     <div id="pdfProgressStep">Iniciando...</div>
-    <div id="pdfProgressTrack">
-      <div id="pdfProgressBar"></div>
+    <div id="pdfProgressTrackWrap">
+      <div id="pdfProgressTrack">
+        <div id="pdfProgressBar"></div>
+      </div>
+      <div id="pdfProgressPct">0%</div>
     </div>
-    <div id="pdfProgressPct">0%</div>
   </div>
 </div>
 
 <div id="modalPdfLocal">
-  <div class="modal-box">
-    <h3>📑 Gerar Relatório</h3>
-    <p>Selecione a secretaria para gerar o relatório:</p>
-    <div style="margin:16px 0;">
-      <select id="selectSecretaria" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:15px;cursor:pointer;outline:none;">
-        <option value="__todos__">Todas as secretarias</option>
-      </select>
+  <div class="rpt-panel">
+
+    <!-- Cabeçalho -->
+    <div class="rpt-header">
+      <div class="rpt-header-icon">
+        <i data-lucide="file-bar-chart" style="width:20px;height:20px;"></i>
+      </div>
+      <div class="rpt-header-text">
+        <h2 class="rpt-title">Gerar Relatório</h2>
+        <p class="rpt-subtitle">Selecione o escopo e gere o documento PDF</p>
+      </div>
+      <button class="rpt-close-btn" onclick="fecharModalPdfLocal()" title="Fechar">
+        <i data-lucide="x" style="width:16px;height:16px;"></i>
+      </button>
     </div>
-    <div class="modal-footer">
-      <button class="btn-modal-cancel" onclick="fecharModalPdfLocal()">Cancelar</button>
-      <button class="btn-modal-ok" onclick="gerarPdfPorLocal()">Gerar Relatório</button>
+
+    <!-- Divisor -->
+    <div class="rpt-divider"></div>
+
+    <!-- Corpo -->
+    <div class="rpt-body">
+
+      <!-- Campo de seleção -->
+      <div class="rpt-field">
+        <label class="rpt-label" for="selectSecretaria">
+          <i data-lucide="building-2" style="width:13px;height:13px;"></i>
+          Secretaria / Unidade
+        </label>
+        <div class="rpt-select-wrap">
+          <i data-lucide="chevron-down" class="rpt-select-arrow" style="width:14px;height:14px;"></i>
+          <select id="selectSecretaria" class="rpt-select">
+            <option value="__todos__">Todas as secretarias</option>
+          </select>
+        </div>
+        <span class="rpt-hint">Selecione uma secretaria específica ou gere o relatório completo</span>
+      </div>
+
+      <!-- Info card -->
+      <div class="rpt-info-card">
+        <i data-lucide="info" style="width:14px;height:14px;flex-shrink:0;color:var(--accent);"></i>
+        <p class="rpt-info-text">O PDF inclui indicadores-chave, gráficos analíticos e a listagem completa de itens do PCA para o escopo selecionado.</p>
+      </div>
+
     </div>
+
+    <!-- Divisor -->
+    <div class="rpt-divider"></div>
+
+    <!-- Rodapé com ações -->
+    <div class="rpt-footer">
+      <button class="rpt-btn-cancel" onclick="fecharModalPdfLocal()">
+        <i data-lucide="x" style="width:14px;height:14px;"></i>
+        Cancelar
+      </button>
+      <button class="rpt-btn-ok" onclick="gerarPdfPorLocal()">
+        <i data-lucide="download" style="width:14px;height:14px;"></i>
+        Gerar Relatório
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -10792,6 +11014,138 @@ function fecharMenu() {
   document.getElementById("hamburgerBtn").classList.remove("open")
   document.body.style.overflow = ""
 }
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO DE GESTO SWIPE — menu lateral (mobile only)
+   Abre o sideMenu arrastando da borda esquerda para a direita.
+   Fecha arrastando o menu aberto para a esquerda.
+   Não interfere em desktops (largura > 900px).
+══════════════════════════════════════════════════════════════ */
+;(function _swipeMenuInit() {
+
+  var MENU_W       = 260   // largura do drawer (px)
+  var EDGE_ZONE    = 28    // zona sensível na borda esquerda (px)
+  var OPEN_THRESH  = 80    // distância mínima para confirmar abertura (px)
+  var CLOSE_THRESH = 60    // distância mínima para confirmar fechamento (px)
+  var VELOCITY_MIN = 0.3   // velocidade mínima px/ms para aceitar swipe rápido
+
+  var _touching  = false
+  var _startX    = 0
+  var _startY    = 0
+  var _startTime = 0
+  var _dragging  = false
+
+  function _menu()    { return document.getElementById("sideMenu") }
+  function _overlay() { return document.getElementById("menuOverlay") }
+
+  // Remove/restaura transition CSS para que o menu acompanhe o dedo sem delay
+  function _setDragging(on) {
+    var m = _menu(), ov = _overlay()
+    if (m)  m.style.transition  = on ? "none" : ""
+    if (ov) ov.style.transition = on ? "none" : ""
+  }
+
+  // Posiciona o menu durante o arraste (0 = totalmente aberto, -MENU_W = fechado)
+  function _setPos(x) {
+    var m = _menu(), ov = _overlay()
+    var clamped = Math.max(-MENU_W, Math.min(0, x))
+    if (m)  m.style.transform = "translateX(" + clamped + "px)"
+    if (ov) {
+      var ratio = 1 - (-clamped / MENU_W)
+      ov.style.opacity     = (ratio * 0.35).toString()
+      ov.style.pointerEvents = ratio > 0.02 ? "all" : "none"
+    }
+  }
+
+  // Decide abrir ou fechar ao soltar o dedo
+  function _release(dx, elapsed) {
+    _setDragging(false)
+    var m = _menu()
+    if (!m) return
+    var isOpen    = m.classList.contains("open")
+    var velocity  = Math.abs(dx) / Math.max(elapsed, 1)
+    var fastSwipe = velocity >= VELOCITY_MIN
+
+    if (!isOpen) {
+      if (dx >= OPEN_THRESH || (fastSwipe && dx > 20)) {
+        abrirMenu()
+      }
+      m.style.transform = ""
+      var ov = _overlay()
+      if (ov) { ov.style.opacity = ""; ov.style.pointerEvents = "" }
+    } else {
+      if (dx <= -CLOSE_THRESH || (fastSwipe && dx < -20)) {
+        fecharMenu()
+      }
+      m.style.transform = ""
+    }
+  }
+
+  document.addEventListener("touchstart", function(e) {
+    if (window.innerWidth > 900 || e.touches.length !== 1) return
+    var touch  = e.touches[0]
+    var m      = _menu()
+    if (!m) return
+    var isOpen = m.classList.contains("open")
+    // Para abrir: só ativa na zona de borda esquerda
+    if (!isOpen && touch.clientX > EDGE_ZONE) return
+    _touching  = true
+    _dragging  = false
+    _startX    = touch.clientX
+    _startY    = touch.clientY
+    _startTime = Date.now()
+  }, { passive: true })
+
+  document.addEventListener("touchmove", function(e) {
+    if (!_touching) return
+    var touch = e.touches[0]
+    var dx = touch.clientX - _startX
+    var dy = touch.clientY - _startY
+    var m  = _menu()
+    if (!m) return
+    var isOpen = m.classList.contains("open")
+
+    // Cancela se gesto for predominantemente vertical (scroll da página)
+    if (!_dragging && Math.abs(dy) > Math.abs(dx) + 5) {
+      _touching = false; return
+    }
+    // Aguarda deslocamento mínimo antes de assumir controle
+    if (!_dragging && Math.abs(dx) < 6) return
+    _dragging = true
+
+    if (!isOpen && dx > 0) {
+      _setDragging(true)
+      _setPos(-MENU_W + dx)
+      e.preventDefault()
+    } else if (isOpen && dx < 0) {
+      _setDragging(true)
+      _setPos(dx)
+      e.preventDefault()
+    }
+  }, { passive: false })
+
+  document.addEventListener("touchend", function(e) {
+    if (!_touching) return
+    _touching = false
+    if (!_dragging) return
+    _dragging = false
+    var touch   = e.changedTouches[0]
+    var dx      = touch.clientX - _startX
+    var elapsed = Date.now() - _startTime
+    _release(dx, elapsed)
+  }, { passive: true })
+
+  document.addEventListener("touchcancel", function() {
+    if (!_touching && !_dragging) return
+    _touching = false; _dragging = false
+    _setDragging(false)
+    var m = _menu(), ov = _overlay()
+    if (m)  m.style.transform = ""
+    if (ov) { ov.style.opacity = ""; ov.style.pointerEvents = "" }
+  }, { passive: true })
+
+})()
+/* ── fim módulo swipe ── */
 function _scrollToEl(el) {
   if (!el) return
   const headerH = document.querySelector("header")?.offsetHeight || 64
@@ -11996,10 +12350,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (typeof lucide !== "undefined") lucide.createIcons();
 
   // ── Banner de carregamento inicial ──────────────────────────
-  const overlay = document.getElementById("pdfProgressOverlay")
-  document.getElementById("pdfProgressIcon").textContent  = "️"
-  document.getElementById("pdfProgressTitle").textContent = "Iniciando o Sistema PCA..."
-  overlay.classList.add("boot-mode")
+  _progressConfigurar("boot-mode", "Iniciando o Sistema PCA...")
   _pdfProgressAbrir()
   _pdfProgressSet(5, "Preparando ambiente...")
 
@@ -12053,9 +12404,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } finally {
     setTimeout(() => {
       _pdfProgressFechar()
-      overlay.classList.remove("boot-mode")
-      document.getElementById("pdfProgressIcon").textContent  = ""
-      document.getElementById("pdfProgressTitle").textContent = "Gerando PDF Oficial..."
+      // pdfProgressFechar já remove os modos e reseta título/ícone
       // Carrega contagem de pendentes para o badge da aba Aprovação
       if (typeof window.aprovCarregarContagem === "function") window.aprovCarregarContagem()
     }, 420)
@@ -12944,8 +13293,6 @@ async function carregarDoSheets() {
   if (_carregandoSheets) return  // evita execuções simultâneas
   _carregandoSheets = true
   const overlay = document.getElementById("pdfProgressOverlay")
-  const icon    = document.getElementById("pdfProgressIcon")
-  const title   = document.getElementById("pdfProgressTitle")
 
   // Se o overlay já está aberto (ex: "Gerar PDF" em andamento), não sobrepõe
   const jaAberto = overlay && overlay.classList.contains("ativo")
@@ -12955,9 +13302,7 @@ async function carregarDoSheets() {
   const _pcaNome = (typeof pcaGetAtivo === "function" ? pcaGetAtivo()?.nome : null) || "PCA"
 
   // Configura banner de planejamento
-  if (icon)    icon.textContent  = "️"
-  if (title)   title.textContent = "Carregando " + _pcaNome + "..."
-  if (overlay) overlay.classList.add("boot-mode")
+  _progressConfigurar("boot-mode", "Carregando " + _pcaNome + "...")
   _pdfProgressAbrir()
   _pdfProgressSet(8,  "Verificando configurações...")
 
@@ -12974,9 +13319,7 @@ async function carregarDoSheets() {
     _carregandoSheets = false
     setTimeout(() => {
       _pdfProgressFechar()
-      if (overlay) overlay.classList.remove("boot-mode")
-      if (icon)  icon.textContent  = ""
-      if (title) title.textContent = "Gerando PDF Oficial..."
+      // _pdfProgressFechar já limpa o modo e reseta título/ícone
     }, 420)
   }
 }
@@ -14069,7 +14412,7 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
     produto:       { campo: 'produto',    ph: 'Pesquisar por nome do produto ou serviço...',      label: 'Produto ou serviço',  pontual: false, apenasNumeros: false },
     sequencial:    { campo: 'sequencial', ph: 'Digite o número do sequencial (ex: 42)...',        label: 'Sequencial',          pontual: true,  apenasNumeros: true  },
     dfd:           { campo: 'dfd',        ph: 'Digite o número do DFD...',                        label: 'DFD',                 pontual: true,  apenasNumeros: true  },
-    protocolo:     { campo: 'protocolo',  ph: 'Pesquisar por ID Protocolo (coluna M)...',         label: 'ID Protocolo',        pontual: true,  apenasNumeros: false },
+    protocolo:     { campo: 'protocolo',  ph: 'Digite o ID Protocolo (somente números)...',      label: 'ID Protocolo',        pontual: true,  apenasNumeros: true  },
     local:         { campo: 'local',      ph: 'Pesquisar por unidade solicitante (ex: SEMUS)...',  label: 'Unidade solicitante', pontual: false, apenasNumeros: false },
     classificacao: { campo: 'classe',     ph: 'Pesquisar por categoria (Material, Serviço...)...', label: 'Categoria',           pontual: false, apenasNumeros: false },
     dominio:       { campo: 'dominio',    ph: 'Pesquisar por domínio de contratação...',           label: 'Domínio',             pontual: false, apenasNumeros: false },
@@ -14143,8 +14486,7 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
   }
 
   // _bindKeyup — comportamento por tipo:
-  //   sequencial/dfd : só aceita dígitos; busca ao parar de digitar (blur ou 800ms)
-  //   protocolo      : pontual — só Enter dispara
+  //   sequencial/dfd/protocolo : só aceita dígitos; busca ao parar de digitar (blur ou 800ms)
   //   demais         : busca automática com debounce de 300ms
   function _bindKeyup() {
     var inp = _inp()
@@ -14360,28 +14702,76 @@ function graficoParaPNG(type, chartData, chartOptions, largura, altura) {
   })
 }
 
-/* Cabeçalho padrão de cada página do PDF */
-function pdfCabecalho(doc, titulo, pagina, W) {
+/* ── Cabeçalho institucional de cada página ── */
+function pdfCabecalho(doc, titulo, pagina, W, totalPaginas) {
+  const H_HDR = 18  // altura do cabeçalho
+
+  // Faixa de fundo — gradiente simulado com dois retângulos
+  doc.setFillColor(30, 48, 110)
+  doc.rect(0, 0, W * 0.5, H_HDR, "F")
   doc.setFillColor(67, 97, 238)
-  doc.rect(0, 0, W, 16, "F")
-  doc.setFontSize(11); doc.setTextColor(255,255,255); doc.setFont("helvetica","bold")
-  doc.text(titulo, 14, 11)
-  doc.setFontSize(8); doc.setFont("helvetica","normal")
-  doc.text(new Date().toLocaleDateString("pt-BR", { dateStyle:"long" }), W - 14, 11, { align:"right" })
-  if (pagina > 1) {
-    doc.setFontSize(7)
-    doc.text(`Página ${pagina}`, W / 2, 11, { align:"center" })
+  doc.rect(W * 0.5, 0, W * 0.5, H_HDR, "F")
+
+  // Linha de destaque inferior
+  doc.setFillColor(16, 185, 129)
+  doc.rect(0, H_HDR, W, 0.8, "F")
+
+  // Título do relatório
+  doc.setFontSize(10); doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold")
+  doc.text(titulo, 12, 12)
+
+  // Data geração (direita)
+  const dataGer = new Date().toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit", year:"numeric" })
+  doc.setFontSize(7.5); doc.setFont("helvetica", "normal"); doc.setTextColor(200, 210, 255)
+  doc.text(`Gerado em: ${dataGer}`, W - 12, 8, { align: "right" })
+
+  // Número de página (direita, linha de baixo)
+  if (pagina && totalPaginas) {
+    doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(200, 210, 255)
+    doc.text(`Página ${pagina} de ${totalPaginas}`, W - 12, 15, { align: "right" })
+  } else if (pagina > 1) {
+    doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(200, 210, 255)
+    doc.text(`Página ${pagina}`, W - 12, 15, { align: "right" })
   }
+}
+
+/* ── Rodapé institucional de cada página ── */
+function pdfRodape(doc, W, H) {
+  const Y_ROD = H - 7
+  doc.setDrawColor(220, 224, 235)
+  doc.setLineWidth(0.3)
+  doc.line(12, Y_ROD - 2, W - 12, Y_ROD - 2)
+  doc.setFontSize(6.5); doc.setFont("helvetica", "normal"); doc.setTextColor(150, 158, 178)
+  doc.text("Sistema PCA — Prefeitura de Rio Verde / GO", 12, Y_ROD + 1.5)
+  doc.text("Documento gerado automaticamente. Sujeito a alterações.", W / 2, Y_ROD + 1.5, { align: "center" })
+  doc.text(`${new Date().toLocaleDateString("pt-BR")} ${new Date().toLocaleTimeString("pt-BR", { hour:"2-digit", minute:"2-digit" })}`, W - 12, Y_ROD + 1.5, { align: "right" })
+}
+
+/* ── Título de seção dentro das páginas ── */
+function pdfSecaoTitulo(doc, texto, x, y) {
+  doc.setFillColor(245, 247, 252)
+  doc.roundedRect(x, y - 4, 160, 7, 1.5, 1.5, "F")
+  doc.setDrawColor(200, 210, 240)
+  doc.setLineWidth(0.3)
+  doc.line(x, y - 4, x + 160, y - 4)
+  doc.setFontSize(8); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 48, 110)
+  doc.text(texto, x + 4, y)
 }
 
 /* =====================================================
 SEÇÃO 17 — CONSTRUIR PDF COMPLETO (async)
 ===================================================== */
-async function construirPDF(dataSet, titulo) {
+async function construirPDF(dataSet, titulo, onProgress) {
+  /* onProgress(pct, msg) — callback opcional para atualizar o banner */
+  const _prog = (typeof onProgress === "function") ? onProgress : () => {}
+  const _yield = () => new Promise(r => setTimeout(r, 0))
   const { jsPDF } = window.jspdf
   const W = 297, H = 210
+  const MARGIN = 12     // margem lateral uniforme
+  const Y_START = 22    // Y após cabeçalho
+  const Y_FOOT  = H - 9 // Y antes do rodapé
 
-  /* ── Calcular agregações ── */
+  /* ── Agregações ── */
   const classif = {}, dominio = {}, prior = {}, mes = {}
   let totalGeral = 0
 
@@ -14389,9 +14779,8 @@ async function construirPDF(dataSet, titulo) {
     const v   = getValor(r)
     const cla = norm(r[COL.CLASSIFICACAO]) || "NÃO DEFINIDO"
     const dom = norm(r[COL.DOMINIO])       || "NÃO DEFINIDO"
-    const pri = normPrioridade(r[COL.PRIORIDADE])    || "NÃO DEFINIDO"
+    const pri = normPrioridade(r[COL.PRIORIDADE]) || "NÃO DEFINIDO"
     const dt  = normData(r[COL.DATA])
-
     classif[cla] = (classif[cla] || 0) + v
     dominio[dom] = (dominio[dom] || 0) + v
     prior[pri]   = (prior[pri]   || 0) + v
@@ -14399,7 +14788,7 @@ async function construirPDF(dataSet, titulo) {
     totalGeral += v
   })
 
-  const mesOrd = Object.entries(mes).sort((a,b) => {
+  const mesOrd = Object.entries(mes).sort((a, b) => {
     const pa = /^\d{2}\/\d{4}$/.test(a[0]), pb = /^\d{2}\/\d{4}$/.test(b[0])
     if (pa && pb) {
       const [ma,ya] = a[0].split("/").map(Number)
@@ -14409,235 +14798,332 @@ async function construirPDF(dataSet, titulo) {
     return pa ? -1 : pb ? 1 : 0
   })
 
-  /* ── Configurações do PDF ── */
-  const _cfg    = getPdfCfg()
-  const _cgraf  = _cfg.graficos  || {}
-  const _ctbl   = _cfg.tabelas   || {}
-  const _ccol   = _cfg.colunas   || {}
-  const _corP   = _cgraf.corPrincipal || "#4361ee"
-  const _corA   = _cgraf.corAcento    || "#10b981"
+  /* ── Configurações ── */
+  const _cfg   = getPdfCfg()
+  const _cgraf = _cfg.graficos || {}
+  const _ctbl  = _cfg.tabelas  || {}
+  const _ccol  = _cfg.colunas  || {}
+  const _corP  = _cgraf.corPrincipal || "#4361ee"
 
-  /* ── Renderiza gráficos configurados (canvas temporários) ── */
+  /* ── Gráficos: dimensões generosas para qualidade ── */
+  // Canvas 1200×560 garante resolução alta sem distorcer a proporção 1200/560 ≈ 2.14
+  const GRAF_CX = 1200, GRAF_CY = 560
+  const GRAF_BIG_W  = (W - MARGIN * 2) * 0.58   // gráfico largo (classif)
+  const GRAF_SML_W  = W - MARGIN * 2 - GRAF_BIG_W - 4 // gráfico menor ao lado
+  const GRAF_H_TOP  = Math.round(GRAF_BIG_W * (GRAF_CY / GRAF_CX)) // mantém proporção
+
+  const GRAF_HALF_W = (W - MARGIN * 2) / 2 - 2
+  const GRAF_H_BOT  = Math.round(GRAF_HALF_W * (GRAF_CY / GRAF_CX))
+
   const _grafPromises = []
-  if (_cgraf.classificacao ?? true) _grafPromises.push(graficoParaPNG("pie",
-    { labels: Object.keys(classif), datasets: [{ data: Object.values(classif) }] },
-    { plugins: { legend: { position: "right" } } }, 800, 400))
+  if (_cgraf.classificacao ?? true)
+    _grafPromises.push(graficoParaPNG("pie",
+      { labels: Object.keys(classif), datasets: [{ data: Object.values(classif) }] },
+      { plugins: { legend: { position:"right", labels:{ font:{ size:13 }, padding:16 } } } },
+      GRAF_CX, GRAF_CY))
   else _grafPromises.push(Promise.resolve(null))
 
-  if (_cgraf.dominio ?? true) _grafPromises.push(graficoParaPNG("doughnut",
-    { labels: Object.keys(dominio), datasets: [{ data: Object.values(dominio) }] },
-    { plugins: { legend: { position: "right" } } }, 800, 400))
+  if (_cgraf.dominio ?? true)
+    _grafPromises.push(graficoParaPNG("doughnut",
+      { labels: Object.keys(dominio), datasets: [{ data: Object.values(dominio) }] },
+      { plugins: { legend: { position:"right", labels:{ font:{ size:13 }, padding:14 } } } },
+      GRAF_CX, GRAF_CY))
   else _grafPromises.push(Promise.resolve(null))
 
-  if (_cgraf.prioridade ?? true) _grafPromises.push(graficoParaPNG("bar",
-    { labels: Object.keys(prior),
-      datasets: [{ data: Object.values(prior), backgroundColor: ["#dc2626","#f59e0b","#16a34a","#64748b"] }] },
-    { plugins: { legend: { display: false } } }, 700, 400))
+  if (_cgraf.prioridade ?? true)
+    _grafPromises.push(graficoParaPNG("bar",
+      { labels: Object.keys(prior),
+        datasets: [{ data: Object.values(prior), backgroundColor: ["#dc2626","#f59e0b","#16a34a","#64748b"],
+                     borderRadius: 4, borderSkipped: false }] },
+      { plugins: { legend: { display:false } }, scales: { y: { grid: { color:"#e2e8f0" } } } },
+      GRAF_CX, GRAF_CY))
   else _grafPromises.push(Promise.resolve(null))
 
-  if (_cgraf.cronograma ?? true) _grafPromises.push(graficoParaPNG("bar",
-    { labels: mesOrd.map(([k])=>k),
-      datasets: [{ data: mesOrd.map(([,v])=>v), backgroundColor: _corP }] },
-    { plugins: { legend: { display: false } } }, 900, 400))
+  if (_cgraf.cronograma ?? true)
+    _grafPromises.push(graficoParaPNG("bar",
+      { labels: mesOrd.map(([k]) => k),
+        datasets: [{ data: mesOrd.map(([,v]) => v), backgroundColor: _corP,
+                     borderRadius: 4, borderSkipped: false }] },
+      { plugins: { legend: { display:false } }, scales: { y: { grid: { color:"#e2e8f0" } } } },
+      GRAF_CX, GRAF_CY))
   else _grafPromises.push(Promise.resolve(null))
 
   const [imgClass, imgDom, imgPrior, imgMes] = await Promise.all(_grafPromises)
+  _prog(30, "Graficos renderizados...")
+  await _yield()
+
+  /* ══════════════════════════════════════════════════════════════════
+     Estimativa de total de páginas (aproximada, para o rodapé)
+  ══════════════════════════════════════════════════════════════════ */
+  const _estimarPaginas = () => {
+    let p = 1 // página 1 = KPIs
+    // 1 página por gráfico ativo
+    if (_cgraf.classificacao ?? true) p++
+    if (_cgraf.dominio       ?? true) p++
+    if (_cgraf.prioridade    ?? true) p++
+    if (_cgraf.cronograma    ?? true) p++
+    p += 1   // tabelas analíticas (pelo menos 1 página)
+    // listagem: ~22 linhas por página no landscape com fonte 6.5
+    p += Math.ceil(dataSet.length / 22)
+    return p
+  }
+  const totalPags = _estimarPaginas()
 
   /* ══════════════════════════════════════════════════
-     PÁGINA 1 — KPIs + Gráficos de Classificação e Domínio
+     Estimativa final de páginas:
+     1 (KPIs) + N gráficos ativos + tabelas analíticas + listagem
+  ══════════════════════════════════════════════════ */
+  // Conta gráficos ativos para ajustar estimativa
+  const _grafsAtivos = [imgClass, imgDom, imgPrior, imgMes].filter(Boolean).length
+
+  /* ══════════════════════════════════════════════════
+     PÁGINA 1 — KPIs e indicadores-chave
   ══════════════════════════════════════════════════ */
   const doc = new jsPDF({ orientation:"landscape", unit:"mm", format:"a4" })
-  pdfCabecalho(doc, titulo, 1, W)
+  let _pagAtual = 1
+  pdfCabecalho(doc, titulo + " — Indicadores", _pagAtual, W, totalPags)
+  pdfRodape(doc, W, H)
 
-  /* KPIs — condicionais */
-  const totalVal = totalGeral
-  const media    = dataSet.length > 0 ? totalVal / dataSet.length : 0
-  const maior    = dataSet.reduce((m,r) => getValor(r) > getValor(m) ? r : m, dataSet[0] || {})
+  /* KPIs — quatro cartões na faixa central da página */
+  const media = dataSet.length > 0 ? totalGeral / dataSet.length : 0
+  const maior = dataSet.reduce((m, r) => getValor(r) > getValor(m) ? r : m, dataSet[0] || {})
   if (_ctbl.tblKpis ?? true) {
     const kpis = [
-      { label:"Total Investido", value: formatBRL(totalVal), cor:[67,97,238] },
-      { label:"Qtd. de Itens",   value: dataSet.length.toLocaleString("pt-BR"), cor:[16,185,129] },
-      { label:"Ticket Médio",    value: formatBRL(media), cor:[245,158,11] },
-      { label:"Maior Item",      value: formatBRL(getValor(maior)), cor:[124,58,237] },
+      { label:"Total Investido", value: formatBRL(totalGeral),                  cor:[30,48,110],  bg:[235,240,255] },
+      { label:"Qtd. de Itens",   value: dataSet.length.toLocaleString("pt-BR"), cor:[5,150,105],  bg:[230,255,245] },
+      { label:"Ticket Medio",    value: formatBRL(media),                        cor:[180,83,9],   bg:[255,245,225] },
+      { label:"Maior Item",      value: formatBRL(getValor(maior)),              cor:[109,40,217], bg:[245,235,255] },
     ]
-    const kpiW = (W - 28) / 4
+    const kpiW = (W - MARGIN * 2) / 4
+    const kpiH = 24, kpiY = Y_START + 8
     kpis.forEach((k, i) => {
-      const x = 14 + i * kpiW
-      doc.setFillColor(248, 249, 252)
-      doc.roundedRect(x, 19, kpiW - 4, 18, 2, 2, "F")
-      doc.setDrawColor(...k.cor)
-      doc.setLineWidth(0.8)
-      doc.line(x, 19, x, 37)
-      doc.setFontSize(6.5); doc.setTextColor(136,146,164); doc.setFont("helvetica","bold")
-      doc.text(k.label.toUpperCase(), x + 4, 25)
-      doc.setFontSize(10); doc.setTextColor(15,22,40); doc.setFont("helvetica","bold")
-      doc.text(k.value, x + 4, 33)
+      const x = MARGIN + i * kpiW
+      doc.setFillColor(...k.bg)
+      doc.roundedRect(x, kpiY, kpiW - 4, kpiH, 3, 3, "F")
+      doc.setFillColor(...k.cor)
+      doc.roundedRect(x, kpiY, 3, kpiH, 1.5, 1.5, "F")
+      doc.setFontSize(6.5); doc.setTextColor(...k.cor); doc.setFont("helvetica","bold")
+      doc.text(k.label.toUpperCase(), x + 7, kpiY + 7)
+      doc.setFontSize(13); doc.setTextColor(15,22,40); doc.setFont("helvetica","bold")
+      doc.text(k.value, x + 7, kpiY + 19)
     })
+
+    // Legenda complementar abaixo dos KPIs
+    const kpiLegY = kpiY + kpiH + 10
+    doc.setFontSize(7.5); doc.setFont("helvetica","normal"); doc.setTextColor(100,110,130)
+    doc.text("Filtro aplicado: " + (titulo.split("—").slice(1).join("—").trim() || "Todas as secretarias"), MARGIN, kpiLegY)
+    doc.text("Data de geracao: " + new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"2-digit", month:"long", year:"numeric" }), W - MARGIN, kpiLegY, { align:"right" })
   }
 
-  /* Gráficos — respeitando config de visibilidade */
-  const gClassW = (W - 28) * 0.58, gClassH = 76
-  if (imgClass) {
-    doc.setFontSize(8); doc.setTextColor(58,68,104); doc.setFont("helvetica","bold")
-    doc.text("CLASSIFICAÇÃO DOS ITENS", 14, 43)
-    doc.addImage(imgClass, "PNG", 14, 45, gClassW, gClassH)
-  }
-  if (imgDom) {
-    const gDomX = 14 + gClassW + 4, gDomW = W - 28 - gClassW - 4
-    doc.setFontSize(8); doc.setTextColor(58,68,104); doc.setFont("helvetica","bold")
-    doc.text("DOMÍNIO", 14 + gClassW + 4, 43)
-    doc.addImage(imgDom, "PNG", 14 + gClassW + 4, 45, gDomW, gClassH)
-  }
-  const gBotY = 126, gBotH = 54, gBotW = (W - 28) / 2 - 2
-  if (imgPrior) {
-    doc.setFontSize(8); doc.setTextColor(58,68,104); doc.setFont("helvetica","bold")
-    doc.text("GRAU DE PRIORIDADE", 14, gBotY - 2)
-    doc.addImage(imgPrior, "PNG", 14, gBotY, gBotW, gBotH)
-  }
-  if (imgMes) {
-    const gMesX = 14 + gBotW + 4
-    doc.setFontSize(8); doc.setTextColor(58,68,104); doc.setFont("helvetica","bold")
-    doc.text("CRONOGRAMA MENSAL", gMesX, gBotY - 2)
-    doc.addImage(imgMes, "PNG", gMesX, gBotY, gBotW, gBotH)
+  _prog(40, "Indicadores-chave montados...")
+  await _yield()
+
+  /* ══════════════════════════════════════════════════
+     PÁGINAS 2–5 — Um gráfico por página (paisagem completa)
+  ══════════════════════════════════════════════════ */
+  // Dimensões do gráfico ocupando toda a área útil da página
+  const GIMG_W = W - MARGIN * 2        // 297 - 24 = 273mm
+  const GIMG_H = H - Y_START - 14      // 210 - 22 - 14 = 174mm (margem rodapé)
+
+  const _grafConfig = [
+    { img: imgClass, titulo: "CLASSIFICACAO DOS ITENS — Distribuicao por Valor",    ativo: _cgraf.classificacao ?? true },
+    { img: imgDom,   titulo: "DOMINIO DE CONTRATACAO — Distribuicao por Valor",     ativo: _cgraf.dominio ?? true       },
+    { img: imgPrior, titulo: "GRAU DE PRIORIDADE — Distribuicao por Valor",         ativo: _cgraf.prioridade ?? true    },
+    { img: imgMes,   titulo: "CRONOGRAMA MENSAL — Distribuicao por Valor",          ativo: _cgraf.cronograma ?? true    },
+  ]
+
+  let _grafIdx = 0
+  for (const gc of _grafConfig) {
+    if (!gc.ativo || !gc.img) continue
+    _grafIdx++
+    _prog(40 + _grafIdx * 8, `Inserindo grafico ${_grafIdx}...`)
+    await _yield()
+    doc.addPage(); _pagAtual++
+    pdfCabecalho(doc, titulo + " — Graficos", _pagAtual, W, totalPags)
+    pdfRodape(doc, W, H)
+    // Título da seção
+    pdfSecaoTitulo(doc, gc.titulo, MARGIN, Y_START)
+    // Gráfico ocupa toda a largura útil com proporção preservada (canvas 1200×560 → ~2.14:1)
+    const imgAspect = 1200 / 560
+    const imgH = Math.min(GIMG_H, GIMG_W / imgAspect)
+    const imgY = Y_START + 7
+    // Centraliza verticalmente na área disponível
+    doc.addImage(gc.img, "PNG", MARGIN, imgY, GIMG_W, imgH, undefined, "NONE")
   }
 
   /* ══════════════════════════════════════════════════
-     PÁGINA 2 — Tabela: Classificação + Domínio + Meses
+     Tabelas analíticas — páginas seguintes
   ══════════════════════════════════════════════════ */
-  doc.addPage()
-  pdfCabecalho(doc, titulo + " — Resumo Analítico", 2, W)
+  doc.addPage(); _pagAtual++
+  pdfCabecalho(doc, titulo + " — Resumo Analitico", _pagAtual, W, totalPags)
+  pdfRodape(doc, W, H)
 
-  let y = 22
+  let y = Y_START
+  let paginaAnalitica = _pagAtual
 
-  /* Tabelas analíticas — condicionais por config */
+  const _novaSecaoAnalitica = (label) => {
+    if (y > Y_FOOT - 40) {
+      doc.addPage(); paginaAnalitica++
+      pdfCabecalho(doc, titulo + " — Resumo Analitico", paginaAnalitica, W, totalPags)
+      pdfRodape(doc, W, H)
+      y = Y_START
+    }
+    pdfSecaoTitulo(doc, label, MARGIN, y)
+    y += 4
+  }
+
   if (_ctbl.tblClassif ?? true) {
-    doc.setFontSize(9); doc.setTextColor(58,68,104); doc.setFont("helvetica","bold")
-    doc.text("Classificação de Contratações", 14, y); y += 3
+    _novaSecaoAnalitica("CLASSIFICACAO DE CONTRATACOES")
     doc.autoTable({
       startY: y,
-      head: [["N°","Classificação","Contratações","Valor Total","% do Total"]],
+      head: [["N.", "Classificacao", "Contratacoes", "Valor Total", "% do Total"]],
       body: Object.entries(classif).sort((a,b)=>b[1]-a[1]).map(([cla,v],i)=>[
-        i+1, cla, (dataSet.filter(r=>(norm(r[COL.CLASSIFICACAO])||"NÃO DEFINIDO")===cla)).length,
-        formatBRL(v), totalGeral>0?((v/totalGeral)*100).toFixed(2)+"%":"—"
+        String(i+1), cla,
+        String((dataSet.filter(r=>(norm(r[COL.CLASSIFICACAO])||"NAO DEFINIDO")===cla)).length),
+        formatBRL(v),
+        totalGeral > 0 ? ((v/totalGeral)*100).toFixed(2)+"%" : "—"
       ]),
-      foot: [["","TOTAL", dataSet.length, formatBRL(totalGeral), "100%"]],
-      styles:     { fontSize: 7.5, cellPadding: 2 },
-      headStyles: { fillColor:[67,97,238], textColor:255, fontStyle:"bold" },
-      footStyles: { fillColor:[240,242,248], textColor:[58,68,104], fontStyle:"bold" },
-      margin:     { left:14, right:14 },
-      didParseCell: data => {
-        if (data.section === "body" && data.column.index === 3) data.cell.styles.halign = "right"
-        if (data.section === "body" && data.column.index === 4) data.cell.styles.halign = "right"
+      foot: [["", "TOTAL", String(dataSet.length), formatBRL(totalGeral), "100%"]],
+      styles:      { fontSize:7.5, cellPadding:2.5, font:"helvetica", lineColor:[220,225,235], lineWidth:0.2 },
+      headStyles:  { fillColor:[30,48,110], textColor:255, fontStyle:"bold", halign:"left" },
+      footStyles:  { fillColor:[240,244,252], textColor:[30,48,110], fontStyle:"bold" },
+      alternateRowStyles: { fillColor:[248,250,255] },
+      margin:      { left:MARGIN, right:MARGIN },
+      didParseCell: d => {
+        if (d.section==="body" && d.column.index >= 2) d.cell.styles.halign = "right"
+        if (d.section==="foot" && d.column.index >= 2) d.cell.styles.halign = "right"
       }
     })
-    y = doc.lastAutoTable.finalY + 6
-    if (y > H - 50) { doc.addPage(); pdfCabecalho(doc, titulo + " — Resumo Analítico", 3, W); y = 22 }
+    y = doc.lastAutoTable.finalY + 8
   }
 
   if (_ctbl.tblDominio ?? true) {
-    doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(58,68,104)
-    doc.text("Contratações por Domínio", 14, y); y += 3
+    _novaSecaoAnalitica("CONTRATACOES POR DOMINIO")
     doc.autoTable({
       startY: y,
-      head: [["Domínio","Contratações","Valor Total","% do Total"]],
+      head: [["Dominio", "Contratacoes", "Valor Total", "% do Total"]],
       body: Object.entries(dominio).sort((a,b)=>b[1]-a[1]).map(([dom,v])=>[
-        dom, (dataSet.filter(r=>(norm(r[COL.DOMINIO])||"NÃO DEFINIDO")===dom)).length,
-        formatBRL(v), totalGeral>0?((v/totalGeral)*100).toFixed(2)+"%":"—"
+        dom,
+        String((dataSet.filter(r=>(norm(r[COL.DOMINIO])||"NAO DEFINIDO")===dom)).length),
+        formatBRL(v),
+        totalGeral > 0 ? ((v/totalGeral)*100).toFixed(2)+"%" : "—"
       ]),
-      styles:     { fontSize: 7.5, cellPadding: 2 },
-      headStyles: { fillColor:[16,185,129], textColor:255, fontStyle:"bold" },
-      margin:     { left:14, right:14 },
+      styles:      { fontSize:7.5, cellPadding:2.5, font:"helvetica", lineColor:[220,225,235], lineWidth:0.2 },
+      headStyles:  { fillColor:[5,150,105], textColor:255, fontStyle:"bold" },
+      alternateRowStyles: { fillColor:[245,255,250] },
+      margin:      { left:MARGIN, right:MARGIN },
+      didParseCell: d => {
+        if (d.section==="body" && d.column.index >= 1) d.cell.styles.halign = "right"
+      }
     })
-    y = doc.lastAutoTable.finalY + 6
-    if (y > H - 50) { doc.addPage(); pdfCabecalho(doc, titulo + " — Resumo Analítico", 4, W); y = 22 }
+    y = doc.lastAutoTable.finalY + 8
   }
 
   if (_ctbl.tblMeses ?? true) {
-    doc.setFontSize(9); doc.setFont("helvetica","bold"); doc.setTextColor(58,68,104)
-    doc.text("Contratações por Período", 14, y); y += 3
-
-  const mapaQtdMes = {}
-  dataSet.forEach(r => {
-    const dt = normData(r[COL.DATA])
-    mapaQtdMes[dt] = (mapaQtdMes[dt] || 0) + 1
-  })
-
-  doc.autoTable({
-    startY: y,
-    head: [["Período","Contratações","Valor Total","% do Total"]],
-    body: [...Object.entries(mes), ...Object.entries(
-      Object.fromEntries(dataSet.filter(r=>normData(r[COL.DATA])==="ANUAL").length
+    _novaSecaoAnalitica("CONTRATACOES POR PERIODO")
+    const mapaQtdMes = {}
+    dataSet.forEach(r => {
+      const dt = normData(r[COL.DATA])
+      mapaQtdMes[dt] = (mapaQtdMes[dt] || 0) + 1
+    })
+    const rowsMes = [
+      ...Object.entries(mes),
+      ...( dataSet.filter(r=>normData(r[COL.DATA])==="ANUAL").length
         ? [["ANUAL", dataSet.filter(r=>normData(r[COL.DATA])==="ANUAL").reduce((s,r)=>s+getValor(r),0)]]
-        : [])
-    )].filter(([k])=>k).sort((a,b)=>{
+        : [] )
+    ].filter(([k])=>k).sort((a,b)=>{
       const pa=/^\d{2}\/\d{4}$/.test(a[0]),pb=/^\d{2}\/\d{4}$/.test(b[0])
       if(pa&&pb){const[ma,ya]=a[0].split("/").map(Number),[mb,yb]=b[0].split("/").map(Number);return ya!==yb?ya-yb:ma-mb}
       return pa?-1:pb?1:0
-    }).map(([dt,v])=>[
-      dt, mapaQtdMes[dt]||0, formatBRL(v),
-      totalGeral>0?((v/totalGeral)*100).toFixed(2)+"%":"—"
-    ]),
-    styles:     { fontSize: 7.5, cellPadding: 2 },
-    headStyles: { fillColor:[245,158,11], textColor:255, fontStyle:"bold" },
-    margin:     { left:14, right:14 },
     })
-    y = doc.lastAutoTable.finalY + 6
-  } // fim if tblMeses
+    doc.autoTable({
+      startY: y,
+      head: [["Periodo", "Contratacoes", "Valor Total", "% do Total"]],
+      body: rowsMes.map(([dt,v]) => [
+        dt, String(mapaQtdMes[dt]||0), formatBRL(v),
+        totalGeral > 0 ? ((v/totalGeral)*100).toFixed(2)+"%" : "—"
+      ]),
+      styles:      { fontSize:7.5, cellPadding:2.5, font:"helvetica", lineColor:[220,225,235], lineWidth:0.2 },
+      headStyles:  { fillColor:[180,83,9], textColor:255, fontStyle:"bold" },
+      alternateRowStyles: { fillColor:[255,250,240] },
+      margin:      { left:MARGIN, right:MARGIN },
+      didParseCell: d => {
+        if (d.section==="body" && d.column.index >= 1) d.cell.styles.halign = "right"
+      }
+    })
+    y = doc.lastAutoTable.finalY + 8
+  }
+
+  _prog(75, "Tabelas analiticas concluidas...")
+  await _yield()
 
   /* ══════════════════════════════════════════════════
      PÁGINAS 3+ — Listagem completa de itens
   ══════════════════════════════════════════════════ */
   doc.addPage()
-  let paginaItens = 3
-  pdfCabecalho(doc, titulo + " — Listagem de Itens", paginaItens, W)
+  let paginaItens = paginaAnalitica + 1
+  pdfCabecalho(doc, titulo + " — Listagem de Itens", paginaItens, W, totalPags)
+  pdfRodape(doc, W, H)
 
-  /* Colunas configuráveis — mapeamento: [chave_cfg, label, extrator, largura, halign] */
+  /* Definição de colunas */
   const _colDefs = [
-    ["local",      "LOCAL",               r => norm(r[COL.LOCAL]),                              18, "left"  ],
-    ["seq",        "SEQ.",                r => r[COL.SEQUENCIAL] || "",                         10, "center"],
-    ["codigo",     "CÓDIGO",              r => r[COL.CODIGO]     || "",                         14, "center"],
-    ["produto",    "PRODUTO",             r => norm(r[COL.PRODUTO]),                            42, "left"  ],
-    ["unidade",    "UN.",                 r => norm(r[COL.UNIDADE]),                             8, "center"],
-    ["classif",    "CLASSIFICAÇÃO",       r => norm(r[COL.CLASSIFICACAO]),                      30, "left"  ],
-    ["dominio2",   "DOMÍNIO",             r => norm(r[COL.DOMINIO]),                            18, "center"],
-    ["qtd",        "QTD",                 r => r[COL.QUANTIDADE] || "",                          8, "center"],
-    ["vlUnit",     "VL. UNIT.",           r => formatBRL(parseFloat(r[COL.VALOR_UNIT]) || 0),   20, "right" ],
-    ["vlTotal",    "VL. TOTAL",           r => formatBRL(getValor(r)),                          22, "right" ],
-    ["data",       "DATA",                r => normData(r[COL.DATA]),                           14, "center"],
-    ["prioridade", "PRIORIDADE",          r => normPrioridade(r[COL.PRIORIDADE]),               16, "center"],
-    ["protocolo",  "PROTOCOLO",           r => r[COL.ID_PROTO] || "",                          14, "center"],
-    ["dfd",        "DFD",                 r => r[COL.DFD]      || "",                          14, "center"],
+    ["local",      "LOCAL",         r => norm(r[COL.LOCAL]),                            18, "left"  ],
+    ["seq",        "SEQ.",          r => String(r[COL.SEQUENCIAL] || ""),               10, "center"],
+    ["codigo",     "CODIGO",        r => String(r[COL.CODIGO] || ""),                   14, "center"],
+    ["produto",    "PRODUTO",       r => norm(r[COL.PRODUTO]),                          44, "left"  ],
+    ["unidade",    "UN.",           r => norm(r[COL.UNIDADE]),                           8, "center"],
+    ["classif",    "CLASSIFICACAO", r => norm(r[COL.CLASSIFICACAO]),                    30, "left"  ],
+    ["dominio2",   "DOMINIO",       r => norm(r[COL.DOMINIO]),                          18, "center"],
+    ["qtd",        "QTD",           r => String(r[COL.QUANTIDADE] || ""),                8, "center"],
+    ["vlUnit",     "VL. UNIT.",     r => formatBRL(parseFloat(r[COL.VALOR_UNIT]) || 0), 22, "right" ],
+    ["vlTotal",    "VL. TOTAL",     r => formatBRL(getValor(r)),                        24, "right" ],
+    ["data",       "DATA",          r => normData(r[COL.DATA]),                         14, "center"],
+    ["prioridade", "PRIORIDADE",    r => normPrioridade(r[COL.PRIORIDADE]),             16, "center"],
+    ["protocolo",  "PROTOCOLO",     r => String(r[COL.ID_PROTO] || ""),                14, "center"],
+    ["dfd",        "DFD",           r => String(r[COL.DFD] || ""),                     14, "center"],
   ]
   const _colAtivas = _colDefs.filter(([k]) => _ccol[k] ?? (k !== "protocolo" && k !== "dfd"))
-  const _totalW    = _colAtivas.reduce((s,[,,, w]) => s + w, 0)
-  /* Ajusta largura da coluna PRODUTO proporcionalmente ao espaço disponível */
-  const _wDisp = 285 /* ~TW landscape com margem 6 de cada lado */
-  const _scale = _wDisp / _totalW
+  const _totalW    = _colAtivas.reduce((s,[,,,w]) => s + w, 0)
+  const _wDisp     = W - MARGIN * 2  // 297 - 24 = 273mm
+  const _scale     = _wDisp / _totalW
   const _colStyles = {}
-  _colAtivas.forEach(([,,,w,h], i) => { _colStyles[i] = { cellWidth: Math.floor(w * _scale), halign: h } })
+  _colAtivas.forEach(([,,,w,h], i) => {
+    _colStyles[i] = { cellWidth: Math.floor(w * _scale), halign: h }
+  })
+
+  _prog(82, "Montando listagem de itens...")
+  await _yield()
 
   doc.autoTable({
-    startY: 20,
-    head: [_colAtivas.map(([,label]) => label)],
-    body: dataSet.map(r => _colAtivas.map(([,,fn]) => fn(r))),
-    foot: [_colAtivas.map(([k, label], i) => {
+    startY:        Y_START,
+    head:          [_colAtivas.map(([,label]) => label)],
+    body:          dataSet.map(r => _colAtivas.map(([,,fn]) => fn(r))),
+    foot:          [_colAtivas.map(([,label]) => {
       if (label === "VL. TOTAL") return formatBRL(totalGeral)
-      if (label === "VL. UNIT.")  return "TOTAL"
+      if (label === "VL. UNIT.") return "TOTAL"
       return ""
     })],
-    styles:       { fontSize: 6.5, cellPadding: 1.5, overflow:"ellipsize" },
-    headStyles:   { fillColor:[15,22,40], textColor:255, fontStyle:"bold", fontSize:6 },
-    footStyles:   { fillColor:[232,236,245], textColor:[15,22,40], fontStyle:"bold" },
-    columnStyles: _colStyles,
-    margin: { left:6, right:6 },
-    didDrawPage: (data) => {
+    styles:        { fontSize:6.5, cellPadding:1.8, overflow:"ellipsize",
+                     font:"helvetica", lineColor:[225,230,240], lineWidth:0.15 },
+    headStyles:    { fillColor:[30,48,110], textColor:255, fontStyle:"bold",
+                     fontSize:6, cellPadding:2 },
+    footStyles:    { fillColor:[232,238,252], textColor:[30,48,110], fontStyle:"bold" },
+    alternateRowStyles: { fillColor:[248,250,255] },
+    columnStyles:  _colStyles,
+    margin:        { left:MARGIN, right:MARGIN, bottom:12 },
+    showHead:      "everyPage",   // repete cabeçalho em todas as páginas
+    showFoot:      "lastPage",    // rodapé de tabela só na última
+    didDrawPage:   (data) => {
       if (data.pageNumber > 1) {
         paginaItens++
-        pdfCabecalho(doc, titulo + " — Listagem de Itens", paginaItens, W)
+        pdfCabecalho(doc, titulo + " — Listagem de Itens", paginaItens, W, totalPags)
+        pdfRodape(doc, W, H)
       }
     }
   })
 
+  _prog(97, "Finalizando documento...")
+  await _yield()
   return doc
 }
 
@@ -14664,17 +15150,68 @@ function numExtenso(v) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-function _pdfProgressAbrir()  {
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO DE PROGRESSO — componente único reutilizado por todos os
+   banners (boot, sync, exportar PDF, gerar relatório).
+   ══════════════════════════════════════════════════════════════ */
+
+/**
+ * Configura e abre o banner de progresso.
+ * @param {string} modo    - "boot-mode" | "pdf-mode" | "report-mode" | ""
+ * @param {string} titulo  - Título exibido no banner
+ */
+function _progressConfigurar(modo, titulo) {
+  const overlay = document.getElementById("pdfProgressOverlay")
+  const icon    = document.getElementById("pdfProgressIcon")
+  const titleEl = document.getElementById("pdfProgressTitle")
+
+  // Remove todos os modos anteriores antes de aplicar o novo
+  if (overlay) overlay.classList.remove("boot-mode", "pdf-mode", "report-mode")
+  if (modo && overlay) overlay.classList.add(modo)
+
+  // Ícone de fallback por modo (só visível quando não há animação SVG)
+  const _icones = { "boot-mode": "️", "pdf-mode": "", "report-mode": "" }
+  if (icon) icon.textContent = _icones[modo] || "📄"
+  if (titleEl && titulo) titleEl.textContent = titulo
+}
+
+function _pdfProgressAbrir() {
   document.getElementById("pdfProgressOverlay").classList.add("ativo")
   _pdfProgressSet(0, "Iniciando...")
 }
+
 function _pdfProgressFechar() {
   document.getElementById("pdfProgressOverlay").classList.remove("ativo")
+  // Reseta para estado neutro após fechar
+  setTimeout(() => {
+    const overlay = document.getElementById("pdfProgressOverlay")
+    if (overlay) overlay.classList.remove("boot-mode", "pdf-mode", "report-mode")
+    const icon  = document.getElementById("pdfProgressIcon")
+    const title = document.getElementById("pdfProgressTitle")
+    if (icon)  icon.textContent  = "📄"
+    if (title) title.textContent = "Gerando PDF Oficial..."
+    _pdfProgressSet(0, "")
+  }, 300)
 }
+
+/**
+ * Atualiza barra de progresso, porcentagem e mensagem de etapa.
+ * A barra faz transição CSS suave (0.45s); a % fica verde ao atingir 100.
+ * @param {number} pct   - Porcentagem (0–100)
+ * @param {string} step  - Mensagem de etapa (opcional)
+ */
 function _pdfProgressSet(pct, step) {
-  document.getElementById("pdfProgressBar").style.width = pct + "%"
-  document.getElementById("pdfProgressPct").textContent = Math.round(pct) + "%"
-  if (step) document.getElementById("pdfProgressStep").textContent = step
+  const bar  = document.getElementById("pdfProgressBar")
+  const pctEl = document.getElementById("pdfProgressPct")
+  const val  = Math.min(100, Math.max(0, Math.round(pct)))
+
+  if (bar)   bar.style.width     = val + "%"
+  if (pctEl) pctEl.textContent   = val + "%"
+  if (pctEl) pctEl.classList.toggle("completo", val >= 100)
+  if (step)  {
+    const stepEl = document.getElementById("pdfProgressStep")
+    if (stepEl) stepEl.textContent = step
+  }
 }
 
 
@@ -14690,10 +15227,7 @@ function _pdfAnimReiniciar() {
 async function exportarPDF() {
   if (dados.length === 0) { mostrarToast("Carregue uma planilha antes de exportar.", "warn"); return }
   // Ativa modo PDF — mostra animação de geração
-  const _pdfOverlay = document.getElementById("pdfProgressOverlay")
-  if (_pdfOverlay) _pdfOverlay.classList.add("pdf-mode")
-  document.getElementById("pdfProgressIcon").textContent = ""
-  document.getElementById("pdfProgressTitle").textContent = "Gerando PDF Oficial..."
+  _progressConfigurar("pdf-mode", "Gerando PDF Oficial...")
   _pdfAnimReiniciar()
   _pdfProgressAbrir()
   _pdfProgressSet(2, "Carregando configurações do Drive...")
@@ -15128,8 +15662,7 @@ async function exportarPDF() {
     mostrarToast("Erro ao gerar PDF.", "error"); console.error(e)
   } finally {
     _pdfProgressFechar()
-    const _pdfOvEnd = document.getElementById("pdfProgressOverlay")
-    if (_pdfOvEnd) _pdfOvEnd.classList.remove("pdf-mode")
+    // _pdfProgressFechar já remove o modo pdf-mode e reseta o estado
   }
 }
 
@@ -15151,12 +15684,12 @@ function abrirModalPdfLocal() {
   const sel = document.getElementById("selectSecretaria")
   const locais = unicos(COL.LOCAL).sort()
 
-  /* Reconstrói opções mantendo "Todas" no topo */
+  /* Reconstrói opções com sigla + nome completo (igual ao Filtrar por Local) */
   sel.innerHTML = `<option value="__todos__">Todas as secretarias</option>`
   locais.forEach(l => {
     const opt = document.createElement("option")
     opt.value = l
-    opt.textContent = l
+    opt.textContent = (typeof _localLabel === "function") ? _localLabel(l) : l
     sel.appendChild(opt)
   })
 
@@ -15188,13 +15721,8 @@ async function gerarPdfPorLocal() {
   fecharModalPdfLocal()
 
   // ── Ativa banner de progresso com animação de relatório ──────────
-  const overlay = document.getElementById("pdfProgressOverlay")
-  if (overlay) {
-    overlay.classList.remove("pdf-mode", "boot-mode")
-    overlay.classList.add("report-mode")
-  }
-  document.getElementById("pdfProgressTitle").textContent = "Gerando Relatório..."
-  // Reinicia animação clonando o nó
+  _progressConfigurar("report-mode", "Gerando Relatório...")
+  // Reinicia animação do relatório clonando o nó (reset CSS animations)
   const reportAnim = document.getElementById("reportAnim")
   if (reportAnim) {
     const clone = reportAnim.cloneNode(true)
@@ -15205,23 +15733,30 @@ async function gerarPdfPorLocal() {
   _pdfProgressSet(5, "Preparando dados...")
 
   try {
-    await new Promise(r => setTimeout(r, 30))
-    _pdfProgressSet(20, `Organizando itens${valor === "__todos__" ? "" : " — " + valor}...`)
-    await new Promise(r => setTimeout(r, 30))
-    _pdfProgressSet(45, "Montando estrutura do documento...")
-    const doc = await construirPDF(dataSet, titulo)
-    _pdfProgressSet(82, "Finalizando páginas...")
-    await new Promise(r => setTimeout(r, 30))
-    _pdfProgressSet(96, "Salvando arquivo...")
+    // Yield imediato para o banner renderizar antes de qualquer processamento
+    await new Promise(r => setTimeout(r, 0))
+    _pdfProgressSet(8, `Organizando ${dataSet.length} itens...`)
+    await new Promise(r => setTimeout(r, 0))
+
+    _pdfProgressSet(15, "Iniciando construção do documento...")
+    await new Promise(r => setTimeout(r, 0))
+
+    // Passa callback de progresso para construirPDF distribuir atualizações internamente
+    const doc = await construirPDF(dataSet, titulo, (pct, msg) => {
+      // construirPDF reporta 30–97%; mapeamos para 15–97% do banner
+      _pdfProgressSet(15 + (pct * 0.82), msg)
+    })
+
+    _pdfProgressSet(98, "Salvando arquivo...")
+    await new Promise(r => setTimeout(r, 0))
     doc.save(nomeArq)
+
     _pdfProgressSet(100, "Relatório gerado com sucesso!")
-    await new Promise(r => setTimeout(r, 700))
+    await new Promise(r => setTimeout(r, 600))
     _pdfProgressFechar()
-    if (overlay) overlay.classList.remove("report-mode")
     mostrarToast("Relatório gerado com sucesso!")
   } catch(e) {
     _pdfProgressFechar()
-    if (overlay) overlay.classList.remove("report-mode")
     mostrarToast("Erro ao gerar relatório.", "erro")
     console.error(e)
   }
