@@ -1569,6 +1569,26 @@ KPI CARDS
   background: rgba(255,255,255,0.08);
   pointer-events: none;
 }
+.kpi-card.kpi-clicavel {
+  cursor: pointer;
+}
+.kpi-card.kpi-clicavel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(255,255,255,0);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  pointer-events: none;
+}
+.kpi-card.kpi-clicavel:hover::after {
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+}
+.kpi-card.kpi-clicavel:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
 .kpi-card:hover {
   transform: translateY(-6px) scale(1.018);
   box-shadow: 0 24px 56px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.09);
@@ -3670,7 +3690,7 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
     position: fixed; bottom: 0; left: 0; right: 0;
     padding: 22px 18px 34px;
   }
-  #modalPdfLocal { align-items: flex-end; }
+  #modalPdfLocal { align-items: center; padding: 20px 16px; }
   .local-lista   { max-height: 200px; }
   .modal-footer  { flex-direction: column-reverse; }
   .btn-modal-cancel, .btn-modal-ok {
@@ -8332,7 +8352,10 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
       <div class="kpi-value" id="kpiMedia">—</div>
       <div class="kpi-sub">por contratação</div>
     </div>
-    <div class="kpi-card kpi-purple">
+    <div class="kpi-card kpi-purple kpi-clicavel" id="kpiMaiorCard"
+         onclick="kpiAbrirMaiorItem()" title="Ver detalhes do maior item"
+         role="button" tabindex="0"
+         onkeydown="if(event.key==='Enter'||event.key===' ')kpiAbrirMaiorItem()">
       <div class="kpi-icon"><i data-lucide="award" style="width:20px;height:20px;"></i></div>
       <div class="kpi-label">Maior Item</div>
       <div class="kpi-value" id="kpiMaior">—</div>
@@ -11024,7 +11047,7 @@ function fecharMenu() {
 ;(function _swipeMenuInit() {
 
   var MENU_W       = 260   // largura do drawer (px)
-  var EDGE_ZONE    = 28    // zona sensível na borda esquerda (px)
+  var EDGE_ZONE    = 56    // zona sensível na borda esquerda (px)
   var OPEN_THRESH  = 80    // distância mínima para confirmar abertura (px)
   var CLOSE_THRESH = 60    // distância mínima para confirmar fechamento (px)
   var VELOCITY_MIN = 0.3   // velocidade mínima px/ms para aceitar swipe rápido
@@ -12421,11 +12444,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* =====================================================
 SEÇÃO 5 — KPI CARDS
 ===================================================== */
+/* Referência ao item de maior valor — atualizada a cada renderização */
+let _kpiMaiorItem = null
+
 function atualizarKPIs(data) {
   const total  = data.reduce((s, r) => s + getValor(r), 0)
   const itens  = data.length
   const media  = itens > 0 ? total / itens : 0
   const maior  = data.reduce((m, r) => getValor(r) > getValor(m) ? r : m, data[0] || {})
+
+  _kpiMaiorItem = maior  // expõe para o clique do card
 
   document.getElementById("kpiTotal").textContent    = formatBRL(total)
   document.getElementById("kpiTotalSub").textContent = `em ${itens} itens`
@@ -12435,6 +12463,19 @@ function atualizarKPIs(data) {
   document.getElementById("kpiMaior").textContent    = formatBRL(getValor(maior))
   document.getElementById("kpiMaiorSub").textContent = norm(maior[COL.PRODUTO]) || "—"
   document.getElementById("kpiMaiorSub").title       = norm(maior[COL.PRODUTO]) || "—"
+}
+
+/* Abre o banner de detalhe do item de maior valor ao clicar no KPI */
+function kpiAbrirMaiorItem() {
+  if (!_kpiMaiorItem || !Object.keys(_kpiMaiorItem).length) {
+    mostrarToast("Carregue os dados antes de visualizar o item.", "warn")
+    return
+  }
+  const r         = _kpiMaiorItem
+  const valorUnit  = parseFloat(r[COL.VALOR_UNIT])  || 0
+  const valorTotal = getValor(r)
+  const produto    = norm(r[COL.PRODUTO]) || "—"
+  _abrirItemDetalhe(r, valorUnit, valorTotal, produto)
 }
 
 /* =====================================================
