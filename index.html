@@ -6196,6 +6196,23 @@ MODAL DE CONFIGURAÇÕES
                 </button>
               </div>
 
+              <!-- Aba inicial do menu -->
+              <div style="margin-bottom:14px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);">
+                <label style="display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">
+                  <i data-lucide="play-circle" style="width:12px;height:12px;"></i>
+                  Aba inicial
+                </label>
+                <select id="menInicioSelect"
+                  style="width:100%;box-sizing:border-box;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-size:12px;font-weight:600;font-family:inherit;outline:none;cursor:pointer;transition:border-color .15s;"
+                  onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+                  <option value="">(primeira aba do menu)</option>
+                </select>
+                <p style="margin:6px 0 0;font-size:11px;color:var(--text-muted);line-height:1.4;">
+                  Define qual aba sera aberta automaticamente ao carregar este menu.
+                  Salvo na coluna <code style="background:var(--border);padding:1px 5px;border-radius:4px;font-size:10px;">Inicio</code> da tabela MENUS_CONFIG.
+                </p>
+              </div>
+
               <!-- Banco de abas disponíveis -->
               <div style="margin-bottom:14px;">
                 <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
@@ -6618,7 +6635,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
                 style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:0;">x</button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center;">
             <select id="declFiltroClassif" onchange="declFiltrar()"
               style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;width:100%;">
               <option value="">Classificacao</option>
@@ -6626,6 +6643,10 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
             <select id="declFiltroDominio" onchange="declFiltrar()"
               style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;width:100%;">
               <option value="">Dominio</option>
+            </select>
+            <select id="declFiltroDFD" onchange="declFiltrar()"
+              style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;outline:none;width:100%;">
+              <option value="">DFD</option>
             </select>
             <button onclick="declLimparFiltros()"
               style="padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;transition:all .15s;"
@@ -6697,7 +6718,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
       </div><!-- /cfgSec-declaracao-pca -->
 
-      <!-- ✏️ EDITAR ITENS -->
+      <!-- EDITAR ITENS -->
       <div id="cfgSec-editar-itens" class="cfg-section" style="display:none;">
 
         <!-- Header -->
@@ -8322,6 +8343,10 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
         <i data-lucide="file-search" style="width:12px;height:12px;"></i>
         DFD
       </button>
+      <button class="ci-tipo-chip" data-tipo="protocolo" role="radio" aria-checked="false">
+        <i data-lucide="hash" style="width:12px;height:12px;"></i>
+        ID Protocolo
+      </button>
       <button class="ci-tipo-chip" data-tipo="local" role="radio" aria-checked="false">
         <i data-lucide="building-2" style="width:12px;height:12px;"></i>
         Local
@@ -8580,11 +8605,22 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
       <!-- Footer do painel -->
       <div class="id-footer">
-        <span class="id-footer-hint">
+        <span class="id-footer-hint" id="itemDetalheFooterHint">
           <i data-lucide="info" style="width:12px;height:12px;"></i>
           Clique em outra linha para navegar entre os itens
         </span>
-        <button class="id-footer-close" onclick="fecharItemDetalhe()">Fechar</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="itemDetalheBtnSalvarSaldos" onclick="declSalvarSaldosDoItem()"
+            style="display:none;padding:8px 16px;border:none;border-radius:9px;
+                   background:linear-gradient(135deg,#059669,#047857);color:#fff;
+                   font-size:12px;font-weight:700;cursor:pointer;
+                   align-items:center;gap:6px;box-shadow:0 2px 8px rgba(5,150,105,.3);
+                   transition:opacity .15s;"
+            onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+            <i data-lucide="save" style="width:13px;height:13px;"></i> Salvar Saldos
+          </button>
+          <button class="id-footer-close" onclick="fecharItemDetalhe()">Fechar</button>
+        </div>
       </div>
 
     </div>
@@ -9642,7 +9678,7 @@ function aparMostrarTab(id) {
   ]
 
   /* ── Estado interno ───────────────────────────────────────── */
-  let _menus       = []     // [{ id, nome, ativo, secoes }]
+  let _menus       = []     // [{ id, nome, ativo, inicio, secoes }]
   let _editIdx     = null   // índice do menu em edição (null = novo)
   let _secoes      = []     // [{id, nome, itens:[abaId,...]}]  — cópia de trabalho
   let _carregado   = false
@@ -9678,7 +9714,7 @@ function aparMostrarTab(id) {
     const cfgId = (typeof CONFIG_SHEET_ID !== "undefined" ? CONFIG_SHEET_ID : "") || ""
     const apiKey = (typeof GS_API_KEY !== "undefined" ? GS_API_KEY : "") || ""
     if (!cfgId || !apiKey) return []   // FIX BUG 1 — não lança erro, só retorna vazio
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfgId}/values/MENUS_CONFIG!A1:D200`
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${cfgId}/values/MENUS_CONFIG!A1:E200`
               + `?valueRenderOption=UNFORMATTED_VALUE&key=${apiKey}`
     let r
     try { r = await fetch(url) } catch(e) { return [] }
@@ -9698,7 +9734,13 @@ function aparMostrarTab(id) {
       .map(r => {
         let secoes = []
         try { secoes = JSON.parse(r[3] || "[]") } catch(_) {}
-        return { id:String(r[0]), nome:String(r[1]||""), ativo:String(r[2]||"")==="Sim", secoes }
+        return {
+          id     : String(r[0]),
+          nome   : String(r[1] || ""),
+          ativo  : String(r[2] || "") === "Sim",
+          secoes,
+          inicio : String(r[4] || ""),   // col E — aba inicial do menu
+        }
       })
   }
 
@@ -9721,10 +9763,16 @@ function aparMostrarTab(id) {
                                : "ID da PCA_CONFIG não configurado — salvo localmente." }
     }
 
-    // 2. Monta payload
+    // 2. Monta payload — colunas: A=id, B=nome, C=ativo, D=dados_json, E=inicio
     const linhas = [
-      ["id","nome","ativo","dados_json"],
-      ...lista.map(m => [m.id, m.nome, m.ativo ? "Sim" : "Não", JSON.stringify(m.secoes)])
+      ["id","nome","ativo","dados_json","Inicio"],
+      ...lista.map(m => [
+        m.id,
+        m.nome,
+        m.ativo ? "Sim" : "Não",
+        JSON.stringify(m.secoes),
+        m.inicio || "",   // col E — aba inicial
+      ])
     ]
     const bodyObj = {
       acao    : "salvarMenus",
@@ -9962,6 +10010,45 @@ function aparMostrarTab(id) {
     _renderSecoes()
     _renderBanco()
     _renderListaSalvos()
+    // Preenche o select de aba inicial com o valor salvo
+    _renderInicioSelect(m.inicio || "")
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     SELETOR DE ABA INICIAL
+     Reconstrói as opções do <select id="menInicioSelect">
+     a partir das abas presentes nas seções atuais (_secoes).
+     Pré-seleciona o valor salvo no menu (campo `inicio`).
+  ══════════════════════════════════════════════════════════ */
+  function _renderInicioSelect(valorAtual) {
+    const sel = document.getElementById("menInicioSelect")
+    if (!sel) return
+
+    // Coleta todas as abas em uso nas seções, em ordem
+    const todasAbas = []
+    _secoes.forEach(sec => {
+      (sec.itens || []).forEach(abId => {
+        if (!todasAbas.includes(abId)) todasAbas.push(abId)
+      })
+    })
+
+    sel.innerHTML = '<option value="">(primeira aba do menu)</option>'
+    todasAbas.forEach(abId => {
+      const ab  = CATALOGO.find(a => a.id === abId)
+      const opt = document.createElement("option")
+      opt.value       = abId
+      opt.textContent = ab ? ab.label : abId
+      sel.appendChild(opt)
+    })
+
+    // Restaura valor salvo (se ainda existir entre as opções)
+    sel.value = todasAbas.includes(valorAtual) ? valorAtual : ""
+  }
+
+  /* Expõe para ser chamado ao arrastar/remover abas — atualiza opções sem perder seleção */
+  function _sincronizarInicioSelect() {
+    const sel = document.getElementById("menInicioSelect")
+    _renderInicioSelect(sel ? sel.value : "")
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -10022,6 +10109,7 @@ function aparMostrarTab(id) {
         _secoes[sIdx].itens.push(_dragData.abId)
         _renderSecoes()
         _renderBanco()
+        _sincronizarInicioSelect()
       }
     } else if (_dragData.tipo === "item") {
       const { abId, sIdx:srcS, iIdx:srcI } = _dragData
@@ -10036,6 +10124,7 @@ function aparMostrarTab(id) {
       }
       _renderSecoes()
       _renderBanco()
+      _sincronizarInicioSelect()
     }
     _dragData = null
   }
@@ -10058,12 +10147,14 @@ function aparMostrarTab(id) {
     _secoes.splice(sIdx, 1)
     _renderSecoes()
     _renderBanco()
+    _sincronizarInicioSelect()
   }
 
   function _menRemoverItem(sIdx, iIdx) {
     if (_secoes[sIdx]) _secoes[sIdx].itens.splice(iIdx, 1)
     _renderSecoes()
     _renderBanco()
+    _sincronizarInicioSelect()
   }
 
   function _menExcluirInterno(idx) {
@@ -10082,12 +10173,15 @@ function aparMostrarTab(id) {
 
   window.menNovo = function() {
     _editIdx = null; _secoes = []
-    const inp = document.getElementById("menNomeInput"); if (inp) { inp.value = ""; inp.focus() }
+    const inp = document.getElementById("menNomeInput")
+    if (inp) { inp.value = ""; inp.focus() }
     _renderSecoes(); _renderBanco(); _renderListaSalvos()
+    _renderInicioSelect("")
   }
 
   window.menSalvar = async function() {
-    const nome = (document.getElementById("menNomeInput")?.value || "").trim()
+    const nome  = (document.getElementById("menNomeInput")?.value || "").trim()
+    const inicio = document.getElementById("menInicioSelect")?.value || ""
     if (!nome) {
       _status("Informe um nome para o menu.", "erro")
       document.getElementById("menNomeInput")?.focus()
@@ -10102,8 +10196,9 @@ function aparMostrarTab(id) {
     if (_editIdx !== null && _menus[_editIdx]) {
       _menus[_editIdx].nome   = nome
       _menus[_editIdx].secoes = secoesCopy
+      _menus[_editIdx].inicio = inicio
     } else {
-      _menus.push({ id:_uid(), nome, ativo:false, secoes:secoesCopy })
+      _menus.push({ id:_uid(), nome, ativo:false, inicio, secoes:secoesCopy })
       _editIdx = _menus.length - 1
     }
     _renderListaSalvos()
@@ -10174,7 +10269,7 @@ function aparMostrarTab(id) {
         // Aplica menu ativo mesmo sem config (dados do localStorage)
         const _mAtivoLS = _menus.find(m => m.ativo)
         if (_mAtivoLS && typeof window.menAplicarNaSidebar === "function") {
-          window.menAplicarNaSidebar(_mAtivoLS.secoes || [])
+          window.menAplicarNaSidebar(_mAtivoLS.secoes || [], _mAtivoLS.inicio || "")
         }
       } else {
         _renderSecoes()
@@ -10195,7 +10290,7 @@ function aparMostrarTab(id) {
       // Aplica o menu ativo na sidebar (se houver)
       const _mAtivo = _menus.find(m => m.ativo)
       if (_mAtivo && typeof window.menAplicarNaSidebar === "function") {
-        window.menAplicarNaSidebar(_mAtivo.secoes || [])
+        window.menAplicarNaSidebar(_mAtivo.secoes || [], _mAtivo.inicio || "")
       }
     } catch(e) {
       _status("Erro ao carregar: " + e.message, "erro")
@@ -10227,7 +10322,7 @@ function aparMostrarTab(id) {
   function _sincronizarSidebar() {
     const ativo = _menus.find(m => m.ativo)
     if (typeof window.menAplicarNaSidebar === "function" && ativo) {
-      window.menAplicarNaSidebar(ativo.secoes || [])
+      window.menAplicarNaSidebar(ativo.secoes || [], ativo.inicio || "")
     }
   }
 
@@ -10292,18 +10387,19 @@ function aparMostrarTab(id) {
   }
 
   /**
-   * window.menAplicarNaSidebar(secoes)
-   * secoes: [{ id, nome, itens:[abaId,...] }, ...]
-   * Reconstrói a sidebar respeitando a estrutura do menu salvo.
-   * Sempre mantém o primeiro item ativo (sheets por padrão, ou
-   * o primeiro item do primeiro bloco se existir).
+   * window.menAplicarNaSidebar(secoes, inicioId)
+   * secoes  : [{ id, nome, itens:[abaId,...] }, ...]
+   * inicioId: id da aba que deve ser aberta automaticamente (campo `inicio` do menu).
+   *           Se vazio/inválido, abre a primeira aba encontrada.
+   * Reconstrói a sidebar e navega para a aba inicial definida.
    */
-  window.menAplicarNaSidebar = function(secoes) {
+  window.menAplicarNaSidebar = function(secoes, inicioId) {
     const sidebar = document.getElementById("cfgSidebar")
     if (!sidebar || !Array.isArray(secoes) || secoes.length === 0) return
 
-    let html = ""
-    let firstItemId = null
+    let html         = ""
+    let firstItemId  = null
+    const todosIds   = []
 
     secoes.forEach((sec, i) => {
       // Filtra itens inválidos (ids que não existem no catálogo)
@@ -10313,6 +10409,7 @@ function aparMostrarTab(id) {
       html += _secLabel(sec.nome || "Seção", i === 0)
       itensValidos.forEach(id => {
         if (!firstItemId) firstItemId = id
+        todosIds.push(id)
         html += _btnHTML(id)
       })
     })
@@ -10322,10 +10419,17 @@ function aparMostrarTab(id) {
     sidebar.innerHTML = html
     if (window.lucide) lucide.createIcons()
 
-    // Deixa o primeiro item ativo visualmente (sem abrir a seção)
-    if (firstItemId) {
-      const btn = document.getElementById("cfgNav-" + firstItemId)
-      if (btn) btn.classList.add("active")
+    // Determina qual aba abrir: campo `inicio` (se válido) ou a primeira
+    const abaAlvo = (inicioId && todosIds.includes(inicioId)) ? inicioId : firstItemId
+    if (abaAlvo) {
+      // Abre a seção (conteúdo) e marca o botão como ativo
+      if (typeof cfgMostrarSecao === "function") {
+        cfgMostrarSecao(abaAlvo)
+      } else {
+        // Fallback: só marca visualmente se cfgMostrarSecao ainda não estiver disponível
+        const btn = document.getElementById("cfgNav-" + abaAlvo)
+        if (btn) btn.classList.add("active")
+      }
     }
   }
 
@@ -10763,7 +10867,24 @@ function _abrirConfiguracoesAutenticado() {
   const sessao = (typeof window.loginGetSessao === "function") ? window.loginGetSessao() : null
   if (sessao) _cfgAplicarRestricoesSessao(sessao)
 
-  cfgMostrarSecao("sheets")
+  // ── Abre a aba inicial definida no menu ativo ──────────────────────────
+  // Prioridade: 1) aba inicial do menu do usuário (sessao.menuId → menu.inicio)
+  //             2) aba inicial do menu ativo global (_menListaAtual.find(ativo))
+  //             3) fallback: "sheets"
+  const _resolverAbaInicial = () => {
+    const lista = Array.isArray(window._menListaAtual) ? window._menListaAtual : []
+    // Menu vinculado ao usuário da sessão
+    if (sessao && sessao.menuId) {
+      const menuUsuario = lista.find(m => m.id === sessao.menuId)
+      if (menuUsuario && menuUsuario.inicio) return menuUsuario.inicio
+    }
+    // Menu marcado como ativo globalmente
+    const menuAtivo = lista.find(m => m.ativo)
+    if (menuAtivo && menuAtivo.inicio) return menuAtivo.inicio
+    return "sheets"
+  }
+
+  cfgMostrarSecao(_resolverAbaInicial())
   document.getElementById("modalConfiguracoes").style.display = "flex"
   setTimeout(() => { if (typeof lucide !== "undefined") lucide.createIcons() }, 50)
 }
@@ -10851,7 +10972,7 @@ function _cfgAplicarRestricoesSessao(sessao) {
       // Marca como ativo em memória e aplica na sidebar (sem gravar na planilha)
       lista.forEach(m => { m.ativo = (m.id === menuId) })
       if (typeof window.menAplicarNaSidebar === "function") {
-        window.menAplicarNaSidebar(menu.secoes || [])
+        window.menAplicarNaSidebar(menu.secoes || [], menu.inicio || "")
       }
     }
   }
@@ -13564,6 +13685,24 @@ function limparFiltros() {
   ;["ci-fi-local","ci-fi-class","ci-fi-dominio","ci-fi-prior","ci-fi-mes","ci-fi-saldo"].forEach(id => {
     document.getElementById(id)?.classList.remove("filtro-ativo")
   })
+  /* Limpa o campo de busca principal e o input oculto */
+  const buscaInp = document.getElementById("produtoSearch")
+  const dfdInp   = document.getElementById("dfdSearch")
+  if (buscaInp) buscaInp.value = ""
+  if (dfdInp)   dfdInp.value   = ""
+  /* Oculta botão de limpar busca */
+  document.getElementById("produtoSearchClear")?.classList.remove("visivel")
+  /* Reseta chips para tipo padrão (Produto) */
+  document.querySelectorAll('#ciTipoChips .ci-tipo-chip').forEach(function(c) {
+    const isProduto = c.getAttribute('data-tipo') === 'produto'
+    c.classList.toggle('ativo', isProduto)
+    c.setAttribute('aria-checked', isProduto ? 'true' : 'false')
+  })
+  /* Restaura placeholder e indicador para o tipo Produto */
+  const buscaPlaceholder = "Pesquisar por nome do produto ou serviço..."
+  if (buscaInp) buscaInp.placeholder = buscaPlaceholder
+  const indicText = document.getElementById("ciTipoIndicadorText")
+  if (indicText) indicText.innerHTML = "Pesquisando por: <strong>Produto ou serviço</strong>"
   /* Restaura todos os filtros ao universo completo */
   popularFiltros()
   aplicarFiltrosTabela()
@@ -13586,10 +13725,31 @@ function aplicarFiltrosTabela() {
   paginaAtual = 1
   dadosFiltrados = [...dados]
 
-  if (dfd)     dadosFiltrados = dadosFiltrados.filter(r =>
-    String(r[COL.SEQUENCIAL]).toLowerCase().includes(dfd) ||
-    String(r[COL.DFD]).toLowerCase().includes(dfd) ||
-    String(r[COL.ID_PROTO]||"").toLowerCase().includes(dfd))
+  // Filtro de busca — cada coluna é exclusiva conforme o tipo ativo no módulo de busca.
+  // dfdSearch carrega o valor e o tipo é resolvido aqui pela variável _ciTipoAtivo,
+  // exposta pelo módulo de chips. Sem mistura entre Sequencial, DFD e Protocolo.
+  if (dfd) {
+    var _tipo = (typeof window._ciTipoAtivo !== 'undefined') ? window._ciTipoAtivo : ''
+    if (_tipo === 'sequencial') {
+      // Busca apenas na coluna SEQUENCIAL
+      dadosFiltrados = dadosFiltrados.filter(r =>
+        String(r[COL.SEQUENCIAL] || '').toLowerCase().includes(dfd))
+    } else if (_tipo === 'dfd') {
+      // Busca apenas na coluna DFD
+      dadosFiltrados = dadosFiltrados.filter(r =>
+        String(r[COL.DFD] || '').toLowerCase().includes(dfd))
+    } else if (_tipo === 'protocolo') {
+      // Busca apenas na coluna ID PROTOCOLO
+      dadosFiltrados = dadosFiltrados.filter(r =>
+        String(r[COL.ID_PROTO] || '').toLowerCase().includes(dfd))
+    } else {
+      // Fallback (comportamento legado): busca nas três colunas
+      dadosFiltrados = dadosFiltrados.filter(r =>
+        String(r[COL.SEQUENCIAL] || '').toLowerCase().includes(dfd) ||
+        String(r[COL.DFD] || '').toLowerCase().includes(dfd) ||
+        String(r[COL.ID_PROTO] || '').toLowerCase().includes(dfd))
+    }
+  }
   if (produto) dadosFiltrados = dadosFiltrados.filter(r => norm(r[COL.PRODUTO]).toLowerCase().includes(produto))
   if (local)   dadosFiltrados = dadosFiltrados.filter(r => norm(r[COL.LOCAL]) === local)
   if (classe)  dadosFiltrados = dadosFiltrados.filter(r => norm(r[COL.CLASSIFICACAO]) === classe)
@@ -13903,30 +14063,54 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
 ;(function _ciSmartSearch() {
 
   // Mapa: tipo → { campo, placeholder, label }
-  // campo 'dfd' → redireciona para #dfdSearch (busca em SEQ, DFD, PROTOCOLO)
-  // campo 'seq' → busca apenas no SEQUENCIAL via #dfdSearch mas filtro só SEQ
+  // Tipos 'sequencial', 'dfd' e 'protocolo' são de busca pontual (só disparam
+  // ao pressionar Enter ou clicar no botão Pesquisar — sem debounce automático).
   var TIPOS = {
-    produto:       { campo: 'produto',    ph: 'Pesquisar por nome do produto ou serviço...',     label: 'Produto ou serviço'  },
-    sequencial:    { campo: 'sequencial', ph: 'Pesquisar por número de sequencial (ex: 42)...',  label: 'Sequencial'          },
-    dfd:           { campo: 'dfd',        ph: 'Pesquisar por número do DFD...',                  label: 'DFD'                 },
-    local:         { campo: 'local',      ph: 'Pesquisar por unidade solicitante (ex: SEMUS)...', label: 'Unidade solicitante' },
-    classificacao: { campo: 'classe',     ph: 'Pesquisar por categoria (Material, Serviço...)...', label: 'Categoria'          },
-    dominio:       { campo: 'dominio',    ph: 'Pesquisar por domínio de contratação...',          label: 'Domínio'            },
-    prioridade:    { campo: 'prioridade', ph: 'Pesquisar por prioridade (Alta, Média, Baixa)...', label: 'Prioridade'         },
+    produto:       { campo: 'produto',    ph: 'Pesquisar por nome do produto ou serviço...',      label: 'Produto ou serviço',  pontual: false, apenasNumeros: false },
+    sequencial:    { campo: 'sequencial', ph: 'Digite o número do sequencial (ex: 42)...',        label: 'Sequencial',          pontual: true,  apenasNumeros: true  },
+    dfd:           { campo: 'dfd',        ph: 'Digite o número do DFD...',                        label: 'DFD',                 pontual: true,  apenasNumeros: true  },
+    protocolo:     { campo: 'protocolo',  ph: 'Pesquisar por ID Protocolo (coluna M)...',         label: 'ID Protocolo',        pontual: true,  apenasNumeros: false },
+    local:         { campo: 'local',      ph: 'Pesquisar por unidade solicitante (ex: SEMUS)...',  label: 'Unidade solicitante', pontual: false, apenasNumeros: false },
+    classificacao: { campo: 'classe',     ph: 'Pesquisar por categoria (Material, Serviço...)...', label: 'Categoria',           pontual: false, apenasNumeros: false },
+    dominio:       { campo: 'dominio',    ph: 'Pesquisar por domínio de contratação...',           label: 'Domínio',             pontual: false, apenasNumeros: false },
+    prioridade:    { campo: 'prioridade', ph: 'Pesquisar por prioridade (Alta, Média, Baixa)...',  label: 'Prioridade',          pontual: false, apenasNumeros: false },
   }
 
   var tipoAtivo = 'produto'
+  window._ciTipoAtivo = tipoAtivo  // exposto para aplicarFiltrosTabela
 
   function _inp()       { return document.getElementById('produtoSearch') }
   function _dfdInp()    { return document.getElementById('dfdSearch') }
   function _clearBtn()  { return document.getElementById('produtoSearchClear') }
   function _indicText() { return document.getElementById('ciTipoIndicadorText') }
 
-  // Sincroniza placeholder e indicador conforme tipo selecionado
+  // Retorna true se o tipo ativo é pontual (não usa debounce automático)
+  function _ehPontual() {
+    var conf = TIPOS[tipoAtivo]
+    return conf && conf.pontual === true
+  }
+
+  // Retorna true se o tipo ativo aceita apenas números
+  function _ehNumerico() {
+    var conf = TIPOS[tipoAtivo]
+    return conf && conf.apenasNumeros === true
+  }
+
+  // Sincroniza placeholder, indicador e modo numérico conforme tipo selecionado
   function _syncUI() {
     var conf = TIPOS[tipoAtivo]
     var inp  = _inp()
-    if (inp) inp.placeholder = conf.ph
+    if (inp) {
+      inp.placeholder = conf.ph
+      if (_ehNumerico()) {
+        // Modo numérico: teclado numérico em mobile, impede letras
+        inp.setAttribute('inputmode', 'numeric')
+        inp.setAttribute('pattern', '[0-9]*')
+      } else {
+        inp.removeAttribute('inputmode')
+        inp.removeAttribute('pattern')
+      }
+    }
     var t = _indicText()
     if (t) t.innerHTML = 'Pesquisando por: <strong>' + conf.label + '</strong>'
   }
@@ -13937,7 +14121,7 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
     aplicarFiltrosTabela()
   }
 
-  // Botão limpar
+  // Botão limpar busca principal
   window._ciLimparBusca = function() {
     var inp = _inp()
     var dfd = _dfdInp()
@@ -13954,36 +14138,75 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
     var btn = _clearBtn()
     if (!inp || !btn) return
     function toggle() { btn.classList.toggle('visivel', inp.value.length > 0) }
-    inp.addEventListener('input',  toggle)
-    inp.addEventListener('keyup',  toggle)
+    inp.addEventListener('input', toggle)
+    inp.addEventListener('keyup', toggle)
   }
 
-  // Keyup — busca automática ao digitar (debounced)
+  // _bindKeyup — comportamento por tipo:
+  //   sequencial/dfd : só aceita dígitos; busca ao parar de digitar (blur ou 800ms)
+  //   protocolo      : pontual — só Enter dispara
+  //   demais         : busca automática com debounce de 300ms
   function _bindKeyup() {
     var inp = _inp()
     if (!inp) return
+    var _numTimer = null
+
+    // Bloqueia entrada de não-numéricos quando tipo exige apenas números
+    inp.addEventListener('input', function() {
+      if (!_ehNumerico()) return
+      // Remove qualquer caractere que não seja dígito
+      var limpo = inp.value.replace(/[^0-9]/g, '')
+      if (limpo !== inp.value) inp.value = limpo
+      // Atualiza visibilidade do botão clear
+      var btn = _clearBtn()
+      if (btn) btn.classList.toggle('visivel', inp.value.length > 0)
+      // Dispara busca após 800ms sem digitar (auto-busca para seq/dfd)
+      clearTimeout(_numTimer)
+      if (inp.value.length > 0) {
+        _numTimer = setTimeout(_aplicar, 800)
+      } else {
+        // Campo vazio: limpa resultado imediatamente
+        _aplicar()
+      }
+    })
+
+    // Enter sempre dispara imediatamente
     inp.addEventListener('keyup', function(e) {
-      if (e.key === 'Enter') { _aplicar(); return }
+      if (e.key === 'Enter') {
+        clearTimeout(_numTimer)
+        _aplicar()
+        return
+      }
+      // Para tipos não-numéricos pontuais (protocolo): nada automático
+      if (_ehPontual()) return
+      // Demais tipos: debounce normal de 300ms
       debounce(_aplicar)
+    })
+
+    // Blur: busca ao sair do campo para sequencial/dfd
+    inp.addEventListener('blur', function() {
+      if (_ehNumerico() && inp.value.trim().length > 0) {
+        clearTimeout(_numTimer)
+        _aplicar()
+      }
     })
   }
 
-  // Clique nos chips
+  // Clique nos chips — troca o tipo ativo sem apagar o que foi digitado
   function _bindChips() {
     var chips = document.querySelectorAll('#ciTipoChips .ci-tipo-chip')
     chips.forEach(function(chip) {
       chip.addEventListener('click', function() {
-        // Remove ativo de todos
         chips.forEach(function(c) {
           c.classList.remove('ativo')
           c.setAttribute('aria-checked', 'false')
         })
-        // Ativa o clicado
         chip.classList.add('ativo')
         chip.setAttribute('aria-checked', 'true')
         tipoAtivo = chip.getAttribute('data-tipo') || 'produto'
+        window._ciTipoAtivo = tipoAtivo  // sincroniza com aplicarFiltrosTabela
 
-        // Limpa o campo de busca ao trocar tipo
+        // Limpa o campo ao trocar de tipo e reinicia a busca
         var inp = _inp()
         var dfd = _dfdInp()
         if (inp) inp.value = ''
@@ -13992,68 +14215,44 @@ function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
         if (btn) btn.classList.remove('visivel')
 
         _syncUI()
-        // Foca o campo automaticamente
         if (inp) inp.focus()
         aplicarFiltrosTabela()
       })
     })
   }
 
-  // Override cirúrgico de aplicarFiltrosTabela para redirecionar
-  // o valor do input único para o campo correto antes de filtrar.
-  // aplicarFiltrosTabela é function declaration (hoisted) — salvar referência após execução
+  // Patch de aplicarFiltrosTabela — roteia o valor do input único
+  // para o campo correto (dfdSearch ou produtoSearch) antes de filtrar.
+  // A lógica de exclusividade de coluna está no próprio aplicarFiltrosTabela,
+  // que lê window._ciTipoAtivo para saber qual coluna usar.
   var _origAplicar = null
   function _patchAplicar() {
     if (_origAplicar) return // já patchado
-    // Neste ponto a função já existe no escopo global
     if (typeof aplicarFiltrosTabela !== 'function') return
     _origAplicar = aplicarFiltrosTabela
 
     window.aplicarFiltrosTabela = function() {
       var inp  = _inp()
       var dfd  = _dfdInp()
-      if (inp && dfd) {
-        var val  = inp.value.trim()
-        var conf = TIPOS[tipoAtivo]
-        if (conf && (conf.campo === 'dfd' || conf.campo === 'sequencial')) {
-          // Redireciona para dfdSearch, limpa produtoSearch temporariamente
-          // O filtro original em dfdSearch busca em SEQ, DFD e PROTOCOLO;
-          // para sequencial isolamos filtrando externamente após chamar original
+      var conf = TIPOS[tipoAtivo]
+
+      if (inp && dfd && conf) {
+        var val = inp.value.trim()
+
+        if (conf.campo === 'sequencial' || conf.campo === 'dfd' || conf.campo === 'protocolo') {
+          // Tipos pontuais: roteia para dfdSearch; produtoSearch fica vazio
           dfd.value = val
-          var prev = inp.value
           inp.value = ''
-
-          if (conf.campo === 'sequencial') {
-            // Chama original com dfd preenchido (busca em SEQ, DFD, PROTOCOLO)
-            // depois refina para somente SEQUENCIAL
-            _origAplicar()
-            if (val) {
-              // COL é objeto com chaves string (ex: COL.SEQUENCIAL = "SEQUENCIAL")
-              var colSeq = (typeof COL !== 'undefined' && COL.SEQUENCIAL) ? COL.SEQUENCIAL : 'SEQUENCIAL'
-              window.dadosFiltrados = window.dadosFiltrados.filter(function(r) {
-                return String(r[colSeq] || '').toLowerCase().includes(val.toLowerCase())
-              })
-              if (typeof renderizarPagina === 'function') renderizarPagina()
-            }
-          } else {
-            // dfd puro: refina para apenas coluna DFD
-            _origAplicar()
-            if (val) {
-              var colDfd = (typeof COL !== 'undefined' && COL.DFD) ? COL.DFD : 'DFD'
-              window.dadosFiltrados = window.dadosFiltrados.filter(function(r) {
-                return String(r[colDfd] || '').toLowerCase().includes(val.toLowerCase())
-              })
-              if (typeof renderizarPagina === 'function') renderizarPagina()
-            }
-          }
-
-          inp.value = prev // restaura para o usuário continuar digitando
+          _origAplicar()
+          inp.value = val  // restaura para o usuário continuar editando
           dfd.value = ''
           return
-        } else {
-          dfd.value = ''
         }
+
+        // Demais tipos: usa produtoSearch, limpa dfdSearch
+        dfd.value = ''
       }
+
       _origAplicar()
     }
   }
@@ -15617,17 +15816,43 @@ document.getElementById("modalPdfLocal").addEventListener("click", e => {
         const _rowBg = _temErro && _filtroErro ? `background:${_corErro[_filtroErro]}08;` : ""
         const _isSel = _selecionados.has(r.__localIdx)
         const _selBg = _isSel ? "background:#4361ee12;" : _rowBg
-        return `<tr id="edit-row-${r.__localIdx}" style="border-bottom:1px solid var(--border);transition:background .12s;${_selBg}" onmouseover="this.style.background='${_isSel ? "#4361ee1a" : "var(--row-hover)"}'" onmouseout="this.style.background='${_isSel ? "#4361ee12" : (_temErro && _filtroErro ? _corErro[_filtroErro]+"08" : "")}'">
+
+        // Verificação de item esgotado (quantitativo totalmente utilizado em declaração)
+        const _tipo      = String(r[COL.TIPO_CONTROLE]||'').trim().toUpperCase()
+        const _vlTotal   = parseFloat(r[COL.VALOR_TOTAL])||0
+        const _saldoUtil = parseFloat(r[COL.SALDO_UTIL])||0
+        const _qtdeUtil  = parseFloat(r[COL.QTDE_UTIL])||0
+        const _qtdTotal  = parseFloat(r[COL.QUANTIDADE])||0
+        let _esgotado = false
+        if (_tipo === 'SALDO')      _esgotado = (_vlTotal - _saldoUtil) <= 0
+        else if (_tipo === 'QTDE')  _esgotado = (_qtdTotal - _qtdeUtil) <= 0
+        else if (_tipo === 'AMBOS') _esgotado = (_vlTotal - _saldoUtil) <= 0 || (_qtdTotal - _qtdeUtil) <= 0
+
+        const _badgeEsgotado = _esgotado
+          ? `<span style="display:inline-block;padding:2px 7px;border-radius:10px;background:#dc262615;color:#dc2626;font-size:10px;font-weight:800;border:1px solid #dc262640;margin-left:4px;white-space:nowrap;">Esgotado</span>`
+          : ''
+        const _btnEditar = _esgotado
+          ? `<button disabled title="Item esgotado: quantitativo totalmente utilizado em declaracao"
+               style="padding:6px 15px;border:1.5px solid #cbd5e1;border-radius:7px;background:transparent;color:#94a3b8;cursor:not-allowed;font-size:12px;font-weight:700;opacity:.6;">
+               Editar
+             </button>`
+          : `<button onclick="_editAbrirModal(${idx})"
+               style="padding:6px 15px;border:1.5px solid #4361ee;border-radius:7px;background:transparent;color:#4361ee;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;"
+               onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#4361ee'">
+               Editar
+             </button>`
+
+        return `<tr id="edit-row-${r.__localIdx}" style="border-bottom:1px solid var(--border);transition:background .12s;${_esgotado ? 'opacity:.72;' : ''}${_selBg}" onmouseover="this.style.background='${_isSel ? "#4361ee1a" : "var(--row-hover)"}'" onmouseout="this.style.background='${_isSel ? "#4361ee12" : (_temErro && _filtroErro ? _corErro[_filtroErro]+"08" : "")}'">
           <td style="padding:11px 10px;text-align:center;">
-            <input type="checkbox" class="edit-row-cb" data-idx="${r.__localIdx}" ${_isSel ? "checked" : ""}
-              style="width:16px;height:16px;cursor:pointer;accent-color:#4361ee;">
+            <input type="checkbox" class="edit-row-cb" data-idx="${r.__localIdx}" ${_isSel ? "checked" : ""} ${_esgotado ? "disabled title='Item esgotado: quantitativo totalmente utilizado em declaracao'" : ""}
+              style="width:16px;height:16px;${_esgotado ? 'cursor:not-allowed;opacity:.4;' : 'cursor:pointer;'}accent-color:#4361ee;">
           </td>
           <td style="padding:11px 14px;color:var(--accent);font-size:12px;font-weight:700;text-align:center;font-family:monospace;">${seqNum}</td>
           <td style="padding:11px 14px;">
             <span style="display:inline-block;padding:3px 8px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700;white-space:nowrap;">${norm(r[COL.LOCAL])}</span>
           </td>
           <td style="padding:11px 14px;font-family:monospace;font-size:11.5px;color:${!String(r[COL.CODIGO]||"").trim() ? "#ef4444" : "var(--text-muted)"};">${r[COL.CODIGO] || '<span style="color:#ef4444;font-weight:700;">—</span>'}</td>
-          <td style="padding:11px 14px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;" title="${norm(r[COL.PRODUTO])}">${norm(r[COL.PRODUTO])}${_badgesErro}</td>
+          <td style="padding:11px 14px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;" title="${norm(r[COL.PRODUTO])}">${norm(r[COL.PRODUTO])}${_badgesErro}${_badgeEsgotado}</td>
           <td style="padding:11px 14px;text-align:center;font-size:12px;color:var(--text-muted);">${norm(r[COL.UNIDADE])}</td>
           <td style="padding:11px 14px;font-size:12px;color:${!String(r[COL.CLASSIFICACAO]||"").trim() ? "#64748b" : "var(--text-muted)"};max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${norm(r[COL.CLASSIFICACAO]) || '<span style="color:#64748b;font-weight:700;">—</span>'}</td>
           <td style="padding:11px 14px;text-align:right;font-size:13px;">${r[COL.QUANTIDADE]||""}</td>
@@ -15636,13 +15861,7 @@ document.getElementById("modalPdfLocal").addEventListener("click", e => {
           <td style="padding:11px 14px;text-align:right;font-family:monospace;font-size:12px;font-weight:700;color:${(parseFloat(r[COL.SALDO_UTIL])||0)>0?(parseFloat(r[COL.SALDO_UTIL])>=getValor(r)?'#10b981':'#f59e0b'):'var(--text-muted)'};">${(parseFloat(r[COL.SALDO_UTIL])||0)>0 ? formatBRL(parseFloat(r[COL.SALDO_UTIL])) : '—'}</td>
           <td style="padding:11px 14px;text-align:right;font-family:monospace;font-size:12px;font-weight:700;color:${(parseFloat(r[COL.QTDE_UTIL])||0)>0?'#06b6d4':'var(--text-muted)'}">${(parseFloat(r[COL.QTDE_UTIL])||0)>0 ? parseFloat(r[COL.QTDE_UTIL]) : '—'}</td>
           <td style="padding:11px 14px;text-align:center;font-size:11px;color:var(--text-muted);white-space:nowrap;">${r[COL.DT_ATUALIZACAO]||'—'}</td>
-          <td style="padding:11px 14px;text-align:center;">
-            <button onclick="_editAbrirModal(${idx})"
-              style="padding:6px 15px;border:1.5px solid #4361ee;border-radius:7px;background:transparent;color:#4361ee;cursor:pointer;font-size:12px;font-weight:700;transition:all .15s;"
-              onmouseover="this.style.background='#4361ee';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#4361ee'">
-              ✏️ Editar
-            </button>
-          </td>
+          <td style="padding:11px 14px;text-align:center;">${_btnEditar}</td>
         </tr>`
       }).join("")
     }
@@ -15850,6 +16069,22 @@ document.getElementById("modalPdfLocal").addEventListener("click", e => {
   window._editAbrirModal = function(idx) {
     _editIdx = idx
     const r  = _filtrados[idx]
+
+    // Bloquear edição de itens esgotados (quantitativo totalmente utilizado em declaração)
+    const _tipoM    = String(r[COL.TIPO_CONTROLE]||'').trim().toUpperCase()
+    const _vlM      = parseFloat(r[COL.VALOR_TOTAL])||0
+    const _saldoM   = parseFloat(r[COL.SALDO_UTIL])||0
+    const _qtdeM    = parseFloat(r[COL.QTDE_UTIL])||0
+    const _qtdTotM  = parseFloat(r[COL.QUANTIDADE])||0
+    let _esgotadoM  = false
+    if (_tipoM === 'SALDO')      _esgotadoM = (_vlM - _saldoM) <= 0
+    else if (_tipoM === 'QTDE')  _esgotadoM = (_qtdTotM - _qtdeM) <= 0
+    else if (_tipoM === 'AMBOS') _esgotadoM = (_vlM - _saldoM) <= 0 || (_qtdTotM - _qtdeM) <= 0
+    if (_esgotadoM) {
+      mostrarToast('Este item tem quantitativo totalmente utilizado em declaracoes e nao pode ser editado.', 'erro')
+      return
+    }
+
     const s  = v => document.getElementById(v)
 
     s("editItemSeq").value      = String(r[COL.SEQUENCIAL]  ?? "")
@@ -17109,17 +17344,33 @@ cfgMostrarSecao = function(id) {
       const seq      = r[COL.SEQUENCIAL] || "—"
       const vlTotal  = parseFloat(r[COL.VALOR_TOTAL]) || 0
 
-      return `<tr style="border-bottom:1px solid var(--border);transition:background .12s;" 
+      // Verificação de item esgotado (quantitativo totalmente utilizado em declaração)
+      const _tipoE     = String(r[COL.TIPO_CONTROLE]||'').trim().toUpperCase()
+      const _vlTotE    = parseFloat(r[COL.VALOR_TOTAL])||0
+      const _saldoUtE  = parseFloat(r[COL.SALDO_UTIL])||0
+      const _qtdeUtE   = parseFloat(r[COL.QTDE_UTIL])||0
+      const _qtdTotE   = parseFloat(r[COL.QUANTIDADE])||0
+      let _esgotadoE = false
+      if (_tipoE === 'SALDO')      _esgotadoE = (_vlTotE - _saldoUtE) <= 0
+      else if (_tipoE === 'QTDE')  _esgotadoE = (_qtdTotE - _qtdeUtE) <= 0
+      else if (_tipoE === 'AMBOS') _esgotadoE = (_vlTotE - _saldoUtE) <= 0 || (_qtdTotE - _qtdeUtE) <= 0
+
+      const _badgeEsgotadoE = _esgotadoE
+        ? `<span style="display:inline-block;padding:2px 7px;border-radius:10px;background:#dc262615;color:#dc2626;font-size:10px;font-weight:800;border:1px solid #dc262640;margin-left:4px;white-space:nowrap;">Esgotado</span>`
+        : ''
+      const _tooltipE = _esgotadoE ? 'title="Item esgotado: quantitativo totalmente utilizado em declaracao"' : ''
+
+      return `<tr style="border-bottom:1px solid var(--border);transition:background .12s;${_esgotadoE ? 'opacity:.72;' : ''}" 
                   onmouseover="this.style.background='var(--hover)'" 
                   onmouseout="this.style.background=''"
-                  data-localidx="${localIdx}">
+                  data-localidx="${localIdx}" ${_tooltipE}>
         <td style="padding:10px 14px;">
-          <input type="checkbox" data-localidx="${localIdx}" ${checked ? "checked" : ""}
-            style="width:15px;height:15px;cursor:pointer;accent-color:#dc2626;">
+          <input type="checkbox" data-localidx="${localIdx}" ${checked ? "checked" : ""} ${_esgotadoE ? 'disabled title="Item esgotado: quantitativo totalmente utilizado em declaracao"' : ""}
+            style="width:15px;height:15px;${_esgotadoE ? 'cursor:not-allowed;opacity:.4;' : 'cursor:pointer;'}accent-color:#dc2626;">
         </td>
         <td style="padding:10px 10px;font-family:monospace;font-weight:700;font-size:12px;color:var(--accent);">${seq}</td>
         <td style="padding:10px 10px;font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap;">${r[COL.LOCAL] || "—"}</td>
-        <td style="padding:10px 10px;font-size:12px;max-width:340px;">${r[COL.PRODUTO] || "—"}</td>
+        <td style="padding:10px 10px;font-size:12px;max-width:340px;">${r[COL.PRODUTO] || "—"}${_badgeEsgotadoE}</td>
         <td style="padding:10px 10px;font-size:11px;color:var(--text-muted);white-space:nowrap;">${r[COL.CLASSIFICACAO] || "—"}</td>
         <td style="padding:10px 10px;font-size:12px;font-family:monospace;font-weight:700;text-align:right;white-space:nowrap;color:var(--text);">${vlTotal > 0 ? formatBRL(vlTotal) : "—"}</td>
       </tr>`
@@ -17173,7 +17424,21 @@ cfgMostrarSecao = function(id) {
   window._exclToggleTodos = function(marcar) {
     const ini = _pagAtual * PG
     _filtrados.slice(ini, ini + PG).forEach(r => {
-      marcar ? _selecionados.add(r.__localIdx) : _selecionados.delete(r.__localIdx)
+      if (marcar) {
+        // Não seleciona itens esgotados
+        const _tipoT    = String(r[COL.TIPO_CONTROLE]||'').trim().toUpperCase()
+        const _vlT      = parseFloat(r[COL.VALOR_TOTAL])||0
+        const _saldoT   = parseFloat(r[COL.SALDO_UTIL])||0
+        const _qtdeT    = parseFloat(r[COL.QTDE_UTIL])||0
+        const _qtdTotT  = parseFloat(r[COL.QUANTIDADE])||0
+        let _esgT = false
+        if (_tipoT === 'SALDO')      _esgT = (_vlT - _saldoT) <= 0
+        else if (_tipoT === 'QTDE')  _esgT = (_qtdTotT - _qtdeT) <= 0
+        else if (_tipoT === 'AMBOS') _esgT = (_vlT - _saldoT) <= 0 || (_qtdTotT - _qtdeT) <= 0
+        if (!_esgT) _selecionados.add(r.__localIdx)
+      } else {
+        _selecionados.delete(r.__localIdx)
+      }
     })
     _exclRenderizar()
   }
@@ -17193,6 +17458,26 @@ cfgMostrarSecao = function(id) {
       .map(localIdx => _dmExcl[localIdx])
       .filter(Boolean)
       .sort((a, b) => (parseFloat(a[COL.SEQUENCIAL]) || 0) - (parseFloat(b[COL.SEQUENCIAL]) || 0))
+
+    // Bloquear exclusão de itens esgotados (com quantitativo utilizado em declarações)
+    const _esgotadosExcl = itens.filter(r => {
+      const _tipoX    = String(r[COL.TIPO_CONTROLE]||'').trim().toUpperCase()
+      const _vlX      = parseFloat(r[COL.VALOR_TOTAL])||0
+      const _saldoX   = parseFloat(r[COL.SALDO_UTIL])||0
+      const _qtdeX    = parseFloat(r[COL.QTDE_UTIL])||0
+      const _qtdTotX  = parseFloat(r[COL.QUANTIDADE])||0
+      if (_tipoX === 'SALDO')  return (_vlX - _saldoX) <= 0
+      if (_tipoX === 'QTDE')   return (_qtdTotX - _qtdeX) <= 0
+      if (_tipoX === 'AMBOS')  return (_vlX - _saldoX) <= 0 || (_qtdTotX - _qtdeX) <= 0
+      return false
+    })
+    if (_esgotadosExcl.length > 0) {
+      mostrarToast(
+        `${_esgotadosExcl.length} item(s) com quantitativo totalmente utilizado em declaracoes e nao podem ser excluidos. Desmarque-os antes de prosseguir.`,
+        'erro'
+      )
+      return
+    }
 
     const pca = window._moduloCtx?.excluir?.pca
 
@@ -19820,14 +20105,15 @@ const _pdfCfgOnOpen = (id) => {
 })() // fim MÓDULO LOGIN
 
 /* ══════════════════════════════════════════════════════════════
-   MÓDULO: DECLARAÇÃO PCA  — v17
-   ─ Gera PDF de declaracao de previsao de contratacao no PCA
-   ─ Valida pasta de destino obrigatoria antes de gerar
-   ─ Controle por tipo: SALDO / QTDE / AMBOS com abatimento
-   ─ Bloqueio de itens sem disponibilidade
+   MÓDULO: DECLARAÇÃO PCA  — v19
+   ─ Edicao de saldo (valor + qtd) no banner de detalhe do item
+   ─ Saldos editados vinculados ao __localIdx do item
+   ─ Travamento ao gerar: vlTotal→SALDO_UTIL, qtd→QTDE_UTIL
+   ─ Bloqueio: SALDO_UTIL>=VALOR_TOTAL ou QTDE_UTIL>=QUANTIDADE
+   ─ Filtro por DFD na barra de filtros
+   ─ Registro enriquecido: vlUtilizado, qtdeUtilizada, saldoRestante
    ─ Codigo de autenticidade unico por declaracao
-   ─ Registro com data/hora exata
-   ─ Modulo Consulta Declaracao integrado
+   ─ Modulo Consulta Declaracao com colunas de quantitativo
 ══════════════════════════════════════════════════════════════ */
 ;(function() {
   'use strict'
@@ -19835,13 +20121,19 @@ const _pdfCfgOnOpen = (id) => {
   const PG = 50
 
   // ── Estado interno — Declaracao PCA ──────────────────────
-  let _itens       = []
-  let _filtrados   = []
+  let _itens        = []
+  let _filtrados    = []
   let _selecionados = new Set()
-  let _pagAtual    = 0
-  let _carregado   = false
-  let _pcaAtual    = null
-  let _pastaLink   = ''
+  let _pagAtual     = 0
+  let _carregado    = false
+  let _pcaAtual     = null
+  let _pastaLink    = ''
+
+  // Mapa de saldos editados no banner: { __localIdx -> { vlEditado, qtdEditada } }
+  // vlEditado  = valor a declarar (o que sera abatido de SALDO_UTIL)
+  // qtdEditada = qtde a declarar (o que sera abatido de QTDE_UTIL)
+  let _saldosEditados  = {}
+  let _itemBannerAtivo = null   // item atualmente aberto no banner
 
   // ── Estado interno — Consulta Declaracao ─────────────────
   let _cdDecls     = []
@@ -19857,27 +20149,38 @@ const _pdfCfgOnOpen = (id) => {
   }
 
   // ── Disponibilidade de item por tipo de controle ─────────
+  // Bloqueio: SALDO_UTIL >= VALOR_TOTAL  OU  QTDE_UTIL >= QUANTIDADE
+  // Sem tipo definido: trava quando SALDO_UTIL >= VALOR_TOTAL (travamento padrao)
   function _getDisponibilidade(r) {
-    const tipo     = String(r[_col('TIPO_CONTROLE')] || '').trim().toUpperCase()
-    const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')]) || 0
+    const tipo      = String(r[_col('TIPO_CONTROLE')] || '').trim().toUpperCase()
+    const vlTotal   = parseFloat(r[_col('VALOR_TOTAL')]) || 0
     const saldoUtil = parseFloat(r[_col('SALDO_UTIL')]) || 0
-    const qtdeUtil  = parseFloat(r[_col('QTDE_UTIL')]) || 0
+    const qtdeUtil  = parseFloat(r[_col('QTDE_UTIL')])  || 0
     const qtdTotal  = parseFloat(r[_col('QUANTIDADE')]) || 0
 
     if (tipo === 'SALDO') {
-      const disponivel = vlTotal - saldoUtil
-      return { tipo, disponivel, disponQtde: null, bloqueado: disponivel <= 0 }
+      const bloqueado = saldoUtil >= vlTotal
+      const disponivel = Math.max(0, vlTotal - saldoUtil)
+      return { tipo, disponivel, disponQtde: null, bloqueado,
+               vlTotal, qtdTotal, saldoUtil, qtdeUtil }
     }
     if (tipo === 'QTDE') {
-      const disponivel = qtdTotal - qtdeUtil
-      return { tipo, disponivel, disponQtde: disponivel, bloqueado: disponivel <= 0 }
+      const bloqueado  = qtdeUtil >= qtdTotal
+      const disponivel = Math.max(0, qtdTotal - qtdeUtil)
+      return { tipo, disponivel, disponQtde: disponivel, bloqueado,
+               vlTotal, qtdTotal, saldoUtil, qtdeUtil }
     }
     if (tipo === 'AMBOS') {
-      const dispSaldo = vlTotal - saldoUtil
-      const dispQtde  = qtdTotal - qtdeUtil
-      return { tipo, disponivel: dispSaldo, disponQtde: dispQtde, bloqueado: dispSaldo <= 0 || dispQtde <= 0 }
+      const bloqueado  = (saldoUtil >= vlTotal) || (qtdeUtil >= qtdTotal)
+      const dispSaldo  = Math.max(0, vlTotal  - saldoUtil)
+      const dispQtde   = Math.max(0, qtdTotal - qtdeUtil)
+      return { tipo, disponivel: dispSaldo, disponQtde: dispQtde, bloqueado,
+               vlTotal, qtdTotal, saldoUtil, qtdeUtil }
     }
-    return { tipo: '', disponivel: vlTotal, disponQtde: null, bloqueado: false }
+    // Sem tipo definido — trava quando saldo ja foi preenchido (travamento padrao)
+    const bloqueado = saldoUtil >= vlTotal && vlTotal > 0
+    return { tipo: '', disponivel: Math.max(0, vlTotal - saldoUtil), disponQtde: null, bloqueado,
+             vlTotal, qtdTotal, saldoUtil, qtdeUtil }
   }
 
   function _fmtBRL(v) { return (v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) }
@@ -19912,6 +20215,7 @@ const _pdfCfgOnOpen = (id) => {
     const campo   = document.getElementById('declCampoBusca')?.value || 'todos'
     const classif = document.getElementById('declFiltroClassif')?.value || ''
     const dominio = document.getElementById('declFiltroDominio')?.value || ''
+    const dfd     = document.getElementById('declFiltroDFD')?.value || ''
     const btnLimpar = document.getElementById('declBuscaLimpar')
     if (btnLimpar) btnLimpar.style.display = busca ? '' : 'none'
 
@@ -19926,6 +20230,7 @@ const _pdfCfgOnOpen = (id) => {
       }
       if (classif && String(r[_col('CLASSIFICACAO')]||'').trim() !== classif) return false
       if (dominio && String(r[_col('DOMINIO')]||'').trim() !== dominio) return false
+      if (dfd     && String(r[_col('DFD')]||'').trim() !== dfd) return false
       return true
     })
     _pagAtual = 0
@@ -19966,15 +20271,23 @@ const _pdfCfgOnOpen = (id) => {
       const prod   = r[_col('PRODUTO')]    || '—'
       const classif= r[_col('CLASSIFICACAO')] || '—'
       const vlTotal= parseFloat(r[_col('VALOR_TOTAL')]) || 0
+      const editado= !!_saldosEditados[idx]
 
       const rowStyle = bloqueado
         ? 'border-bottom:1px solid var(--border);background:rgba(239,68,68,.04);opacity:.7;'
-        : 'border-bottom:1px solid var(--border);transition:background .12s;'
+        : 'border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;'
       const cbExtra = bloqueado ? 'disabled style="width:15px;height:15px;cursor:not-allowed;opacity:.4;"' : 'style="width:15px;height:15px;cursor:pointer;accent-color:#059669;"'
-      const prodHtml = bloqueado ? '<s style="color:var(--text-muted);">' + prod + '</s>' : prod
 
-      return '<tr style="' + rowStyle + '" onmouseover="' + (bloqueado?'':'this.style.background=\'var(--hover)\'') + '" onmouseout="' + (bloqueado?'':'this.style.background=\'\'') + '" data-localidx="' + idx + '" title="' + (bloqueado?'Item sem disponibilidade':'') + '">' +
-        '<td style="padding:10px 14px;"><input type="checkbox" data-localidx="' + idx + '" ' + (checked?'checked':'') + ' ' + cbExtra + '></td>' +
+      const editBadge = editado
+        ? ' <span style="display:inline-block;padding:1px 5px;border-radius:5px;background:rgba(245,158,11,.15);color:#d97706;font-size:9px;font-weight:700;margin-left:4px;vertical-align:middle;">Saldo editado</span>'
+        : ''
+      const prodHtml = bloqueado
+        ? '<s style="color:var(--text-muted);">' + prod + '</s> <span style="display:inline-block;padding:1px 5px;border-radius:5px;background:rgba(220,38,38,.1);color:#dc2626;font-size:9px;font-weight:700;margin-left:4px;">Esgotado</span>'
+        : (prod + editBadge)
+
+      return '<tr style="' + rowStyle + '" data-localidx="' + idx + '" title="' + (bloqueado ? 'Item esgotado: totalmente utilizado' : 'Clique para ver detalhes e editar saldos') + '"' +
+        (bloqueado ? '' : ' onclick="(function(e){if(e.target.type!==\'checkbox\')declAbrirBannerItem(' + idx + ')})(event)"') + '>' +
+        '<td style="padding:10px 14px;" onclick="event.stopPropagation()"><input type="checkbox" data-localidx="' + idx + '" ' + (checked?'checked':'') + ' ' + cbExtra + '></td>' +
         '<td style="padding:10px 10px;font-family:monospace;font-weight:700;font-size:12px;color:var(--accent);">' + seq + '</td>' +
         '<td style="padding:10px 10px;font-size:11px;color:var(--text-muted);font-family:monospace;">' + proto + '</td>' +
         '<td style="padding:10px 10px;font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap;">' + local + '</td>' +
@@ -20031,22 +20344,30 @@ const _pdfCfgOnOpen = (id) => {
   // ── Popular selects de filtro ─────────────────────────────
   function _popularFiltros() {
     function _unicos(col) {
-      const s = new Set(_itens.map(function(r) { return String(r[_col(col)]||'').trim() }).filter(Boolean))
+      const s = new Set(_itens.map(r => String(r[_col(col)]||'').trim()).filter(Boolean))
       return Array.from(s).sort()
     }
     const selClassif = document.getElementById('declFiltroClassif')
     if (selClassif) {
       const prev = selClassif.value
       selClassif.innerHTML = '<option value="">Classificacao</option>'
-      _unicos('CLASSIFICACAO').forEach(function(v) { const o = document.createElement('option'); o.value = v; o.textContent = v; selClassif.appendChild(o) })
+      _unicos('CLASSIFICACAO').forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; selClassif.appendChild(o) })
       if (prev) selClassif.value = prev
     }
     const selDom = document.getElementById('declFiltroDominio')
     if (selDom) {
       const prev = selDom.value
       selDom.innerHTML = '<option value="">Dominio</option>'
-      _unicos('DOMINIO').forEach(function(v) { const o = document.createElement('option'); o.value = v; o.textContent = v; selDom.appendChild(o) })
+      _unicos('DOMINIO').forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; selDom.appendChild(o) })
       if (prev) selDom.value = prev
+    }
+    // Filtro DFD
+    const selDFD = document.getElementById('declFiltroDFD')
+    if (selDFD) {
+      const prev = selDFD.value
+      selDFD.innerHTML = '<option value="">DFD</option>'
+      _unicos('DFD').forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; selDFD.appendChild(o) })
+      if (prev) selDFD.value = prev
     }
   }
 
@@ -20079,11 +20400,11 @@ const _pdfCfgOnOpen = (id) => {
   }
 
   // ── API publica ───────────────────────────────────────────
-  window.declFiltrar     = function() { _aplicarFiltros() }
-  window.declTrocarPca   = function() { _carregado=false; _itens=[]; _filtrados=[]; _selecionados.clear(); _carregar() }
-  window.declLimparFiltros = function() {
-    const _s = function(id, v) { const el=document.getElementById(id); if(el) el.value=v }
-    _s('declBusca',''); _s('declCampoBusca','todos'); _s('declFiltroClassif',''); _s('declFiltroDominio','')
+  window.declFiltrar     = () => _aplicarFiltros()
+  window.declTrocarPca   = () => { _carregado=false; _itens=[]; _filtrados=[]; _selecionados.clear(); _saldosEditados={}; _itemBannerAtivo=null; _carregar() }
+  window.declLimparFiltros = () => {
+    const _s = (id, v) => { const el=document.getElementById(id); if(el) el.value=v }
+    _s('declBusca',''); _s('declCampoBusca','todos'); _s('declFiltroClassif',''); _s('declFiltroDominio',''); _s('declFiltroDFD','')
     const b = document.getElementById('declBuscaLimpar'); if(b) b.style.display='none'
     _pagAtual=0; _aplicarFiltros()
   }
@@ -20098,6 +20419,226 @@ const _pdfCfgOnOpen = (id) => {
   window.declPaginar = function(dir) {
     const total = Math.ceil(_filtrados.length/PG); const nova = _pagAtual+dir
     if (nova>=0 && nova<total) { _pagAtual=nova; _renderizar() }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  BANNER DE DETALHE — Abrir com campos editáveis de saldo
+  // ══════════════════════════════════════════════════════════
+
+  // Abre o itemDetalheOverlay em modo "declaracao":
+  //   - Mostra campos editaveis de saldo valor e saldo qtd
+  //   - Exibe botao "Salvar Saldos" no footer
+  //   - Vincula edicao ao _saldosEditados[item.__localIdx]
+  window.declAbrirBannerItem = function(localIdx) {
+    const r = _itens.find(x => x.__localIdx === localIdx)
+    if (!r) return
+    _itemBannerAtivo = r
+
+    const overlay = document.getElementById('itemDetalheOverlay')
+    if (!overlay) return
+
+    const seq      = r[_col('SEQUENCIAL')] || '—'
+    const produto  = String(r[_col('PRODUTO')] || 'Item sem nome')
+    const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')]) || 0
+    const vlUnit   = parseFloat(r[_col('VALOR_UNIT')])  || 0
+    const qtdTotal = parseFloat(r[_col('QUANTIDADE')])  || 0
+    const d        = _getDisponibilidade(r)
+
+    // Recupera edicao previa deste item (se o usuario ja editou antes)
+    const prev   = _saldosEditados[localIdx] || {}
+    const vlIni  = prev.vlEditado  !== undefined ? prev.vlEditado  : d.disponivel
+    const qtdIni = prev.qtdEditada !== undefined ? prev.qtdEditada : (d.disponQtde !== null ? d.disponQtde : qtdTotal)
+
+    document.getElementById('itemDetalheTag').textContent      = 'SEQ. ' + seq
+    document.getElementById('itemDetalheTitulo').textContent   = produto
+
+    // Muda hint do footer para contexto de declaracao
+    const hint = document.getElementById('itemDetalheFooterHint')
+    if (hint) { hint.innerHTML = '<i data-lucide="pencil" style="width:12px;height:12px;"></i> Edite os saldos e salve para vincular ao item' }
+
+    // Exibe botao Salvar Saldos
+    const btnSalvar = document.getElementById('itemDetalheBtnSalvarSaldos')
+    if (btnSalvar) btnSalvar.style.display = 'inline-flex'
+
+    // Monta secao editavel de saldo
+    const temSaldoVl  = d.tipo === 'SALDO' || d.tipo === 'AMBOS' || d.tipo === ''
+    const temSaldoQtd = d.tipo === 'QTDE'  || d.tipo === 'AMBOS'
+
+    const inputVlHtml = temSaldoVl ? `
+      <div class="id-campo" style="grid-column:1/-1;">
+        <span class="id-campo-label" style="color:#059669;">
+          <i data-lucide="edit-3" style="width:11px;height:11px;display:inline;"></i>
+          Valor a Declarar (maximo: ${(vlTotal||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})})
+        </span>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:5px;">
+          <input type="number" id="declBannerInpVl"
+            min="0.01" max="${vlTotal}" step="0.01" value="${vlIni.toFixed ? vlIni.toFixed(2) : vlIni}"
+            style="flex:1;max-width:200px;padding:9px 12px;border:1.5px solid rgba(5,150,105,.4);
+                   border-radius:9px;background:var(--surface);color:var(--text);
+                   font-size:14px;font-weight:700;outline:none;"
+            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='rgba(5,150,105,.4)'"
+            oninput="declBannerValidarVl(this,${vlTotal})">
+          <span style="font-size:12px;color:var(--text-muted);">de ${(vlTotal||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span>
+        </div>
+        <div id="declBannerErrVl" style="font-size:11px;color:#dc2626;margin-top:3px;display:none;"></div>
+      </div>` : ''
+
+    const inputQtdHtml = temSaldoQtd ? `
+      <div class="id-campo" style="grid-column:1/-1;">
+        <span class="id-campo-label" style="color:#059669;">
+          <i data-lucide="edit-3" style="width:11px;height:11px;display:inline;"></i>
+          Quantidade a Declarar (maximo: ${qtdTotal})
+        </span>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:5px;">
+          <input type="number" id="declBannerInpQtd"
+            min="1" max="${qtdTotal}" step="1" value="${Math.floor(qtdIni)||1}"
+            style="max-width:140px;padding:9px 12px;border:1.5px solid rgba(5,150,105,.4);
+                   border-radius:9px;background:var(--surface);color:var(--text);
+                   font-size:14px;font-weight:700;outline:none;"
+            onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='rgba(5,150,105,.4)'"
+            oninput="declBannerValidarQtd(this,${qtdTotal})">
+          <span style="font-size:12px;color:var(--text-muted);">de ${qtdTotal}</span>
+        </div>
+        <div id="declBannerErrQtd" style="font-size:11px;color:#dc2626;margin-top:3px;display:none;"></div>
+      </div>` : ''
+
+    const editSec = (temSaldoVl || temSaldoQtd) ? `
+      <div class="id-secao" style="border:1.5px solid rgba(5,150,105,.2);border-radius:12px;background:rgba(5,150,105,.03);padding:14px 16px;">
+        <div class="id-secao-titulo" style="color:#059669;">
+          <i data-lucide="sliders" style="width:12px;height:12px;"></i>
+          Saldos para esta Declaracao
+        </div>
+        <div class="id-grid">
+          ${inputVlHtml}
+          ${inputQtdHtml}
+        </div>
+      </div>` : ''
+
+    document.getElementById('itemDetalheBody').innerHTML = `
+      <div class="id-produto-destaque">
+        <div class="id-produto-destaque-label">Produto / Servico</div>
+        <div class="id-produto-destaque-nome">${produto}</div>
+      </div>
+      <div class="id-secao">
+        <div class="id-secao-titulo"><i data-lucide="fingerprint" style="width:12px;height:12px;"></i> Identificacao</div>
+        <div class="id-grid">
+          <div class="id-campo"><span class="id-campo-label">Sequencial</span><span class="id-campo-valor">${seq}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Codigo</span><span class="id-campo-valor">${r[_col('CODIGO')]||'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Local</span><span class="id-campo-valor">${r[_col('LOCAL')]||'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Unidade</span><span class="id-campo-valor">${r[_col('UNIDADE')]||'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Classificacao</span><span class="id-campo-valor">${r[_col('CLASSIFICACAO')]||'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">DFD</span><span class="id-campo-valor">${r[_col('DFD')]||'—'}</span></div>
+        </div>
+      </div>
+      <div class="id-secao">
+        <div class="id-secao-titulo"><i data-lucide="banknote" style="width:12px;height:12px;"></i> Valores e Quantidades</div>
+        <div class="id-grid">
+          <div class="id-campo"><span class="id-campo-label">Quantidade Total</span><span class="id-campo-valor">${qtdTotal||'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Valor Unitario</span><span class="id-campo-valor">${vlUnit>0?vlUnit.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-valor" style="font-size:15px;font-weight:800;color:var(--accent);">${vlTotal>0?vlTotal.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'}</span><span class="id-campo-label">Valor Total</span></div>
+          <div class="id-campo"><span class="id-campo-label">Saldo Disp. (Valor)</span><span class="id-campo-valor" style="color:${d.disponivel>0?'#059669':'#dc2626'};font-weight:700;">${temSaldoVl&&d.disponivel>0?d.disponivel.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Saldo Disp. (Qtd)</span><span class="id-campo-valor" style="color:${d.disponQtde>0?'#059669':'#dc2626'};font-weight:700;">${temSaldoQtd&&d.disponQtde>0?d.disponQtde+' un.':'—'}</span></div>
+          <div class="id-campo"><span class="id-campo-label">Data Contratacao</span><span class="id-campo-valor">${r[_col('DATA')]||'—'}</span></div>
+        </div>
+      </div>
+      ${editSec}
+    `
+
+    overlay.classList.add('aberto')
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.getElementById('itemDetalheBody'), document.querySelector('.id-footer')] })
+
+    overlay._clickHandler = e => { if (e.target === overlay) _declFecharBannerItem() }
+    overlay.addEventListener('click', overlay._clickHandler)
+    overlay._keyHandler = e => { if (e.key === 'Escape') _declFecharBannerItem() }
+    document.addEventListener('keydown', overlay._keyHandler)
+  }
+
+  // Fecha o banner e restaura o footer padrao
+  function _declFecharBannerItem() {
+    const overlay = document.getElementById('itemDetalheOverlay')
+    if (!overlay) return
+    overlay.classList.remove('aberto')
+    if (overlay._clickHandler) overlay.removeEventListener('click', overlay._clickHandler)
+    if (overlay._keyHandler)   document.removeEventListener('keydown', overlay._keyHandler)
+
+    // Restaura footer padrao
+    const hint    = document.getElementById('itemDetalheFooterHint')
+    const btnSal  = document.getElementById('itemDetalheBtnSalvarSaldos')
+    if (hint)   hint.innerHTML = '<i data-lucide="info" style="width:12px;height:12px;"></i> Clique em outra linha para navegar entre os itens'
+    if (btnSal) btnSal.style.display = 'none'
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [document.querySelector('.id-footer')] })
+
+    _itemBannerAtivo = null
+  }
+
+  // Validadores em tempo real dos inputs do banner
+  window.declBannerValidarVl = function(el, max) {
+    const err = document.getElementById('declBannerErrVl')
+    const v   = parseFloat(el.value)
+    if (isNaN(v) || v <= 0) {
+      el.style.borderColor = '#dc2626'
+      if (err) { err.textContent = 'Informe um valor maior que zero.'; err.style.display = '' }
+      return false
+    }
+    if (v > max) {
+      el.style.borderColor = '#dc2626'
+      if (err) { err.textContent = 'Maximo: ' + max.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); err.style.display = '' }
+      return false
+    }
+    el.style.borderColor = '#059669'
+    if (err) err.style.display = 'none'
+    return true
+  }
+  window.declBannerValidarQtd = function(el, max) {
+    const err = document.getElementById('declBannerErrQtd')
+    const v   = parseFloat(el.value)
+    if (isNaN(v) || v <= 0) {
+      el.style.borderColor = '#dc2626'
+      if (err) { err.textContent = 'Informe um valor maior que zero.'; err.style.display = '' }
+      return false
+    }
+    if (v > max) {
+      el.style.borderColor = '#dc2626'
+      if (err) { err.textContent = 'Maximo: ' + max + ' un.'; err.style.display = '' }
+      return false
+    }
+    el.style.borderColor = '#059669'
+    if (err) err.style.display = 'none'
+    return true
+  }
+
+  // Salva os saldos editados no banner e vincula ao item
+  window.declSalvarSaldosDoItem = function() {
+    const r = _itemBannerAtivo
+    if (!r) return
+
+    const d        = _getDisponibilidade(r)
+    const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')]) || 0
+    const qtdTotal = parseFloat(r[_col('QUANTIDADE')])  || 0
+    const idx      = r.__localIdx
+    let ok         = true
+
+    const inpVl  = document.getElementById('declBannerInpVl')
+    const inpQtd = document.getElementById('declBannerInpQtd')
+
+    let vlEditado  = d.disponivel
+    let qtdEditada = d.disponQtde !== null ? d.disponQtde : qtdTotal
+
+    if (inpVl) {
+      if (!window.declBannerValidarVl(inpVl, vlTotal)) { ok = false }
+      else vlEditado = parseFloat(inpVl.value)
+    }
+    if (inpQtd) {
+      if (!window.declBannerValidarQtd(inpQtd, qtdTotal)) { ok = false }
+      else qtdEditada = parseFloat(inpQtd.value)
+    }
+
+    if (!ok) { mostrarToast('Corrija os valores antes de salvar.', 'erro'); return }
+
+    _saldosEditados[idx] = { vlEditado, qtdEditada }
+    mostrarToast('Saldos vinculados ao item Seq. ' + (r[_col('SEQUENCIAL')]||'') + '.', 'ok')
+    _declFecharBannerItem()
+    _renderizar()
   }
 
   // ── Salvar link da pasta ──────────────────────────────────
@@ -20155,7 +20696,7 @@ const _pdfCfgOnOpen = (id) => {
     if (!_pastaLink) {
       mostrarToast('Configure a pasta de destino em Sync com Drive antes de gerar.', 'erro')
       const input = document.getElementById('declPastaLinkInput')
-      if (input) { input.style.borderColor='#dc2626'; input.style.background='rgba(220,38,38,.06)'; setTimeout(function(){input.style.borderColor='';input.style.background=''}, 4000) }
+      if (input) { input.style.borderColor='#dc2626'; input.style.background='rgba(220,38,38,.06)'; setTimeout(() => { input.style.borderColor=''; input.style.background='' }, 4000) }
       cfgMostrarSecao('drive-sync')
       return
     }
@@ -20164,14 +20705,23 @@ const _pdfCfgOnOpen = (id) => {
       mostrarToast('Biblioteca PDF nao carregada. Recarregue a pagina.', 'erro'); return
     }
 
-    const itensSel = Array.from(_selecionados).map(function(idx){ return _itens[idx] }).filter(Boolean)
-      .sort(function(a,b){ return parseFloat(a[_col('SEQUENCIAL')]||0)-parseFloat(b[_col('SEQUENCIAL')]||0) })
+    const itensSel = Array.from(_selecionados)
+      .map(idx => _itens[idx]).filter(Boolean)
+      .sort((a,b) => parseFloat(a[_col('SEQUENCIAL')]||0) - parseFloat(b[_col('SEQUENCIAL')]||0))
 
-    const bloqueados = itensSel.filter(function(r){ return _getDisponibilidade(r).bloqueado })
+    // Bloquear itens esgotados selecionados
+    const bloqueados = itensSel.filter(r => _getDisponibilidade(r).bloqueado)
     if (bloqueados.length > 0) {
-      mostrarToast(bloqueados.length + ' item(s) sem disponibilidade. Desmarque-os antes de gerar.', 'erro'); return
+      mostrarToast(bloqueados.length + ' item(s) esgotado(s) selecionado(s). Desmarque-os antes de prosseguir.', 'erro')
+      return
     }
 
+    // Gera PDF diretamente — os saldos foram editados no banner (ou usam valores padrao)
+    await _gerarPDF(itensSel, null)
+  }
+
+  // ── Núcleo de geração do PDF ──────────────────────────────
+  async function _gerarPDF(itensSel, _unused) {
     const pca      = _pcaAtual
     const sessao   = typeof window.loginGetSessao === 'function' ? window.loginGetSessao() : null
     const rept     = window._reptFiltroAtivo
@@ -20208,7 +20758,6 @@ const _pdfCfgOnOpen = (id) => {
 
       let y = 50
       doc.setTextColor(...AZUL); doc.setFont('helvetica','normal'); doc.setFontSize(9.5)
-
       const t1 = 'A presente contratação, destinada a atender às demandas da ' + (reptNome||'unidade demandante') + ', encontra-se devidamente alinhada aos objetivos estratégicos da Administração Municipal.'
       const l1 = doc.splitTextToSize(t1, TW); doc.text(l1,ML,y); y+=l1.length*5.5+4
 
@@ -20218,9 +20767,45 @@ const _pdfCfgOnOpen = (id) => {
       const t3 = 'A demanda encontra-se regularmente prevista no Plano de Contratações Anual (PCA), conforme os sequenciais e respectivos IDs constantes na tabela a seguir, os quais identificam precisamente os itens a serem contratados:'
       const l3 = doc.splitTextToSize(t3, TW); doc.text(l3,ML,y); y+=l3.length*5.5+6
 
-      const cabTab  = [['Sequencial','ID Protocolo','Item','Qtd.','Valor Total']]
-      const bodyTab = itensSel.map(function(r){ return [String(r[_col('SEQUENCIAL')]||''), String(r[_col('ID_PROTO')]||'—'), String(r[_col('PRODUTO')]||''), String(parseFloat(r[_col('QUANTIDADE')])||'—'), _fmtBRL(parseFloat(r[_col('VALOR_TOTAL')])||0)] })
-      const footTab = [['','','TOTAL GERAL (' + itensSel.length + ' item(s))','', _fmtBRL(vlTotal)]]
+      // Tabela PDF — inclui coluna Qtd. Declarada se houver edicao de qtd
+      const temQtdDecl = itensSel.some(r => {
+        const tipo = String(r[_col('TIPO_CONTROLE')]||'').trim().toUpperCase()
+        return tipo === 'QTDE' || tipo === 'AMBOS'
+      })
+      const cabTab = temQtdDecl
+        ? [['Seq.','ID Protocolo','Item / Servico','Qtd. Total','Qtd. Decl.','Valor Total']]
+        : [['Sequencial','ID Protocolo','Item / Servico','Qtd.','Valor Total']]
+
+      const bodyTab = itensSel.map(r => {
+        const idx     = r.__localIdx
+        const edit    = _saldosEditados[idx] || {}
+        const qtdDecl = edit.qtdEditada !== undefined ? String(edit.qtdEditada) : String(parseFloat(r[_col('QUANTIDADE')])||'—')
+        if (temQtdDecl) {
+          return [
+            String(r[_col('SEQUENCIAL')]||''),
+            String(r[_col('ID_PROTO')]||'—'),
+            String(r[_col('PRODUTO')]||''),
+            String(parseFloat(r[_col('QUANTIDADE')])||'—'),
+            qtdDecl,
+            _fmtBRL(parseFloat(r[_col('VALOR_TOTAL')])||0)
+          ]
+        }
+        return [
+          String(r[_col('SEQUENCIAL')]||''),
+          String(r[_col('ID_PROTO')]||'—'),
+          String(r[_col('PRODUTO')]||''),
+          String(parseFloat(r[_col('QUANTIDADE')])||'—'),
+          _fmtBRL(parseFloat(r[_col('VALOR_TOTAL')])||0)
+        ]
+      })
+
+      const footTab = temQtdDecl
+        ? [['','','TOTAL GERAL (' + itensSel.length + ' item(s))','','', _fmtBRL(vlTotal)]]
+        : [['','','TOTAL GERAL (' + itensSel.length + ' item(s))','', _fmtBRL(vlTotal)]]
+
+      const colStyles = temQtdDecl
+        ? {0:{cellWidth:20,halign:'center'},1:{cellWidth:24,halign:'center'},2:{cellWidth:64,halign:'left'},3:{cellWidth:16,halign:'center'},4:{cellWidth:18,halign:'center'},5:{cellWidth:28,halign:'right'}}
+        : {0:{cellWidth:24,halign:'center'},1:{cellWidth:28,halign:'center'},2:{cellWidth:80,halign:'left'},3:{cellWidth:14,halign:'center'},4:{cellWidth:24,halign:'right'}}
 
       doc.autoTable({
         startY:y, head:cabTab, body:bodyTab, foot:footTab, theme:'grid',
@@ -20228,9 +20813,15 @@ const _pdfCfgOnOpen = (id) => {
         footStyles:{fillColor:[240,242,247],textColor:AZUL,fontStyle:'bold',fontSize:8},
         bodyStyles:{fontSize:8,textColor:[30,42,74]},
         alternateRowStyles:{fillColor:[248,249,252]},
-        columnStyles:{0:{cellWidth:24,halign:'center'},1:{cellWidth:28,halign:'center'},2:{cellWidth:80,halign:'left'},3:{cellWidth:14,halign:'center'},4:{cellWidth:24,halign:'right'}},
+        columnStyles:colStyles,
         tableWidth:TW, margin:{left:ML,right:MR}, showHead:'firstPage', showFoot:'lastPage',
-        didDrawPage:function(d){ if(d.pageNumber>1){ doc.setFillColor(...AZUL);doc.rect(0,0,W,12,'F');doc.setTextColor(...BRANCO);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL',W/2,8,{align:'center'}) } }
+        didDrawPage:function(d){
+          if(d.pageNumber>1){
+            doc.setFillColor(...AZUL);doc.rect(0,0,W,12,'F')
+            doc.setTextColor(...BRANCO);doc.setFont('helvetica','bold');doc.setFontSize(7)
+            doc.text('PREFEITURA MUNICIPAL DE RIO VERDE — PLANO DE CONTRATAÇÕES ANUAL',W/2,8,{align:'center'})
+          }
+        }
       })
 
       y = doc.lastAutoTable.finalY + 10
@@ -20272,7 +20863,13 @@ const _pdfCfgOnOpen = (id) => {
       const nomeArquivo = 'DECLARACAO_PCA_' + ano + '_' + declId + '.pdf'
       doc.save(nomeArquivo)
 
-      _abaterERegistrar({ id:declId, codAutent, pcaId:pca?.id||'', pcaNome:pca?.nome||'', ano:String(ano), reparticao:reptNome, itens:itensSel, vlTotal, usuario:userNome, matricula:userMatr, arquivo:nomeArquivo, dataISO, dataFmt, horaFmt })
+      _abaterERegistrar({
+        id:declId, codAutent,
+        pcaId:pca?.id||'', pcaNome:pca?.nome||'', ano:String(ano),
+        reparticao:reptNome, itens:itensSel,
+        vlTotal, usuario:userNome, matricula:userMatr,
+        arquivo:nomeArquivo, dataISO, dataFmt, horaFmt
+      })
       mostrarToast('Declaracao gerada: ' + nomeArquivo, 'ok')
       _selecionados.clear(); _renderizar()
     } catch(e) {
@@ -20288,20 +20885,68 @@ const _pdfCfgOnOpen = (id) => {
   }
 
   // ── Abater itens e registrar declaracao ───────────────────
+  // TRAVAMENTO: ao declarar, copia vlTotal → SALDO_UTIL e qtd → QTDE_UTIL
+  // Isso impede o item de ser usado novamente (bloqueio automatico)
   async function _abaterERegistrar(info) {
     if (!WEBAPP_URL || !CONFIG_SHEET_ID) return
-    const abatimentos = info.itens.map(function(r) {
-      const tipo      = String(r[_col('TIPO_CONTROLE')]||'').trim().toUpperCase()
-      const vlTotal   = parseFloat(r[_col('VALOR_TOTAL')])||0
-      const qtd       = parseFloat(r[_col('QUANTIDADE')])||0
-      const saldoAtu  = parseFloat(r[_col('SALDO_UTIL')])||0
-      const qtdeAtu   = parseFloat(r[_col('QTDE_UTIL')])||0
+
+    const abatimentos = info.itens.map(r => {
+      const tipo     = String(r[_col('TIPO_CONTROLE')]||'').trim().toUpperCase()
+      const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')])||0
+      const qtdTotal = parseFloat(r[_col('QUANTIDADE')])||0
+      const idx      = r.__localIdx
+
+      // Recupera saldo editado pelo usuario no banner (se houver)
+      const edit     = _saldosEditados[idx] || {}
+      const vlDecl   = edit.vlEditado  !== undefined ? edit.vlEditado  : vlTotal
+      const qtdDecl  = edit.qtdEditada !== undefined ? edit.qtdEditada : qtdTotal
+
+      // Travamento: grava o valor declarado em SALDO_UTIL e a qtd declarada em QTDE_UTIL
+      // Isso bloqueia o item automaticamente (SALDO_UTIL >= VALOR_TOTAL ou QTDE_UTIL >= QUANTIDADE)
       let novoSaldo = null, novaQtde = null
-      if (tipo==='SALDO'||tipo==='AMBOS') novoSaldo = Math.min(saldoAtu+vlTotal, vlTotal)
-      if (tipo==='QTDE' ||tipo==='AMBOS') novaQtde  = Math.min(qtdeAtu+qtd, qtd)
-      return { seq:String(r[_col('SEQUENCIAL')]||''), tipo, saldo:novoSaldo!==null?String(novoSaldo):'NULL', qtde:novaQtde!==null?String(novaQtde):'NULL' }
+      if (tipo === 'SALDO' || tipo === 'AMBOS' || tipo === '') novoSaldo = vlDecl
+      if (tipo === 'QTDE'  || tipo === 'AMBOS') novaQtde = qtdDecl
+
+      return {
+        seq:          String(r[_col('SEQUENCIAL')]||''),
+        tipo,
+        saldo:        novoSaldo !== null ? String(novoSaldo) : 'NULL',
+        qtde:         novaQtde  !== null ? String(novaQtde)  : 'NULL',
+        vlDeclarado:  vlDecl,
+        qtdDeclarada: qtdDecl,
+      }
     })
-    const seqList = info.itens.map(function(r){ return String(r[_col('SEQUENCIAL')]||'') }).join(', ')
+
+    // Monta itensJson enriquecido para rastreabilidade
+    const itensJson = info.itens.map(r => {
+      const d        = _getDisponibilidade(r)
+      const idx      = r.__localIdx
+      const edit     = _saldosEditados[idx] || {}
+      const vlTotal  = parseFloat(r[_col('VALOR_TOTAL')])||0
+      const qtdTotal = parseFloat(r[_col('QUANTIDADE')])||0
+      const vlDecl   = edit.vlEditado  !== undefined ? edit.vlEditado  : vlTotal
+      const qtdDecl  = edit.qtdEditada !== undefined ? edit.qtdEditada : qtdTotal
+
+      const saldoRestanteVl  = (d.tipo==='SALDO'||d.tipo==='AMBOS'||d.tipo==='') ? Math.max(0, vlTotal  - vlDecl)  : null
+      const saldoRestanteQtd = (d.tipo==='QTDE' ||d.tipo==='AMBOS')              ? Math.max(0, qtdTotal - qtdDecl) : null
+
+      return {
+        seq:             r[_col('SEQUENCIAL')],
+        id:              r[_col('ID_PROTO')],
+        prod:            r[_col('PRODUTO')],
+        vlTotal:         vlTotal,
+        qtdTotal:        qtdTotal,
+        vlDeclarado:     vlDecl,
+        qtdDeclarada:    qtdDecl,
+        saldoRestanteVl,
+        saldoRestanteQtd,
+        tipo:            r[_col('TIPO_CONTROLE')],
+        dfd:             r[_col('DFD')]||'',
+      }
+    })
+
+    const seqList = info.itens.map(r => String(r[_col('SEQUENCIAL')]||'')).join(', ')
+
     try {
       const body = new URLSearchParams({
         acao:'registrarDeclaracaoV2', configId:CONFIG_SHEET_ID,
@@ -20312,11 +20957,15 @@ const _pdfCfgOnOpen = (id) => {
         sequenciais:seqList, arquivo:info.arquivo,
         dataCriacao:info.dataISO, dataFmt:info.dataFmt, horaFmt:info.horaFmt,
         abatimentosJson:JSON.stringify(abatimentos),
-        itensJson:JSON.stringify(info.itens.map(function(r){ return {seq:r[_col('SEQUENCIAL')],id:r[_col('ID_PROTO')],prod:r[_col('PRODUTO')],vl:r[_col('VALOR_TOTAL')],qtd:r[_col('QUANTIDADE')],tipo:r[_col('TIPO_CONTROLE')]} }))
+        itensJson:JSON.stringify(itensJson),
       })
       await fetch(WEBAPP_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:body.toString() })
-        .catch(function(){ return fetch(WEBAPP_URL+'?acao=registrarDeclaracaoV2&configId='+CONFIG_SHEET_ID+'&declId='+info.id, { method:'GET', mode:'no-cors', cache:'no-store' }) })
-      setTimeout(function(){ if (_pcaAtual) { _carregado=false; _carregar() } }, 2500)
+        .catch(() => fetch(WEBAPP_URL+'?acao=registrarDeclaracaoV2&configId='+CONFIG_SHEET_ID+'&declId='+info.id, { method:'GET', mode:'no-cors', cache:'no-store' }))
+
+      // Limpa saldos editados dos itens declarados
+      info.itens.forEach(r => { delete _saldosEditados[r.__localIdx] })
+
+      setTimeout(() => { if (_pcaAtual) { _carregado=false; _carregar() } }, 2500)
     } catch(e) {
       console.warn('[DECL] Registro falhou (nao critico):', e.message)
     }
@@ -20458,29 +21107,76 @@ const _pdfCfgOnOpen = (id) => {
     const title  = document.getElementById('cdeclModalTitle')
     const body   = document.getElementById('cdeclModalBody')
     if (!modal) return
-    const cod    = d['CODIGO_AUTENTICIDADE']||d['COD_AUTENTICIDADE']||'—'
-    const vlFmt  = (parseFloat(d['VALOR_TOTAL'])||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+    const cod   = d['CODIGO_AUTENTICIDADE']||d['COD_AUTENTICIDADE']||'—'
+    const vlFmt = (parseFloat(d['VALOR_TOTAL'])||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
     if (title) title.textContent = 'Declaracao #' + (d['ID']||'—') + ' — ' + (d['PCA_NOME']||'') + ' ' + (d['ANO']||'')
+
     let itensHtml = ''
     try {
       const itens = JSON.parse(d['ITENS_JSON']||'[]')
       if (itens.length > 0) {
-        const rows = itens.map(function(it){ return '<tr style="border-top:1px solid var(--border);"><td style="padding:7px 12px;font-family:monospace;font-weight:700;color:var(--accent);">'+(it.seq||'—')+'</td><td style="padding:7px 12px;font-size:11px;color:var(--text-muted);font-family:monospace;">'+(it.id||'—')+'</td><td style="padding:7px 12px;">'+(it.prod||'—')+'</td><td style="padding:7px 12px;text-align:right;">'+(it.qtd||'—')+'</td><td style="padding:7px 12px;text-align:right;font-family:monospace;">'+(it.vl?(parseFloat(it.vl)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—')+'</td></tr>' }).join('')
-        itensHtml = '<div style="margin-top:16px;"><div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Itens da Declaracao</div><div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:var(--th-bg);"><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Seq.</th><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">ID</th><th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Produto</th><th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Qtd.</th><th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Valor</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'
+        // Detecta se declaracao possui controle de quantidade
+        const temQtdDecl = itens.some(function(it){ return it.qtdDeclarada !== undefined && it.qtdDeclarada !== null })
+        const thExtra = temQtdDecl
+          ? '<th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Qtd. Decl.</th>' +
+            '<th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Saldo Rest.</th>'
+          : ''
+        const rows = itens.map(function(it) {
+          const qtdDecl   = (it.qtdDeclarada !== undefined && it.qtdDeclarada !== null) ? it.qtdDeclarada : (it.qtd||'—')
+          const saldoRest = it.saldoRestante !== undefined && it.saldoRestante !== null ? it.saldoRestante : null
+          const saldoCor  = saldoRest === 0 ? '#dc2626' : saldoRest > 0 ? '#059669' : 'var(--text-muted)'
+          const saldoTxt  = saldoRest !== null ? (saldoRest + ' un.') : '—'
+          const tdExtra = temQtdDecl
+            ? '<td style="padding:7px 12px;text-align:right;font-weight:700;color:#059669;">' + qtdDecl + '</td>' +
+              '<td style="padding:7px 12px;text-align:right;font-weight:700;color:' + saldoCor + ';">' + saldoTxt + '</td>'
+            : ''
+          return (
+            '<tr style="border-top:1px solid var(--border);">' +
+              '<td style="padding:7px 12px;font-family:monospace;font-weight:700;color:var(--accent);">' + (it.seq||'—') + '</td>' +
+              '<td style="padding:7px 12px;font-size:11px;color:var(--text-muted);font-family:monospace;">' + (it.id||'—') + '</td>' +
+              '<td style="padding:7px 12px;">' + (it.prod||'—') + '</td>' +
+              '<td style="padding:7px 12px;text-align:right;">' + (it.qtd||'—') + '</td>' +
+              tdExtra +
+              '<td style="padding:7px 12px;text-align:right;font-family:monospace;">' + (it.vl?(parseFloat(it.vl)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'—') + '</td>' +
+            '</tr>'
+          )
+        }).join('')
+        itensHtml = (
+          '<div style="margin-top:16px;">' +
+            '<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Itens da Declaracao</div>' +
+            '<div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;">' +
+              '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+                '<thead><tr style="background:var(--th-bg);">' +
+                  '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Seq.</th>' +
+                  '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">ID</th>' +
+                  '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:var(--th-color);">Produto / Servico</th>' +
+                  '<th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Qtd. Total</th>' +
+                  thExtra +
+                  '<th style="padding:8px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--th-color);">Valor</th>' +
+                '</tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+              '</table>' +
+            '</div>' +
+          '</div>'
+        )
       }
     } catch(_) {}
-    if (body) body.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">' +
-      _cdCard('Data de Criacao', _cdFmtDT(d['DATA_CRIACAO'])) +
-      _cdCard('PCA / Ano', (d['PCA_NOME']||'—') + ' — ' + (d['ANO']||'—')) +
-      _cdCard('Reparticao', d['REPARTICAO']||'—') +
-      _cdCard('Usuario', (d['USUARIO']||'—') + (d['MATRICULA'] ? '<br><small style="color:var(--text-muted);">Mat. '+d['MATRICULA']+'</small>' : '')) +
-      _cdCard('Itens / Valor', (d['QTD_ITENS']||'—') + ' item(s)<br><span style="color:#047857;font-weight:700;">' + vlFmt + '</span>') +
-      _cdCard('Arquivo', '<span style="word-break:break-all;font-size:12px;">' + (d['ARQUIVO']||'—') + '</span>') +
-    '</div>' +
-    '<div style="background:linear-gradient(135deg,rgba(4,120,87,.08),rgba(4,120,87,.03));border:1.5px solid rgba(4,120,87,.2);border-radius:10px;padding:14px;margin-top:12px;">' +
-      '<div style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Codigo de Autenticidade</div>' +
-      '<div style="font-family:monospace;font-size:13px;font-weight:700;color:#047857;word-break:break-all;">' + cod + '</div></div>' +
-    itensHtml
+
+    if (body) body.innerHTML = (
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">' +
+        _cdCard('Data de Criacao', _cdFmtDT(d['DATA_CRIACAO'])) +
+        _cdCard('PCA / Ano', (d['PCA_NOME']||'—') + ' — ' + (d['ANO']||'—')) +
+        _cdCard('Reparticao', d['REPARTICAO']||'—') +
+        _cdCard('Usuario', (d['USUARIO']||'—') + (d['MATRICULA'] ? '<br><small style="color:var(--text-muted);">Mat. '+d['MATRICULA']+'</small>' : '')) +
+        _cdCard('Itens / Valor', (d['QTD_ITENS']||'—') + ' item(s)<br><span style="color:#047857;font-weight:700;">' + vlFmt + '</span>') +
+        _cdCard('Arquivo', '<span style="word-break:break-all;font-size:12px;">' + (d['ARQUIVO']||'—') + '</span>') +
+      '</div>' +
+      '<div style="background:linear-gradient(135deg,rgba(4,120,87,.08),rgba(4,120,87,.03));border:1.5px solid rgba(4,120,87,.2);border-radius:10px;padding:14px;margin-top:12px;">' +
+        '<div style="font-size:10px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><i data-lucide="shield-check" style="width:12px;height:12px;"></i> Codigo de Autenticidade</div>' +
+        '<div style="font-family:monospace;font-size:13px;font-weight:700;color:#047857;word-break:break-all;">' + cod + '</div>' +
+      '</div>' +
+      itensHtml
+    )
     modal.style.display = 'flex'
     if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [body, modal] })
   }
@@ -20535,7 +21231,7 @@ const _pdfCfgOnOpen = (id) => {
     if (sec && sec.style.display !== 'none') { _carregado=false; _carregar() }
   }
 
-})() // fim MÓDULO DECLARAÇÃO PCA v17
+})() // fim MÓDULO DECLARAÇÃO PCA v19
 
 /* =====================================================
    FLOATING DOCK + CONSULTA RÁPIDA DE DECLARAÇÃO
