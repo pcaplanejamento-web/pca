@@ -22,96 +22,190 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 SEÇÃO 2 — ESTILOS (REDESIGN MODERNO)
 ===================================================== -->
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Liquid Glass: SF Pro stack — sem dependência de CDN externo -->
+<style>
+  /* SF Pro / San Francisco — tipografia oficial Liquid Glass iOS */
+  :root {
+    --font-ui:      -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+    --font-mono:    "SF Mono", ui-monospace, "Cascadia Code", monospace;
+    --font-rounded: "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  }
+</style>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
 <style>
 
 /* =====================================================
-DESIGN TOKENS
+   LIQUID GLASS — DESIGN TOKENS
+   Sistema de variáveis completo para modo claro e escuro
 ===================================================== */
 :root {
-  --bg:          #f0f2f7;
-  --surface:     #ffffff;
-  --surface2:    #f5f6fa;
-  --surface3:    #eceef5;
-  --border:      #e8eaf2;
+  /* Cores base */
+  --bg:          #e8ecf4;
+  --surface:     rgba(255,255,255,0.62);
+  --surface2:    rgba(248,249,252,0.55);
+  --surface3:    rgba(236,238,245,0.50);
+  --border:      rgba(255,255,255,0.70);
+  --border-dim:  rgba(200,210,230,0.40);
   --text:        #1a1f36;
   --text-muted:  #6b7280;
   --text-light:  #9ca3af;
-  --input-bg:    #f8f9fc;
-  --input-bord:  #dde1ef;
+  --input-bg:    rgba(255,255,255,0.50);
+  --input-bord:  rgba(255,255,255,0.65);
   --accent:      #4361ee;
   --accent-2:    #3bc4c4;
-  --accent-soft: #eef1fd;
-  --th-bg:       #f5f6fa;
+  --accent-soft: rgba(67,97,238,0.10);
+  --th-bg:       rgba(245,246,250,0.70);
   --th-color:    #4b5563;
-  --row-even:    #fafbfe;
-  --row-hover:   #f0f3fd;
-  --total-row:   #eceef5;
-  --hr:          #e8eaf2;
-  --shadow-sm:   0 1px 3px rgba(15,22,40,0.06), 0 1px 2px rgba(15,22,40,0.04);
-  --shadow-md:   0 4px 12px rgba(15,22,40,0.08), 0 2px 4px rgba(15,22,40,0.04);
-  --shadow-lg:   0 10px 30px rgba(15,22,40,0.10), 0 4px 8px rgba(15,22,40,0.05);
-  --shadow:      0 2px 8px rgba(15,22,40,0.07);
-  --radius-sm:   10px;
-  --radius-md:   14px;
-  --radius-lg:   20px;
-  --radius:      10px;
-  --hover:       rgba(67,97,238,0.06);
+  --row-even:    rgba(250,251,254,0.50);
+  --row-hover:   rgba(67,97,238,0.07);
+  --total-row:   rgba(236,238,245,0.60);
+  --hr:          rgba(232,234,242,0.60);
+  --hover:       rgba(67,97,238,0.07);
   --card:        var(--surface);
   --sidebar-w:   240px;
+
+  /* Liquid Glass — blur e profundidade */
+  --lg-blur:        18px;
+  --lg-blur-sm:      8px;
+  --lg-blur-md:     14px;
+  --lg-blur-lg:     28px;
+  --lg-blur-xl:     40px;
+
+  /* Superfícies translúcidas */
+  --lg-bg:          rgba(255,255,255,0.60);
+  --lg-bg-sm:       rgba(255,255,255,0.45);
+  --lg-bg-md:       rgba(255,255,255,0.70);
+  --lg-bg-strong:   rgba(255,255,255,0.82);
+  --lg-bg-overlay:  rgba(255,255,255,0.92);
+
+  /* Bordas e reflexo */
+  --lg-border:      rgba(255,255,255,0.75);
+  --lg-border-dim:  rgba(255,255,255,0.40);
+  --lg-border-low:  rgba(200,210,230,0.35);
+  --lg-shine-top:   rgba(255,255,255,0.95);
+  --lg-shine-bot:   rgba(255,255,255,0.18);
+
+  /* Sombras com tinta de acento */
+  --lg-shadow-sm:   0 2px 8px rgba(67,97,238,0.07),  0 1px 3px rgba(15,22,40,0.05);
+  --lg-shadow:      0 8px 28px rgba(67,97,238,0.10),  0 2px 8px rgba(15,22,40,0.06);
+  --lg-shadow-md:   0 16px 44px rgba(67,97,238,0.13), 0 4px 14px rgba(15,22,40,0.07);
+  --lg-shadow-lg:   0 24px 64px rgba(67,97,238,0.16), 0 8px 24px rgba(15,22,40,0.09);
+  --lg-shadow-xl:   0 36px 80px rgba(67,97,238,0.20), 0 12px 32px rgba(15,22,40,0.11);
+
+  /* Inset shine (linha de luz no topo) */
+  --lg-inset:       inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(255,255,255,0.15);
+  --lg-inset-sm:    inset 0 1px 0 rgba(255,255,255,0.80);
+
+  /* Radii */
+  --radius-sm:   12px;
+  --radius-md:   16px;
+  --radius-lg:   22px;
+  --radius-xl:   28px;
+  --radius:      12px;
+
+  /* Sombras legadas (mantidas para compatibilidade) */
+  --shadow-sm:   var(--lg-shadow-sm);
+  --shadow-md:   var(--lg-shadow);
+  --shadow-lg:   var(--lg-shadow-md);
+  --shadow:      var(--lg-shadow-sm);
+
+  /* Tipografia SF Pro */
+  --font-ui:     -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-mono:   "SF Mono", ui-monospace, "Cascadia Code", monospace;
+
+  /* Fundo ambiente */
+  --bg-mesh:
+    radial-gradient(ellipse 90% 70% at 15%  8%, rgba(67,97,238,0.09)  0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 85% 85%, rgba(59,196,196,0.07)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 55% 40%, rgba(139,92,246,0.05)  0%, transparent 50%),
+    radial-gradient(ellipse 80% 40% at 30% 70%, rgba(67,97,238,0.04)   0%, transparent 60%);
 }
 
 [data-theme="dark"] {
-  --bg:          #0d1117;
-  --surface:     #161b27;
-  --surface2:    #1e2536;
-  --surface3:    #252d42;
-  --border:      #252d42;
+  /* Cores base dark */
+  --bg:          #0b0f1a;
+  --surface:     rgba(22,27,39,0.72);
+  --surface2:    rgba(30,37,54,0.65);
+  --surface3:    rgba(37,45,66,0.60);
+  --border:      rgba(255,255,255,0.10);
+  --border-dim:  rgba(255,255,255,0.06);
   --text:        #e8edf5;
   --text-muted:  #7a8499;
   --text-light:  #4a5568;
-  --input-bg:    #1e2536;
-  --input-bord:  #2d3652;
-  --accent:      #4361ee;
+  --input-bg:    rgba(22,27,39,0.65);
+  --input-bord:  rgba(255,255,255,0.12);
+  --accent:      #5b78ff;
   --accent-2:    #3bc4c4;
-  --accent-soft: #1a2240;
-  --th-bg:       #1e2536;
+  --accent-soft: rgba(91,120,255,0.14);
+  --th-bg:       rgba(30,37,54,0.70);
   --th-color:    #a0aec0;
-  --row-even:    #1a2030;
-  --row-hover:   #1a2240;
-  --total-row:   #1a2240;
-  --hr:          #252d42;
-  --shadow-sm:   0 1px 4px rgba(0,0,0,0.3);
-  --shadow-md:   0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg:   0 8px 32px rgba(0,0,0,0.5);
-  --shadow:      0 2px 8px rgba(0,0,0,0.4);
-  --hover:       rgba(67,97,238,0.12);
-  --card:        var(--surface);
+  --row-even:    rgba(26,32,48,0.50);
+  --row-hover:   rgba(91,120,255,0.09);
+  --total-row:   rgba(26,32,64,0.60);
+  --hr:          rgba(37,45,66,0.80);
+  --hover:       rgba(91,120,255,0.10);
+
+  /* Liquid Glass dark */
+  --lg-bg:          rgba(22,27,39,0.72);
+  --lg-bg-sm:       rgba(22,27,39,0.58);
+  --lg-bg-md:       rgba(22,27,39,0.80);
+  --lg-bg-strong:   rgba(16,20,30,0.88);
+  --lg-bg-overlay:  rgba(12,15,24,0.94);
+
+  --lg-border:      rgba(255,255,255,0.11);
+  --lg-border-dim:  rgba(255,255,255,0.06);
+  --lg-border-low:  rgba(255,255,255,0.04);
+  --lg-shine-top:   rgba(255,255,255,0.10);
+  --lg-shine-bot:   rgba(0,0,0,0.20);
+
+  --lg-shadow-sm:   0 2px 8px  rgba(0,0,0,0.28), 0 1px 3px  rgba(0,0,0,0.18);
+  --lg-shadow:      0 8px 28px rgba(0,0,0,0.36), 0 2px 8px  rgba(0,0,0,0.22);
+  --lg-shadow-md:   0 16px 44px rgba(0,0,0,0.44), 0 4px 14px rgba(0,0,0,0.26);
+  --lg-shadow-lg:   0 24px 64px rgba(0,0,0,0.52), 0 8px 24px rgba(0,0,0,0.30);
+  --lg-shadow-xl:   0 36px 80px rgba(0,0,0,0.60), 0 12px 32px rgba(0,0,0,0.35);
+
+  --lg-inset:       inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.22);
+  --lg-inset-sm:    inset 0 1px 0 rgba(255,255,255,0.08);
+
+  --shadow-sm:   var(--lg-shadow-sm);
+  --shadow-md:   var(--lg-shadow);
+  --shadow-lg:   var(--lg-shadow-md);
+  --shadow:      var(--lg-shadow-sm);
+
+  --bg-mesh:
+    radial-gradient(ellipse 90% 70% at 15%  8%, rgba(91,120,255,0.13) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 85% 85%, rgba(59,196,196,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 55% 40%, rgba(139,92,246,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 40% at 30% 70%, rgba(91,120,255,0.06) 0%, transparent 60%);
 }
 
 /* =====================================================
-BASE
+BASE — SF Pro + fundo Liquid Glass
 ===================================================== */
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+  font-family: var(--font-ui);
   background: var(--bg);
+  background-image: var(--bg-mesh);
+  background-attachment: fixed;
   color: var(--text);
   margin: 0;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.4s, color 0.3s;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* =====================================================
-HEADER
+HEADER — Liquid Glass
 ===================================================== */
 header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(180%);
+  border-bottom: 1px solid var(--lg-border);
   padding: 0 24px 0 32px;
   height: 68px;
   display: flex;
@@ -122,7 +216,11 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 0 var(--border);
+  box-shadow: var(--lg-inset), 0 1px 0 var(--lg-border-dim), 0 4px 20px rgba(67,97,238,0.06);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+@supports not (backdrop-filter: blur(1px)) {
+  header { background: var(--bg); border-bottom: 1px solid var(--border-dim); }
 }
 
 .header-brand {
@@ -146,7 +244,7 @@ header {
 .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 /* =====================================================
-MENU SANDUÍCHE
+MENU SANDUÍCHE — Liquid Glass
 ===================================================== */
 .hamburger-btn {
   display: flex;
@@ -156,19 +254,26 @@ MENU SANDUÍCHE
   gap: 5px;
   width: 40px;
   height: 40px;
-  background: none;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1px solid var(--lg-border-dim);
+  border-radius: 12px;
   cursor: pointer;
   padding: 8px 7px;
-  transition: background 0.18s, border-color 0.18s;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
   flex-shrink: 0;
 }
-.hamburger-btn:hover { background: var(--hover); border-color: var(--accent); }
+.hamburger-btn:hover {
+  background: var(--lg-bg-md);
+  border-color: var(--lg-border);
+  box-shadow: var(--lg-shadow), var(--lg-inset-sm);
+  transform: scale(1.04);
+}
 .hamburger-btn span {
   display: block;
-  width: 18px;
-  height: 2px;
+  width: 18px; height: 2px;
   background: var(--text);
   border-radius: 2px;
   transition: transform 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s, width 0.2s;
@@ -180,35 +285,38 @@ MENU SANDUÍCHE
 
 /* Overlay */
 .menu-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(2px);
+  position: fixed; inset: 0;
+  background: rgba(10,15,30,0.32);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   z-index: 998;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.28s;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s cubic-bezier(.4,0,.2,1);
 }
 .menu-overlay.open { opacity: 1; pointer-events: all; }
 
-/* Drawer */
+/* Drawer — Liquid Glass escuro profundo */
 .side-menu {
-  position: fixed;
-  top: 0; left: 0;
-  width: 260px;
-  height: 100vh;
-  background: #1e2a4a;
-  border-right: none;
-  box-shadow: 4px 0 24px rgba(0,0,0,0.22);
+  position: fixed; top: 0; left: 0;
+  width: 260px; height: 100vh;
+  background: rgba(12,18,36,0.86);
+  backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
+  border-right: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 4px 0 48px rgba(0,0,0,0.32), var(--lg-inset-sm);
   z-index: 999;
   transform: translateX(-100%);
-  transition: transform 0.30s cubic-bezier(.4,0,.2,1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column; overflow: hidden;
 }
-[data-theme="dark"] .side-menu { background: #111827; }
+[data-theme="dark"] .side-menu {
+  background: rgba(6,9,18,0.92);
+  border-right-color: rgba(255,255,255,0.06);
+}
 .side-menu.open { transform: translateX(0); }
+@supports not (backdrop-filter: blur(1px)) {
+  .side-menu { background: #131c38; }
+}
 
 .side-menu-header {
   display: flex;
@@ -293,42 +401,69 @@ MENU SANDUÍCHE
 }
 
 /* =====================================================
-BOTÕES
+BOTÕES — Liquid Glass
 ===================================================== */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: var(--radius-sm);
-  border: none;
-  font-family: inherit;
+  border: 1px solid transparent;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.1px;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  position: relative;
 }
-.btn:active { transform: scale(0.97); }
+.btn:active { transform: scale(0.96); transition-duration: 0.08s; }
 
 .btn-ghost {
-  background: var(--surface2);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
   color: var(--text-muted);
-  border: 1px solid var(--border);
+  border-color: var(--lg-border-dim);
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
 }
-.btn-ghost:hover { background: var(--surface3); color: var(--text); }
+.btn-ghost:hover {
+  background: var(--lg-bg-md);
+  border-color: var(--lg-border);
+  color: var(--text);
+  box-shadow: var(--lg-shadow), var(--lg-inset);
+  transform: translateY(-1px);
+}
 
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(145deg, var(--accent), #2b4ee0);
   color: white;
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 4px 16px rgba(67,97,238,0.35), var(--lg-inset-sm);
 }
-.btn-primary:hover { opacity: 0.88; }
+.btn-primary:hover {
+  box-shadow: 0 8px 28px rgba(67,97,238,0.45), var(--lg-inset-sm);
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
 
-.btn-green  { background: #10b981; color: white; }
-.btn-green:hover { opacity: 0.88; }
+.btn-green  {
+  background: linear-gradient(145deg, #10b981, #059669);
+  color: white;
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 4px 16px rgba(16,185,129,0.30), var(--lg-inset-sm);
+}
+.btn-green:hover { opacity: 0.92; transform: translateY(-1px); }
 
-.btn-purple { background: #7c3aed; color: white; }
-.btn-purple:hover { opacity: 0.88; }
+.btn-purple {
+  background: linear-gradient(145deg, #7c3aed, #6d28d9);
+  color: white;
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 4px 16px rgba(124,58,237,0.30), var(--lg-inset-sm);
+}
+.btn-purple:hover { opacity: 0.92; transform: translateY(-1px); }
 
 /* =====================================================
 LAYOUT
@@ -362,15 +497,21 @@ LAYOUT
 
 /* Container do painel de filtros moderno */
 .filtro-painel {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+  background: var(--lg-bg);
+  backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  border: 1.5px solid var(--lg-border);
+  border-radius: 18px;
+  box-shadow: var(--lg-shadow), var(--lg-inset);
   overflow: visible;
-  transition: box-shadow .2s;
+  transition: box-shadow 0.25s, border-color 0.25s;
 }
 .filtro-painel:focus-within {
-  box-shadow: 0 4px 20px rgba(67,97,238,.1), 0 1px 3px rgba(0,0,0,.04);
+  box-shadow: var(--lg-shadow-md), var(--lg-inset), 0 0 0 3px rgba(67,97,238,0.09);
+  border-color: rgba(67,97,238,0.30);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .filtro-painel { background: var(--bg); border-color: var(--border-dim); }
 }
 
 /* Linha de busca principal */
@@ -576,11 +717,13 @@ LAYOUT
 
 /* Manter .box para uso em outros contextos */
 .box {
-  background: var(--surface);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm)) saturate(140%);
   padding: 12px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--lg-border-dim);
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
 }
 
 /* =====================================================
@@ -628,11 +771,16 @@ LAYOUT
 
 /* Tabela modernizada — wrapper */
 .tabela-moderna-wrap {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
+  background: var(--lg-bg);
+  backdrop-filter: blur(var(--lg-blur-md)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-md)) saturate(150%);
+  border: 1.5px solid var(--lg-border);
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  box-shadow: var(--lg-shadow), var(--lg-inset);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .tabela-moderna-wrap { background: var(--bg); border-color: var(--border-dim); }
 }
 .tabela-moderna-wrap .table-wrapper {
   border-radius: 0;
@@ -650,7 +798,7 @@ LAYOUT
   color: var(--th-color);
   padding: 12px 10px;
   white-space: nowrap;
-  border-bottom: 1.5px solid var(--border);
+  border-bottom: 1.5px solid var(--lg-border-dim);
 }
 .tabela-moderna-wrap thead th:first-child { border-radius: 0; }
 .tabela-moderna-wrap thead th:last-child  { border-radius: 0; }
@@ -661,8 +809,8 @@ LAYOUT
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: var(--surface2);
-  border-top: 1.5px solid var(--border);
+  background: var(--lg-bg-sm);
+  border-top: 1.5px solid var(--lg-border-dim);
   flex-wrap: wrap;
   gap: 10px;
 }
@@ -781,31 +929,29 @@ LAYOUT
 
 /* Barra de pesquisa destaque */
 .ci-search-banner {
-  background: var(--surface);
-  border-left: 1.5px solid var(--border);
-  border-right: 1.5px solid var(--border);
+  background: var(--lg-bg-md);
+  backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  border: 1.5px solid var(--lg-border);
+  border-radius: 18px;
   padding: 16px 20px 14px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
-  /* Sticky após sair da viewport do banner */
+  box-shadow: var(--lg-shadow), var(--lg-inset);
   position: sticky;
-  top: 68px; /* altura do header */
+  top: 68px;
   z-index: 80;
-  transition: box-shadow .25s, border-color .25s;
+  transition: box-shadow .25s, border-color .25s, background .25s;
 }
 /* Elevação extra quando fixada */
 .ci-search-banner.is-stuck {
-  border-left-color: transparent;
-  border-right-color: transparent;
-  border-top: none;
-  box-shadow:
-    0 4px 20px rgba(0,0,0,.10),
-    0 1px 0 var(--border);
-  background: rgba(var(--surface-rgb, 255,255,255), .96);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(200%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(200%);
+  border-color: var(--lg-border);
+  border-radius: 0 0 18px 18px;
+  box-shadow: var(--lg-shadow-md), var(--lg-inset), 0 1px 0 var(--lg-border-dim);
 }
 [data-theme="dark"] .ci-search-banner.is-stuck {
-  background: rgba(18,24,38, .94);
+  background: var(--lg-bg-strong);
 }
 
 /* ── Chips de tipo de pesquisa ─────────────────────── */
@@ -1499,22 +1645,42 @@ LAYOUT
 }
 
 .card {
-  background: var(--surface);
+  background: var(--lg-bg);
+  backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(160%);
   padding: 22px 24px;
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border);
+  box-shadow: var(--lg-shadow), var(--lg-inset);
+  border: 1px solid var(--lg-border);
   position: relative;
-  transition: box-shadow 0.2s;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
 }
-.card:hover { box-shadow: var(--shadow-lg); }
+/* Shine line no topo */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 12%; right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lg-shine-top) 50%, transparent);
+  pointer-events: none;
+  opacity: 0.8;
+}
+.card:hover {
+  box-shadow: var(--lg-shadow-md), var(--lg-inset);
+  border-color: var(--lg-border);
+  transform: translateY(-2px);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .card { background: var(--bg); border-color: var(--border-dim); }
+}
 
 .card-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--text);
   margin: 0 0 16px;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.1px;
 }
 
 .big   { grid-column: 1 / -1; }
@@ -1524,13 +1690,12 @@ hr {
   margin: 48px 0;
   border: none;
   height: 1px;
-  background: var(--hr);
+  background: linear-gradient(90deg, transparent, var(--lg-border) 20%, var(--lg-border) 80%, transparent);
 }
 
 /* =====================================================
-KPI CARDS
+KPI CARDS — Liquid Glass sobre gradiente
 ===================================================== */
-/* KPI GRID */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1538,13 +1703,13 @@ KPI CARDS
   margin-bottom: 32px;
 }
 
-/* KPI cards totalmente coloridos */
 .kpi-card {
-  border: none;
-  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 26px;
   padding: 28px 26px 24px;
-  box-shadow: 0 10px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.07);
-  transition: transform 0.22s cubic-bezier(.4,0,.2,1), box-shadow 0.22s;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08),
+              inset 0 1px 0 rgba(255,255,255,0.45);
+  transition: transform 0.24s cubic-bezier(.4,0,.2,1), box-shadow 0.24s;
   position: relative;
   overflow: hidden;
   cursor: default;
@@ -1553,57 +1718,47 @@ KPI CARDS
 .kpi-card::after {
   content: '';
   position: absolute;
-  top: -40px; right: -40px;
-  width: 140px; height: 140px;
+  top: -44px; right: -44px;
+  width: 150px; height: 150px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.13);
+  background: rgba(255,255,255,0.16);
   pointer-events: none;
 }
 /* Blob inferior esquerdo */
 .kpi-card::before {
   content: '';
   position: absolute;
-  bottom: -44px; left: -22px;
-  width: 110px; height: 110px;
+  bottom: -48px; left: -24px;
+  width: 120px; height: 120px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.10);
   pointer-events: none;
 }
-.kpi-card.kpi-clicavel {
-  cursor: pointer;
-}
-.kpi-card.kpi-clicavel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  border: 2px solid rgba(255,255,255,0);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  pointer-events: none;
-}
+.kpi-card.kpi-clicavel { cursor: pointer; }
 .kpi-card.kpi-clicavel:hover::after {
-  border-color: rgba(255,255,255,0.5);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.55);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22);
 }
 .kpi-card.kpi-clicavel:active {
   transform: scale(0.97);
   transition: transform 0.1s ease;
 }
 .kpi-card:hover {
-  transform: translateY(-6px) scale(1.018);
-  box-shadow: 0 24px 56px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.09);
+  transform: translateY(-7px) scale(1.02);
+  box-shadow: 0 28px 60px rgba(0,0,0,0.22), 0 6px 20px rgba(0,0,0,0.12),
+              inset 0 1px 0 rgba(255,255,255,0.55);
 }
 
 /* Gradientes por variante */
-.kpi-card.kpi-blue   { background: linear-gradient(145deg, #5b73f0 0%, #8b7cf8 100%); }
-.kpi-card.kpi-green  { background: linear-gradient(145deg, #10b981 0%, #0ea5a0 100%); }
-.kpi-card.kpi-amber  { background: linear-gradient(145deg, #f59e0b 0%, #f05522 100%); }
-.kpi-card.kpi-purple { background: linear-gradient(145deg, #8b5cf6 0%, #ec4899 100%); }
+.kpi-card.kpi-blue   { background: linear-gradient(145deg, #4f6ef5 0%, #7b6df8 100%); }
+.kpi-card.kpi-green  { background: linear-gradient(145deg, #0ea872 0%, #0ea0a0 100%); }
+.kpi-card.kpi-amber  { background: linear-gradient(145deg, #f09b0a 0%, #e8481a 100%); }
+.kpi-card.kpi-purple { background: linear-gradient(145deg, #7c3aed 0%, #d53f8c 100%); }
 
-[data-theme="dark"] .kpi-card.kpi-blue   { background: linear-gradient(145deg, #3a56d4, #6c5fc7); }
-[data-theme="dark"] .kpi-card.kpi-green  { background: linear-gradient(145deg, #059669, #0d8c88); }
-[data-theme="dark"] .kpi-card.kpi-amber  { background: linear-gradient(145deg, #d97706, #c03b10); }
-[data-theme="dark"] .kpi-card.kpi-purple { background: linear-gradient(145deg, #7c3aed, #be185d); }
+[data-theme="dark"] .kpi-card.kpi-blue   { background: linear-gradient(145deg, #3449cc, #5c4ec0); }
+[data-theme="dark"] .kpi-card.kpi-green  { background: linear-gradient(145deg, #047857, #0a7a78); }
+[data-theme="dark"] .kpi-card.kpi-amber  { background: linear-gradient(145deg, #b45309, #a03010); }
+[data-theme="dark"] .kpi-card.kpi-purple { background: linear-gradient(145deg, #6d28d9, #a8185a); }
 
 .kpi-icon {
   width: 48px; height: 48px;
@@ -1654,8 +1809,10 @@ RESUMO DE FILTROS ATIVOS
 ===================================================== */
 #filtroResumo {
   display: flex;
-  background: var(--accent-soft);
-  border: 1px solid rgba(67,97,238,0.2);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1px solid var(--lg-border-dim);
   border-radius: var(--radius-sm);
   padding: 10px 16px;
   margin-bottom: 14px;
@@ -1664,6 +1821,7 @@ RESUMO DE FILTROS ATIVOS
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  box-shadow: var(--lg-inset-sm);
 }
 #filtroResumo.vazio { display: none !important; }
 
@@ -1803,22 +1961,26 @@ PRODUTO TRUNCADO COM TOOLTIP
 }
 
 /* =====================================================
-INPUTS
+INPUTS — Liquid Glass
 ===================================================== */
 input, select {
   padding: 9px 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--input-bord);
-  background: var(--input-bg);
+  border: 1px solid var(--lg-border-dim);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
   color: var(--text);
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 13px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   outline: none;
+  box-shadow: var(--lg-inset-sm);
 }
 input:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(67,97,238,0.12);
+  border-color: rgba(67,97,238,0.45);
+  background: var(--lg-bg-md);
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.10), var(--lg-inset-sm);
 }
 label {
   display: block;
@@ -1837,17 +1999,19 @@ TOAST
   position: fixed;
   bottom: 28px; right: 28px;
   padding: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   z-index: 9999;
   opacity: 0; transform: translateY(16px) scale(0.96);
   transition: opacity .24s cubic-bezier(.4,0,.2,1), transform .24s cubic-bezier(.4,0,.2,1);
   pointer-events: none;
   max-width: 400px; min-width: 260px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  border: 1.5px solid var(--lg-border);
+  box-shadow: var(--lg-shadow-lg), var(--lg-inset);
   overflow: hidden;
-  font-family: 'Inter', 'DM Sans', sans-serif;
+  font-family: var(--font-ui);
 }
 #toast.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 #toast-accent {
@@ -1908,19 +2072,22 @@ TOAST
 }
 #confirmModal.show { opacity: 1; pointer-events: all; }
 #confirmModal-box {
-  background: var(--surface, #fff);
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.1);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  border: 1px solid var(--lg-border);
+  border-radius: 22px;
+  box-shadow: var(--lg-shadow-xl), var(--lg-inset);
   max-width: 480px; width: 100%;
   transform: scale(0.93) translateY(12px);
-  transition: transform 0.2s cubic-bezier(.34,1.56,.64,1);
+  transition: transform 0.24s cubic-bezier(.34,1.56,.64,1);
   overflow: hidden;
 }
 #confirmModal.show #confirmModal-box { transform: scale(1) translateY(0); }
 #confirmModal-header {
   display: flex; align-items: center; gap: 12px;
   padding: 20px 22px 14px;
-  border-bottom: 1px solid var(--border, #e5e7eb);
+  border-bottom: 1px solid var(--lg-border-dim);
 }
 #confirmModal-icon {
   width: 40px; height: 40px; border-radius: 50%;
@@ -2002,18 +2169,32 @@ PAGINAÇÃO
 .paginacao-btns button {
   padding: 7px 13px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--lg-border-dim);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
   color: var(--text-muted);
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.18s cubic-bezier(.4,0,.2,1);
+  box-shadow: var(--lg-inset-sm);
 }
-.paginacao-btns button:hover    { background: var(--surface2); color: var(--text); }
-.paginacao-btns button.ativa    { background: var(--accent); color: white; border-color: var(--accent); }
-.paginacao-btns button:disabled { opacity: 0.35; cursor: default; }
+.paginacao-btns button:hover {
+  background: var(--lg-bg-md);
+  border-color: var(--lg-border);
+  color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
+}
+.paginacao-btns button.ativa {
+  background: linear-gradient(145deg, var(--accent), #2b4ee0);
+  color: white;
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: 0 4px 14px rgba(67,97,238,0.35), var(--lg-inset-sm);
+}
+.paginacao-btns button:disabled { opacity: 0.35; cursor: default; transform: none; }
 
 /* =====================================================
 ABAS (TABS)
@@ -2021,27 +2202,33 @@ ABAS (TABS)
 .tab-bar {
   display: flex;
   gap: 4px;
-  border-bottom: 2px solid var(--border);
+  border-bottom: 1px solid var(--lg-border-dim);
   margin-bottom: 28px;
   padding-bottom: 0;
 }
 .tab-btn {
-  padding: 11px 22px;
-  font-size: 14px;
+  padding: 10px 20px;
+  font-size: 13.5px;
   font-weight: 600;
-  font-family: inherit;
+  font-family: var(--font-ui);
   color: var(--text-muted);
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  border-radius: 10px 10px 0 0;
+  transition: color 0.18s, border-color 0.18s, background 0.18s;
   display: flex; align-items: center; gap: 7px;
 }
-.tab-btn:hover  { color: var(--text); background: var(--hover); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: none; }
+.tab-btn:hover  { color: var(--text); background: var(--lg-bg-sm); }
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+}
 
 /* =====================================================
 PÁGINA DE DOCUMENTOS
@@ -2556,16 +2743,24 @@ MODAL PDF POR LOCAL
 .rpt-btn-ok:active { transform: scale(.97); }
 
 .modal-box {
-  background: var(--surface);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
   border-radius: var(--radius-lg);
   padding: 32px 36px;
   width: 440px;
   max-width: 95vw;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
-  border: 1px solid var(--border);
-  animation: modalIn 0.2s ease;
+  box-shadow: var(--lg-shadow-xl), var(--lg-inset);
+  border: 1px solid var(--lg-border);
+  animation: modalIn 0.22s cubic-bezier(.16,1,.3,1);
 }
-@keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .modal-box { background: var(--bg); border-color: var(--border-dim); }
+}
 
 .modal-box h3 { margin: 0 0 6px; font-size: 18px; font-weight: 800; color: var(--text); }
 .modal-box p  { color: var(--text-muted); font-size: 14px; margin: 0 0 4px; }
@@ -2620,17 +2815,25 @@ SEARCHABLE DROPDOWN
   background-repeat: no-repeat; background-position: right 10px center;
 }
 .sd-panel {
-  display: none; position: absolute; top: calc(100% + 4px); left: 0;
+  display: none; position: absolute; top: calc(100% + 6px); left: 0;
   min-width: 100%; width: max-content; max-width: 320px;
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm); box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  border: 1.5px solid var(--lg-border);
+  border-radius: var(--radius-md); box-shadow: var(--lg-shadow-md), var(--lg-inset);
   z-index: 500; overflow: hidden; flex-direction: column;
+  animation: sdIn 0.18s cubic-bezier(.16,1,.3,1);
+}
+@keyframes sdIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .sd-panel.open { display: flex; }
 .sd-search {
-  padding: 8px 10px; border: none; border-bottom: 1px solid var(--border);
-  background: var(--surface2); color: var(--text); font-size: 13px;
-  font-family: inherit; outline: none; width: 100%; box-sizing: border-box;
+  padding: 8px 10px; border: none; border-bottom: 1px solid var(--lg-border-dim);
+  background: var(--lg-bg-sm); color: var(--text); font-size: 13px;
+  font-family: var(--font-ui); outline: none; width: 100%; box-sizing: border-box;
 }
 .sd-list { overflow-y: auto; max-height: 220px; }
 .sd-item {
@@ -3725,23 +3928,33 @@ PAINEL DE CONFIGURAÇÕES
   align-items: center;
   gap: 9px;
   padding: 9px 12px;
-  border-radius: 9px;
-  border: none;
+  border-radius: 10px;
+  border: 1px solid transparent;
   background: none;
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 500;
-  font-family: inherit;
+  font-family: var(--font-ui);
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: background .14s, color .14s;
+  transition: background .18s, color .18s, border-color .18s, box-shadow .18s;
 }
-.cfg-nav-item:hover { background: var(--surface2); color: var(--text); }
+.cfg-nav-item:hover {
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border-color: var(--lg-border-dim);
+  color: var(--text);
+}
 .cfg-nav-item.active {
-  background: var(--accent-soft);
+  background: var(--lg-bg-md);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border-color: var(--lg-border);
   color: var(--accent);
   font-weight: 600;
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
 }
 /* ícones Lucide nos cfg-nav-items */
 .cfg-nav-item > i[data-lucide] { flex-shrink: 0; opacity: 0.85; }
@@ -5552,9 +5765,260 @@ canvas.chart-explodable:hover { filter: brightness(1.03); }
   #ceoToolbar     { padding:8px 14px 10px; flex-wrap:wrap; }
 }
 
+/* =====================================================
+   LIQUID GLASS — SISTEMA GLOBAL COMPLEMENTAR
+   Aplica SF Pro, animações e utilitários em todos
+   os componentes restantes do sistema.
+===================================================== */
+
+/* ── Tipografia global SF Pro ─────────────────────── */
+body, button, input, select, textarea, .btn, .tab-btn,
+.cfg-nav-item, .side-menu-item, .sd-item, .filtro-label,
+.card-title, .section-title, .page-title {
+  font-family: var(--font-ui);
+}
+code, pre, .font-mono { font-family: var(--font-mono); }
+
+/* ── Animações Liquid Glass ───────────────────────── */
+@keyframes lgFadeUp {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes lgSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes lgPulse {
+  0%, 100% { box-shadow: var(--lg-shadow); }
+  50%       { box-shadow: var(--lg-shadow-md); }
+}
+
+/* ── Classe utilitária glass reutilizável ─────────── */
+.lg-surface {
+  background: var(--lg-bg);
+  backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(160%);
+  border: 1px solid var(--lg-border);
+  box-shadow: var(--lg-shadow), var(--lg-inset);
+}
+
+/* ── btn-sm Liquid Glass ──────────────────────────── */
+.btn-sm {
+  padding: 6px 13px; font-size: 12px; border-radius: var(--radius-sm);
+  border: 1px solid var(--lg-border-dim);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  color: var(--text); cursor: pointer; font-weight: 600;
+  font-family: var(--font-ui);
+  transition: all .18s cubic-bezier(.4,0,.2,1); white-space: nowrap;
+  box-shadow: var(--lg-inset-sm);
+}
+.btn-sm:hover {
+  background: var(--lg-bg-md);
+  border-color: var(--lg-border);
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
+}
+.gs-btn-sync   { border-color: rgba(67,97,238,0.40); color: var(--accent); }
+.gs-btn-sync:hover { background: var(--accent-soft); border-color: var(--accent); }
+.gs-btn-logout { border-color: rgba(239,68,68,0.35); color: #ef4444; }
+.gs-btn-logout:hover { background: rgba(239,68,68,0.08); }
+
+/* ── fonte-btn Liquid Glass ───────────────────────── */
+.fonte-btn {
+  flex: 1; padding: 8px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--lg-border-dim);
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  color: var(--text-muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-family: var(--font-ui);
+}
+.fonte-btn.ativo {
+  background: var(--lg-bg-md);
+  border-color: rgba(67,97,238,0.35);
+  color: var(--accent);
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
+}
+
+/* ── Chips de tipo Liquid Glass ───────────────────── */
+.ci-tipo-chip {
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1px solid var(--lg-border-dim) !important;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  font-family: var(--font-ui);
+}
+.ci-tipo-chip:hover {
+  background: var(--lg-bg-md);
+  border-color: var(--lg-border) !important;
+  color: var(--text);
+}
+.ci-tipo-chip.ativo {
+  background: var(--lg-bg-md) !important;
+  border-color: rgba(67,97,238,0.35) !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+  box-shadow: var(--lg-shadow-sm), var(--lg-inset-sm);
+}
+
+/* ── ci-search-wrap Liquid Glass ──────────────────── */
+.ci-search-wrap {
+  background: var(--lg-bg-sm) !important;
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1.5px solid var(--lg-border-dim) !important;
+  box-shadow: var(--lg-inset-sm);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.ci-search-wrap:focus-within {
+  background: var(--lg-bg-md) !important;
+  border-color: rgba(67,97,238,0.35) !important;
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.09), var(--lg-inset-sm);
+}
+
+/* ── Overlay de modais com blur ───────────────────── */
+.modal-overlay,
+#confirmModal,
+#modalPdfLocal,
+#itemDetalheOverlay,
+#chartExplodeOverlay {
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+}
+
+/* ── itemDetalhe panel Liquid Glass ──────────────── */
+#itemDetalhePanel {
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-xl)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-xl)) saturate(180%);
+  border-left: 1px solid var(--lg-border);
+  box-shadow: -8px 0 48px rgba(67,97,238,0.10), var(--lg-inset-sm);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  #itemDetalhePanel { background: var(--bg); }
+}
+
+/* ── gs-sheet-info e config boxes Liquid Glass ────── */
+.gs-sheet-info,
+#confirmModal-preview {
+  background: var(--lg-bg-sm);
+  border: 1px solid var(--lg-border-dim);
+  border-radius: var(--radius-sm);
+}
+
+/* ── cfg-input Liquid Glass ───────────────────────── */
+.cfg-input {
+  background: var(--lg-bg-sm);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1.5px solid var(--lg-border-dim);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  padding: 10px 14px;
+  font-size: 13px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  width: 100%;
+  box-shadow: var(--lg-inset-sm);
+}
+.cfg-input:focus {
+  border-color: rgba(67,97,238,0.45);
+  box-shadow: 0 0 0 3px rgba(67,97,238,0.10), var(--lg-inset-sm);
+}
+
+/* ── Detalhe expandido da linha de tabela ────────── */
+tr.linha-detalhe td {
+  background: var(--lg-bg-sm) !important;
+}
+tr.selecionada > td { background: var(--accent-soft) !important; }
+
+/* ── bannerIgnoradas Liquid Glass ─────────────────── */
+#bannerIgnoradas {
+  background: rgba(255,251,235,0.72);
+  backdrop-filter: blur(var(--lg-blur-sm));
+  -webkit-backdrop-filter: blur(var(--lg-blur-sm));
+  border: 1px solid rgba(253,230,138,0.60);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #92400e;
+}
+[data-theme="dark"] #bannerIgnoradas {
+  background: rgba(251,191,36,0.08);
+  border-color: rgba(251,191,36,0.18);
+  color: #fbbf24;
+}
+
+/* ── Microinterações Liquid Glass ─────────────────── */
+.card, .kpi-card, .btn, .btn-sm, .btn-ghost,
+.cfg-nav-item, .paginacao-btns button {
+  will-change: transform;
+}
+
+/* ── Performance mobile ───────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --lg-blur:    10px;
+    --lg-blur-sm:  6px;
+    --lg-blur-md: 12px;
+    --lg-blur-lg: 18px;
+    --lg-blur-xl: 24px;
+  }
+  .card, .filtro-painel, .tabela-moderna-wrap,
+  .ci-search-banner, .modal-box, #toast {
+    will-change: auto;
+  }
+}
+
+/* ── Fallback @supports para browsers sem backdrop-filter ── */
+@supports not (backdrop-filter: blur(1px)) {
+  .btn-ghost    { background: var(--bg); border-color: var(--border-dim); }
+  .btn-sm       { background: var(--bg); border-color: var(--border-dim); }
+  .fonte-btn    { background: var(--bg); }
+  .ci-tipo-chip { background: var(--bg) !important; }
+  .ci-search-wrap { background: var(--bg) !important; }
+  #filtroResumo { background: var(--accent-soft); }
+  .sd-panel     { background: var(--bg); }
+  .sd-search    { background: var(--bg); }
+  .cfg-nav-item.active { background: var(--accent-soft); }
+  .paginacao-btns button { background: var(--bg); }
+  #toast        { background: var(--bg); }
+  .tab-btn.active { background: var(--accent-soft); }
+  input, select { background: var(--bg); border-color: var(--border-dim); }
+  .cfg-input    { background: var(--bg); border-color: var(--border-dim); }
+  #confirmModal-preview { background: var(--bg); }
+  .gs-sheet-info { background: var(--bg); }
+}
+
+/* ── Acessibilidade ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card, .kpi-card, .btn, .btn-sm, .modal-box,
+  .sd-panel, #toast, .hamburger-btn {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ── Impressão — remove glass ─────────────────────── */
+@media print {
+  header, .card, .filtro-painel, .tabela-moderna-wrap,
+  .modal-box, #toast, .sd-panel, .ci-search-banner {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: white !important;
+    border-color: #ddd !important;
+    box-shadow: none !important;
+  }
+}
 
 </style>
-</head>
 <body>
 
 <!-- =====================================================
@@ -9659,7 +10123,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
     </div>
     <div id="confirmModal-footer">
       <button id="confirmModal-btnCancel" onclick="_confirmClose(false)">Cancelar</button>
-      <button id="confirmModal-btnOk"     onclick="_confirmClose(true)" class="danger">🗑️ Confirmar exclusão</button>
+      <button id="confirmModal-btnOk"     onclick="_confirmClose(true)" class="danger">Confirmar exclusão</button>
     </div>
   </div>
 </div>
@@ -9728,9 +10192,12 @@ function getValor(r) {
   return (parseFloat(r[COL.VALOR_UNIT]) || 0) * (parseFloat(r[COL.QUANTIDADE]) || 0)
 }
 
-function formatBRL(v) {
-  return (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
-}
+/* Formatadores cacheados — Intl.NumberFormat é criado uma única vez
+   e reutilizado, eliminando o custo de instância a cada chamada.       */
+const _fmtBRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
+const _fmtNum = new Intl.NumberFormat("pt-BR")
+
+function formatBRL(v) { return _fmtBRL.format(v || 0) }
 
 function norm(v) { return String(v || "").replace(/\u00a0/g, " ").trim() }
 
@@ -9747,9 +10214,9 @@ const DATAS_PERIODICAS = ["ANUAL","SEMESTRAL","QUADRIMESTRAL"]
 
 function normPrioridade(v) {
   const s = norm(v).toUpperCase()
-  if (s.includes("ALTA") || s === "ALTA") return "ALTA"
-  if (s.includes("MEDIA") || s.includes("MÉDIA") || s === "MEDIA" || s === "MÉDIA") return "MÉDIA"
-  if (s.includes("BAIXA") || s === "BAIXA") return "BAIXA"
+  if (s.includes("ALTA"))                        return "ALTA"
+  if (s.includes("MEDIA") || s.includes("MÉDIA")) return "MÉDIA"
+  if (s.includes("BAIXA"))                        return "BAIXA"
   return s || "NÃO DEFINIDO"
 }
 
@@ -9833,7 +10300,7 @@ function fecharToast() {
 ===================================================== */
 let _confirmCallback = null
 
-function _showConfirm({ title = "Confirmar", preview = "", notice = "", okLabel = "️ Confirmar exclusão", okClass = "danger", onOk }) {
+function _showConfirm({ title = "Confirmar", preview = "", notice = "", okLabel = "Confirmar exclusão", okClass = "danger", onOk }) {
   document.getElementById("confirmModal-title").textContent     = title
   document.getElementById("confirmModal-preview").textContent   = preview
   document.getElementById("confirmModal-noticeText").textContent = notice
@@ -9881,7 +10348,7 @@ function toggleDarkMode() {
     if (!iconEl) btnDark.innerHTML = dark
       ? '<i data-lucide="moon" style="width:16px;height:16px;"></i>'
       : '<i data-lucide="sun" style="width:16px;height:16px;"></i>'
-    if (typeof lucide !== "undefined") lucide.createIcons()
+    if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [btnDark] })
   }
   localStorage.setItem("pca-theme", dark ? "light" : "dark")
 }
@@ -10947,7 +11414,7 @@ function aparMostrarTab(id) {
     if (!html) return  // nenhum item válido → não altera sidebar
 
     sidebar.innerHTML = html
-    if (window.lucide) lucide.createIcons()
+    if (window.lucide) lucide.createIcons({ nodes: [sidebar] })
 
     // Determina qual aba abrir: campo `inicio` (se válido) ou a primeira
     const abaAlvo = (inicioId && todosIds.includes(inicioId)) ? inicioId : firstItemId
@@ -12181,7 +12648,7 @@ function cfgMostrarSecao(id) {
       if (wrap) {
         wrap.innerHTML = `<span class="rept-lock-badge"><i data-lucide="lock" style="width:11px;height:11px;"></i>${filtro.codigo}</span>`
         wrap.style.display = "inline-flex"
-        if (window.lucide) lucide.createIcons()
+        if (window.lucide) lucide.createIcons({ nodes: [wrap] })
       }
       // lote-local: mesma lógica
       if (selLote) {
@@ -12742,7 +13209,7 @@ function atualizarKPIs(data) {
 
   document.getElementById("kpiTotal").textContent    = formatBRL(total)
   document.getElementById("kpiTotalSub").textContent = `em ${itens} itens`
-  document.getElementById("kpiItens").textContent    = itens.toLocaleString("pt-BR")
+  document.getElementById("kpiItens").textContent    = _fmtNum.format(itens)
   document.getElementById("kpiItensSub").textContent = "itens na seleção"
   document.getElementById("kpiMedia").textContent    = formatBRL(media)
   document.getElementById("kpiMaior").textContent    = formatBRL(getValor(maior))
@@ -13756,6 +14223,10 @@ function unicos(campo) {
 /* Registro global de instâncias — controle de accordion (apenas 1 aberto por vez) */
 const _sdRegistry = []
 
+/* Um único listener no document fecha todos os SDs ao clicar fora —
+   substitui o padrão anterior de 1 listener por instância.             */
+document.addEventListener("click", () => _sdRegistry.forEach(sd => sd._close()))
+
 class SearchableDropdown {
   constructor(wrapperId, selectId, onChange) {
     this.wrap     = document.getElementById(wrapperId)
@@ -13763,7 +14234,6 @@ class SearchableDropdown {
     this.onChange = onChange
     this.value    = ""
     this._build()
-    /* Registra para controle de accordion */
     _sdRegistry.push(this)
   }
 
@@ -13793,7 +14263,7 @@ class SearchableDropdown {
 
     this.btn.addEventListener("click", e => { e.stopPropagation(); this._toggle() })
     this.search.addEventListener("input", () => this._render(this.search.value))
-    document.addEventListener("click", () => this._close())
+    /* stopPropagation no panel evita que o listener do document feche ao clicar dentro */
     this.panel.addEventListener("click", e => e.stopPropagation())
   }
 
@@ -14220,7 +14690,7 @@ function gerarTabelaOrcamento() {
     return `<tr>
       <td class="center">${n}</td>
       <td class="center"><strong>${sigla}</strong></td>
-      <td class="center">${c.count.toLocaleString("pt-BR")}</td>
+      <td class="center">${_fmtNum.format(c.count)}</td>
       <td class="center orc-pca">${formatBRL(c.valor)}</td>
       <td class="center">${formatBRL(orc)}</td>
       <td class="center ${difClass}">${difStr}</td>
@@ -14235,7 +14705,7 @@ function gerarTabelaOrcamento() {
 
   tfoot.innerHTML = `
     <td colspan="2"><strong>TOTAL</strong></td>
-    <td class="center"><strong>${totalContr.toLocaleString("pt-BR")}</strong></td>
+    <td class="center"><strong>${_fmtNum.format(totalContr)}</strong></td>
     <td class="center orc-pca"><strong>${formatBRL(totalPCA)}</strong></td>
     <td class="center"><strong>${formatBRL(totalOrc)}</strong></td>
     <td class="center ${difTotalClass}"><strong>${difTotalStr}</strong></td>
@@ -14491,6 +14961,17 @@ function imprimirLista(data) {
     const produto    = norm(r[COL.PRODUTO])
     soma += valorTotal
 
+    /* Calcular estilos e valores de saldo/qtde antes do template
+       elimina IIFEs e parseFloat duplicados no template literal     */
+    const saldo    = parseFloat(r[COL.SALDO_UTIL]) || 0
+    const qtdeUtil = parseFloat(r[COL.QTDE_UTIL])  || 0
+    const saldoStyle = saldo > 0
+      ? (saldo >= valorTotal ? "color:#10b981;font-weight:700;" : "color:#f59e0b;font-weight:700;")
+      : "color:var(--text-muted);"
+    const saldoTxt   = saldo    > 0 ? formatBRL(saldo) : "—"
+    const qtdeTxt    = qtdeUtil > 0 ? qtdeUtil          : "—"
+    const qtdeColor  = qtdeUtil > 0 ? "#06b6d4"         : "var(--text-muted)"
+
     /* Linha principal */
     const tr = document.createElement("tr")
     tr.dataset.idx = idx
@@ -14505,8 +14986,8 @@ function imprimirLista(data) {
       <td class="center">${r[COL.QUANTIDADE]||""}</td>
       <td class="center">${formatBRL(valorUnit)}</td>
       <td class="center">${formatBRL(valorTotal)}</td>
-      <td class="center" style="${(() => { const s = parseFloat(r[COL.SALDO_UTIL])||0; const t = valorTotal; return s > 0 ? (s >= t ? 'color:#10b981;font-weight:700;' : 'color:#f59e0b;font-weight:700;') : 'color:var(--text-muted);'; })()}">${(parseFloat(r[COL.SALDO_UTIL])||0) > 0 ? formatBRL(parseFloat(r[COL.SALDO_UTIL])) : '—'}</td>
-      <td class="center" style="font-family:monospace;font-size:12px;color:${(parseFloat(r[COL.QTDE_UTIL])||0)>0?'#06b6d4':'var(--text-muted)'}">${(parseFloat(r[COL.QTDE_UTIL])||0) > 0 ? (parseFloat(r[COL.QTDE_UTIL])) : '—'}</td>
+      <td class="center" style="${saldoStyle}">${saldoTxt}</td>
+      <td class="center" style="font-family:monospace;font-size:12px;color:${qtdeColor}">${qtdeTxt}</td>
       <td class="center">${normData(r[COL.DATA])}</td>
       <td class="center">${normPrioridade(r[COL.PRIORIDADE])}</td>
       <td class="center">${r[COL.ID_PROTO]||""}</td>
@@ -14514,40 +14995,10 @@ function imprimirLista(data) {
       <td class="center" style="font-size:11px;color:var(--text-muted);">${r[COL.DT_ATUALIZACAO]||"—"}</td>
     `
 
-    /* Linha de detalhe inline — mantida para compatibilidade (oculta, sem exibição) */
-    const trDetalhe = document.createElement("tr")
-    trDetalhe.classList.add("linha-detalhe")
-    trDetalhe.style.display = "none"
-    trDetalhe.innerHTML = `
-      <td colspan="17">
-        <div class="detalhe-panel">
-          <div class="detalhe-campo"><span>Produto completo</span><span>${produto}</span></div>
-          <div class="detalhe-campo"><span>Local</span><span>${norm(r[COL.LOCAL])}</span></div>
-          <div class="detalhe-campo"><span>Sequencial</span><span>${r[COL.SEQUENCIAL]||"—"}</span></div>
-          <div class="detalhe-campo"><span>Código</span><span>${r[COL.CODIGO]||"—"}</span></div>
-          <div class="detalhe-campo"><span>Unidade</span><span>${norm(r[COL.UNIDADE])||"—"}</span></div>
-          <div class="detalhe-campo"><span>Classificação</span><span>${norm(r[COL.CLASSIFICACAO])||"—"}</span></div>
-          <div class="detalhe-campo"><span>Domínio</span><span>${norm(r[COL.DOMINIO])}</span></div>
-          <div class="detalhe-campo"><span>Quantidade</span><span>${r[COL.QUANTIDADE]||"—"}</span></div>
-          <div class="detalhe-campo"><span>Valor Unitário</span><span>${formatBRL(valorUnit)}</span></div>
-          <div class="detalhe-campo"><span>Valor Total</span><span>${formatBRL(valorTotal)}</span></div>
-          <div class="detalhe-campo"><span>Data Contratação</span><span>${normData(r[COL.DATA])}</span></div>
-          <div class="detalhe-campo"><span>Prioridade</span><span>${normPrioridade(r[COL.PRIORIDADE])||"—"}</span></div>
-          <div class="detalhe-campo"><span>ID Protocolo</span><span>${r[COL.ID_PROTO]||"—"}</span></div>
-          <div class="detalhe-campo"><span>DFD</span><span>${r[COL.DFD]||"—"}</span></div>
-          <div class="detalhe-campo"><span>Saldo Utilizado</span><span style="${(parseFloat(r[COL.SALDO_UTIL])||0)>0?'color:#10b981;font-weight:700':'color:var(--text-muted)'}">${(parseFloat(r[COL.SALDO_UTIL])||0)>0 ? formatBRL(parseFloat(r[COL.SALDO_UTIL])) : "—"}</span></div>
-          <div class="detalhe-campo"><span>Qtde Utilizada</span><span style="${(parseFloat(r[COL.QTDE_UTIL])||0)>0?'color:#06b6d4;font-weight:700':'color:var(--text-muted)'}">${(parseFloat(r[COL.QTDE_UTIL])||0)>0 ? parseFloat(r[COL.QTDE_UTIL]) : "—"}</span></div>
-          <div class="detalhe-campo"><span>Últ. Atualização</span><span>${r[COL.DT_ATUALIZACAO]||"—"}</span></div>
-        </div>
-      </td>
-    `
-
-    /* Click — abre modal floating ao invés do inline row */
+    /* Click — abre modal de detalhe do item */
     tr.addEventListener("click", () => {
-      /* Mantém lógica de seleção visual na linha */
       if (linhaSelecionada && linhaSelecionada !== tr) {
         linhaSelecionada.classList.remove("selecionada")
-        linhaSelecionada.nextElementSibling.style.display = "none"
       }
       const jaSelecionada = tr.classList.contains("selecionada")
       if (jaSelecionada) {
@@ -14562,7 +15013,6 @@ function imprimirLista(data) {
     })
 
     f.appendChild(tr)
-    f.appendChild(trDetalhe)
   })
 
   tbody.appendChild(f)
@@ -14725,8 +15175,11 @@ document.getElementById("itemDetalheClose")?.addEventListener("click", fecharIte
 /* =====================================================
 EVENTOS
 ===================================================== */
-let debTimer
-function debounce(fn) { clearTimeout(debTimer); debTimer = setTimeout(fn, 300) }
+/* debounce — closure isola o timer para evitar conflito entre módulos */
+const debounce = (() => {
+  let _timer
+  return fn => { clearTimeout(_timer); _timer = setTimeout(fn, 300) }
+})()
 
 // ── Barra de pesquisa unificada — lógica de chips e tipo ──────────────
 ;(function _ciSmartSearch() {
@@ -19208,7 +19661,7 @@ const _pdfCfgOnOpen = (id) => {
     const label = document.getElementById('histOrdemLabel')
     if (icon) {
       icon.setAttribute('data-lucide', _histDesc ? 'arrow-down' : 'arrow-up')
-      if (typeof lucide !== 'undefined') lucide.createIcons()
+      if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [icon] })
     }
     if (label) label.textContent = _histDesc ? 'Mais recente' : 'Mais antigo'
     _renderTabela(_abaAtiva)
@@ -19389,7 +19842,7 @@ const _pdfCfgOnOpen = (id) => {
     _histPagina = 1
     const icon  = document.getElementById('histOrdemIcon')
     const label = document.getElementById('histOrdemLabel')
-    if (icon) { icon.setAttribute('data-lucide', 'arrow-down'); if (typeof lucide !== 'undefined') lucide.createIcons() }
+    if (icon) { icon.setAttribute('data-lucide', 'arrow-down'); if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [icon] }) }
     if (label) label.textContent = 'Mais recente'
     _renderTabela(_abaAtiva)
   }
@@ -19987,6 +20440,7 @@ const _pdfCfgOnOpen = (id) => {
     }
     if (empty) empty.style.display = "none"
 
+    const _reptTbody = tbody
     tbody.innerHTML = _lista.map((r, i) => `
       <tr id="reptRow-${i}" draggable="true"
         style="border-bottom:1px solid var(--border);transition:background .1s;background:var(--surface);"
@@ -20020,8 +20474,8 @@ const _pdfCfgOnOpen = (id) => {
           </div>
         </td>
       </tr>`).join("")
-    // Re-renderiza ícones Lucide nas novas linhas
-    if (window.lucide) lucide.createIcons()
+    // Re-renderiza ícones Lucide apenas nas novas linhas
+    if (window.lucide) lucide.createIcons({ nodes: [_reptTbody] })
   }
 
   // ── Escape HTML ───────────────────────────────────────────
@@ -20335,6 +20789,7 @@ const _pdfCfgOnOpen = (id) => {
     }
     if (empty) empty.style.display = 'none'
 
+    const _usrTbody = tbody
     tbody.innerHTML = _lista.map((u, i) => {
       const pcasLabel = u.pcas && u.pcas.length
         ? u.pcas.map(id => {
@@ -20389,7 +20844,7 @@ const _pdfCfgOnOpen = (id) => {
       </tr>`
     }).join('')
 
-    if (window.lucide) lucide.createIcons()
+    if (window.lucide) lucide.createIcons({ nodes: [_usrTbody] })
   }
 
   function _esc(s) {
