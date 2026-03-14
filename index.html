@@ -1733,8 +1733,9 @@ LAYOUT
     0 32px 80px rgba(0,0,0,.22),
     0 8px 24px rgba(0,0,0,.12),
     0 0 0 1px rgba(255,255,255,.06);
-  animation: idPanelIn .28s cubic-bezier(.16,1,.3,1);
-  transform-origin: bottom center;
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 @keyframes idPanelIn {
   from { opacity: 0; transform: translateY(20px) scale(.98); }
@@ -2457,11 +2458,11 @@ TOAST
   border-radius: 22px;
   box-shadow: var(--lg-shadow-xl), var(--lg-inset);
   max-width: 480px; width: 100%;
-  transform: scale(0.93) translateY(12px);
-  transition: transform 0.24s cubic-bezier(.34,1.56,.64,1);
   overflow: hidden;
 }
-#confirmModal.show #confirmModal-box { transform: scale(1) translateY(0); }
+#confirmModal.show #confirmModal-box {
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
+}
 #confirmModal-header {
   display: flex; align-items: center; gap: 12px;
   padding: 20px 22px 14px;
@@ -2993,7 +2994,7 @@ MODAL PDF POR LOCAL
   max-width: 96vw;
   box-shadow: 0 24px 64px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
   border: 1px solid var(--border);
-  animation: modalIn .22s cubic-bezier(.16,1,.3,1);
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
   overflow: hidden;
 }
 
@@ -3137,6 +3138,38 @@ MODAL PDF POR LOCAL
   from { opacity: 0; transform: scale(0.94) translateY(12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+
+/* ── Liquid Glass Drop — animação gota d'água iOS 26 ────────────
+   Anima apenas transform + opacity — propriedades GPU-composited
+   que não forçam repaint. clip-path e filter foram removidos
+   pois causam repaint a cada frame em mobile.                   */
+@keyframes lgDrop {
+  0%   {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  45%  {
+    opacity: 1;
+    transform: scale(1.038);
+  }
+  70%  {
+    transform: scale(0.985);
+  }
+  86%  {
+    transform: scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Classe utilitária — aplica lgDrop em qualquer painel */
+.lg-drop-panel {
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
 @supports not (backdrop-filter: blur(1px)) {
   .modal-box { background: var(--bg); border-color: var(--border-dim); }
 }
@@ -3247,6 +3280,7 @@ SEARCHABLE DROPDOWN
   padding: 32px 40px; min-width: 340px; max-width: 420px;
   box-shadow: 0 24px 64px rgba(0,0,0,.3);
   display: flex; flex-direction: column; gap: 16px; align-items: center;
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
 }
 #pdfProgressIcon { font-size: 36px; line-height: 1; animation: spin-icon 2s linear infinite; }
 @keyframes spin-icon { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
@@ -4602,7 +4636,7 @@ PAINEL DE CONFIGURAÇÕES
     max-width: 400px;
     box-shadow: 0 32px 96px rgba(0,0,0,.22), 0 8px 24px rgba(0,0,0,.12);
     overflow: hidden;
-    animation: loginBannerIn .28s cubic-bezier(.16,1,.3,1);
+    animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
     position: relative;
   }
   @keyframes loginBannerIn {
@@ -5937,7 +5971,7 @@ canvas.chart-explodable:hover { filter: brightness(1.03); }
   max-height: min(90vh, 860px);
   display: flex; flex-direction: column;
   overflow: hidden;
-  animation: ceoPanelIn .3s cubic-bezier(.16,1,.3,1);
+  animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;
 }
 @keyframes ceoPanelIn {
   from { opacity:0; transform: scale(.93) translateY(16px) }
@@ -6397,9 +6431,14 @@ tr.selecionada > td { background: var(--accent-soft) !important; }
 /* ── Acessibilidade ───────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .card, .kpi-card, .btn, .btn-sm, .modal-box,
-  .sd-panel, #toast, .hamburger-btn {
+  .sd-panel, #toast, .hamburger-btn,
+  /* Painéis com animação lgDrop */
+  .lg-drop-panel,
+  .id-panel, .rpt-panel, .login-banner-card,
+  #chartExplodePanel, #confirmModal-box, #pdfProgressBox {
     transition: none !important;
     animation: none !important;
+    will-change: auto !important;
   }
 }
 
@@ -6937,7 +6976,7 @@ MODAL DE CONFIGURAÇÕES
 
       <!-- Modal criar/editar PCA -->
       <div id="pcaModal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border-radius:18px;padding:32px;width:min(540px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.18);border:1px solid var(--border);max-height:88vh;overflow-y:auto;">
+        <div style="background:var(--surface);border-radius:18px;padding:32px;width:min(540px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.18);border:1px solid var(--border);max-height:88vh;overflow-y:auto;animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
             <h3 id="pcaModalTitulo" style="font-size:18px;font-weight:800;color:var(--text);margin:0;">Novo PCA</h3>
             <button onclick="pcaFecharModal()" style="border:none;background:var(--surface2);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:18px;color:var(--text-muted);display:flex;align-items:center;justify-content:center;">×</button>
@@ -7097,7 +7136,7 @@ MODAL DE CONFIGURAÇÕES
 
       <!-- MODAL: Nova / Editar Repartição -->
       <div id="reptModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:420px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:420px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:34px;height:34px;background:rgba(124,58,237,.12);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -7140,7 +7179,7 @@ MODAL DE CONFIGURAÇÕES
 
       <!-- MODAL: Confirmar exclusão -->
       <div id="reptModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
             <div style="width:34px;height:34px;background:rgba(220,38,38,.10);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <i data-lucide="trash-2" style="width:17px;height:17px;color:#dc2626;"></i>
@@ -7218,7 +7257,7 @@ MODAL DE CONFIGURAÇÕES
 
       <!-- MODAL: Novo / Editar Usuário -->
       <div id="usrModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;margin:0 auto;box-shadow:0 24px 64px rgba(0,0,0,.28);overflow:hidden;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;margin:0 auto;box-shadow:0 24px 64px rgba(0,0,0,.28);overflow:hidden;animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
 
           <!-- Header do modal -->
           <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 26px 0;">
@@ -7377,7 +7416,7 @@ MODAL DE CONFIGURAÇÕES
 
       <!-- MODAL: Confirmar exclusão de usuário -->
       <div id="usrModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
           <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
             <div style="width:34px;height:34px;background:rgba(220,38,38,.10);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <i data-lucide="user-x" style="width:17px;height:17px;color:#dc2626;"></i>
@@ -7922,7 +7961,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
         <!-- Modal de detalhes -->
         <div id="cdeclModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:10000;align-items:center;justify-content:center;padding:20px;">
-          <div style="background:var(--surface);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);border:1px solid var(--border);">
+          <div style="background:var(--surface);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);border:1px solid var(--border);animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
             <div style="padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
               <div>
                 <div style="font-size:11px;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Declaracao PCA</div>
@@ -8299,7 +8338,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
         <!-- ── MODAL EDIÇÃO EM LOTE ── -->
         <div id="editLoteModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:9100;align-items:center;justify-content:center;">
-          <div style="background:var(--surface);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.3);position:relative;margin:16px;">
+          <div style="background:var(--surface);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.3);position:relative;margin:16px;animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
 
             <!-- Header -->
             <div style="position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);padding:20px 28px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;z-index:1;">
@@ -8498,7 +8537,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
         <!-- ── MODAL DE EDIÇÃO ── -->
         <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:9000;align-items:center;justify-content:center;">
-          <div style="background:var(--surface);border-radius:20px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.25);position:relative;margin:16px;">
+          <div style="background:var(--surface);border-radius:20px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.25);position:relative;margin:16px;animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
 
             <!-- Modal header -->
             <div style="position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);padding:20px 28px;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;z-index:1;">
@@ -9022,7 +9061,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
       <!-- Modal pré-visualização de item da fila -->
       <div id="addPreviewModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
-        <div style="background:var(--surface);border-radius:16px;box-shadow:0 20px 60px #0006;width:100%;max-width:620px;max-height:88vh;overflow-y:auto;margin:20px;">
+        <div style="background:var(--surface);border-radius:16px;box-shadow:0 20px 60px #0006;width:100%;max-width:620px;max-height:88vh;overflow-y:auto;margin:20px;animation: lgDrop 0.48s cubic-bezier(.22,1,.36,1) both;">
 
           <!-- Header -->
           <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;">
@@ -11093,7 +11132,8 @@ function aparMostrarTab(id) {
   document.querySelectorAll(".men-painel").forEach(p => p.classList.toggle("active", p.id === "aparPainel-" + id))
   if (id === "menus") {
     if (typeof window.menCarregar === "function") window.menCarregar()
-    setTimeout(() => { if (window.lucide) lucide.createIcons() }, 60)
+    const _aparPainel = document.getElementById("aparPainel-" + id)
+    setTimeout(() => { if (window.lucide && _aparPainel) lucide.createIcons({ nodes: [_aparPainel] }) }, 60)
   }
 }
 
@@ -11291,7 +11331,7 @@ function aparMostrarTab(id) {
       chip.addEventListener("dragstart", _onDragStartBanco)
       banco.appendChild(chip)
     })
-    if (window.lucide) lucide.createIcons()
+    if (window.lucide) lucide.createIcons({ nodes: [banco] })
   }
 
   /* Canvas de seções
@@ -11378,7 +11418,8 @@ function aparMostrarTab(id) {
       wrap.appendChild(div)
       _renderItensSecao(sIdx)
     })
-    if (window.lucide) lucide.createIcons()
+    const _menCanvas = document.getElementById("menCanvas")
+    if (window.lucide && _menCanvas) lucide.createIcons({ nodes: [_menCanvas] })
   }
 
   function _renderItensSecao(sIdx) {
@@ -11405,7 +11446,7 @@ function aparMostrarTab(id) {
       chip.addEventListener("dragstart", _onDragStartItem)
       cont.appendChild(chip)
     })
-    if (window.lucide) lucide.createIcons()
+    if (window.lucide) lucide.createIcons({ nodes: [cont] })
   }
 
   /* Lista lateral de menus salvos */
@@ -11448,7 +11489,8 @@ function aparMostrarTab(id) {
       const ativo = _menus.find(m => m.ativo)
       selAt.value = prev || (ativo ? ativo.id : "")
     }
-    if (window.lucide) lucide.createIcons()
+    const _menWrap = document.getElementById("menWrap")
+    if (window.lucide && _menWrap) lucide.createIcons({ nodes: [_menWrap] })
   }
 
   /* Carrega menu no editor */
@@ -12230,12 +12272,17 @@ function _formatarTamanho(bytes) {
 }
 
 /* ── Menu Sanduíche ── */
-/* Mantém meta theme-color sempre transparente — barras Safari independente
-   do estado do menu ou tema. Chamado em abrir, fechar e init.             */
+/* ── Safari: barra sempre transparente ─────────────────────────
+   O elemento meta é cacheado uma vez — evita percorrer o DOM a
+   cada evento de scroll. passive:true garante zero impacto no
+   thread de composição.                                         */
+const _themeColorMeta = document.querySelector('meta[name="theme-color"]')
 function _syncThemeColor() {
-  const m = document.querySelector('meta[name="theme-color"]')
-  if (m) m.content = 'transparent'
+  if (_themeColorMeta) _themeColorMeta.content = 'transparent'
 }
+window.addEventListener('scroll',    _syncThemeColor, { passive: true })
+window.addEventListener('touchmove', _syncThemeColor, { passive: true })
+document.addEventListener('DOMContentLoaded', _syncThemeColor)
 
 function abrirMenu() {
   document.getElementById("sideMenu").classList.add("open")
@@ -12477,8 +12524,9 @@ function _abrirConfiguracoesAutenticado() {
   }
 
   cfgMostrarSecao(_resolverAbaInicial())
-  document.getElementById("modalConfiguracoes").style.display = "flex"
-  setTimeout(() => { if (typeof lucide !== "undefined") lucide.createIcons() }, 50)
+  const _cfgModal = document.getElementById("modalConfiguracoes")
+  _cfgModal.style.display = "flex"
+  setTimeout(() => { if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [_cfgModal] }) }, 50)
 }
 
 /**
@@ -13091,7 +13139,8 @@ function cfgMostrarSecao(id) {
     // Este helper apenas re-aciona o fluxo completo quando o filtro global muda.
     if (typeof window._editPopularFiltrosExterno === "function") window._editPopularFiltrosExterno()
     if (typeof window.editFiltrar === "function") window.editFiltrar()
-    if (window.lucide) lucide.createIcons()
+    const _editCont = document.getElementById("editFiltroLocal")?.closest(".filtro-campo-busca") || document.body
+    if (window.lucide) lucide.createIcons({ nodes: [_editCont] })
   }
 
   // Lock no addF-local (select de Adicionar Item) e lote-local
@@ -13134,7 +13183,8 @@ function cfgMostrarSecao(id) {
     // Este helper apenas re-aciona o fluxo completo quando o filtro global muda.
     if (typeof window._exclPopularFiltrosExterno === "function") window._exclPopularFiltrosExterno()
     if (typeof window.exclFiltrar === "function") window.exclFiltrar()
-    if (window.lucide) lucide.createIcons()
+    const _exclCont = document.getElementById("exclFiltroLocal")?.closest(".filtro-campo-busca") || document.body
+    if (window.lucide) lucide.createIcons({ nodes: [_exclCont] })
   }
 
   // Expõe helpers de lock para os módulos chamarem após popular
@@ -13584,7 +13634,7 @@ function trocarPcaHeader(id) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Inicializa ícones Lucide
+  // Inicializa ícones Lucide (escopo global — inicialização única)
   if (typeof lucide !== "undefined") lucide.createIcons();
 
   // ── Banner de carregamento inicial ──────────────────────────
@@ -20209,7 +20259,7 @@ const _pdfCfgOnOpen = (id) => {
     // Próxima
     _btn('chevron-right', cur + 1, false, cur === totalPags, true)
 
-    if (typeof lucide !== 'undefined') lucide.createIcons()
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [wrap] })
   }
 
   /* ── Renderiza tabela: ordem → filtro → paginação ────────── */
@@ -21432,7 +21482,7 @@ const _pdfCfgOnOpen = (id) => {
     if (modal) {
       modal.style.display = 'flex'
       setTimeout(() => {
-        if (window.lucide) lucide.createIcons()
+        if (window.lucide) lucide.createIcons({ nodes: [modal] })
         if (!isEdicao) document.getElementById('usrMatricula')?.focus()
       }, 30)
     }
@@ -21715,7 +21765,7 @@ const _pdfCfgOnOpen = (id) => {
     if (banner) {
       banner.classList.add('ativo')
       setTimeout(() => {
-        if (window.lucide) lucide.createIcons()
+        if (window.lucide) lucide.createIcons({ nodes: [banner] })
         document.getElementById('loginMatricula')?.focus()
       }, 60)
     }
@@ -21962,7 +22012,7 @@ const _pdfCfgOnOpen = (id) => {
              vlTotal, qtdTotal, saldoUtil, qtdeUtil }
   }
 
-  function _fmtBRL(v) { return (v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' }) }
+  function _fmtBRL(v) { return formatBRL(v) }  /* usa o formatador global cacheado (Intl) */
 
   // ── Formatar disponibilidade ──────────────────────────────
   function _fmtDisp(r) {
@@ -22247,7 +22297,7 @@ const _pdfCfgOnOpen = (id) => {
       <div class="id-campo" style="grid-column:1/-1;">
         <span class="id-campo-label" style="color:#059669;">
           <i data-lucide="edit-3" style="width:11px;height:11px;display:inline;"></i>
-          Valor a Declarar (maximo: ${(vlTotal||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})})
+          Valor a Declarar (maximo: ${_fmtBRL(vlTotal||0)})
         </span>
         <div style="display:flex;gap:8px;align-items:center;margin-top:5px;">
           <input type="number" id="declBannerInpVl"
@@ -22257,7 +22307,7 @@ const _pdfCfgOnOpen = (id) => {
                    font-size:14px;font-weight:700;outline:none;"
             onfocus="this.style.borderColor='#059669'" onblur="this.style.borderColor='rgba(5,150,105,.4)'"
             oninput="declBannerValidarVl(this,${vlTotal})">
-          <span style="font-size:12px;color:var(--text-muted);">de ${(vlTotal||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span>
+          <span style="font-size:12px;color:var(--text-muted);">de ${_fmtBRL(vlTotal||0)}</span>
         </div>
         <div id="declBannerErrVl" style="font-size:11px;color:#dc2626;margin-top:3px;display:none;"></div>
       </div>` : ''
@@ -22997,7 +23047,8 @@ const _pdfCfgOnOpen = (id) => {
     if (id === 'drive-sync') {
       setTimeout(function() {
         if (typeof window.declCarregarPastaLink === 'function') window.declCarregarPastaLink()
-        if (typeof lucide !== 'undefined') lucide.createIcons()
+        const _driveSyncEl = document.getElementById('declDriveSyncWrap') || document.getElementById('modalConsultaDecl')
+        if (typeof lucide !== 'undefined' && _driveSyncEl) lucide.createIcons({ nodes: [_driveSyncEl] })
       }, 80)
     }
   }
@@ -23144,7 +23195,7 @@ const _pdfCfgOnOpen = (id) => {
     if (inp) { inp.value = ''; }
     modal.classList.add('ativo')
     setTimeout(function() {
-      if (typeof lucide !== 'undefined') lucide.createIcons()
+      if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [modal] })
       if (inp) inp.focus()
     }, 60)
   }
@@ -23222,7 +23273,7 @@ const _pdfCfgOnOpen = (id) => {
     if (res) res.classList.add('visivel')
 
     setTimeout(function() {
-      if (typeof lucide !== 'undefined') lucide.createIcons()
+      if (typeof lucide !== 'undefined' && res) lucide.createIcons({ nodes: [res] })
     }, 40)
   }
 
@@ -23463,7 +23514,8 @@ const _pdfCfgOnOpen = (id) => {
   function _init() {
     _bindDockVisibility()
     _bindStickySearch()
-    if (typeof lucide !== 'undefined') lucide.createIcons()
+    const _dock = document.getElementById('floatingDock')
+    if (typeof lucide !== 'undefined' && _dock) lucide.createIcons({ nodes: [_dock] })
   }
 
   // ── Barra de pesquisa sticky — IntersectionObserver ───────
