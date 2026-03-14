@@ -70,7 +70,11 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 </style>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- Barras do Safari sempre transparentes (superior e inferior) -->
+<meta name="theme-color" content="transparent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title id="pageTitle">PCA - Rio Verde</title>
 <link rel="icon" id="pageFavicon" type="image/png" href="">
 
@@ -460,114 +464,198 @@ MENU SANDUÍCHE — Liquid Glass
 .menu-overlay.open { opacity: 1; pointer-events: all; }
 
 /* Drawer — Liquid Glass escuro profundo */
+/* =====================================================
+   SIDE-MENU — Liquid Glass drawer
+   Entrada: slide + fade com spring natural
+   Itens:   stagger via CSS custom property --i
+===================================================== */
 .side-menu {
   position: fixed; top: 0; left: 0;
-  width: 260px; height: 100vh;
-  background: rgba(12,18,36,0.86);
-  backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
-  -webkit-backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
-  border-right: 1px solid rgba(255,255,255,0.09);
-  /* Sombra apenas quando aberto — evita vazamento lateral na tela inicial */
+  width: 280px; height: 100%;
+  /* Camadas de profundidade: gradiente diagonal escuro */
+  background: linear-gradient(
+    160deg,
+    rgba(18,26,52,0.82) 0%,
+    rgba(12,18,36,0.90) 55%,
+    rgba(8,12,28,0.94)  100%
+  );
+  backdrop-filter: blur(var(--lg-blur-xl)) saturate(220%) brightness(0.92);
+  -webkit-backdrop-filter: blur(var(--lg-blur-xl)) saturate(220%) brightness(0.92);
+  border-right: 1px solid rgba(255,255,255,0.10);
+  /* Sem sombra enquanto fechado — evita vazamento na tela inicial */
   box-shadow: none;
   z-index: 999;
-  transform: translateX(-100%);
-  transition: transform 0.32s cubic-bezier(.4,0,.2,1),
-              box-shadow 0.32s cubic-bezier(.4,0,.2,1);
+  /* Fechado: fora da tela e ligeiramente comprimido */
+  transform: translateX(-100%) scaleX(0.96);
+  transform-origin: left center;
+  opacity: 0;
+  transition:
+    transform 0.38s cubic-bezier(.22,1,.36,1),
+    opacity   0.30s cubic-bezier(.22,1,.36,1),
+    box-shadow 0.38s cubic-bezier(.22,1,.36,1);
   display: flex; flex-direction: column; overflow: hidden;
+  /* Reflexo lateral direito sutil */
+  outline: 1px solid rgba(255,255,255,0.055);
+  outline-offset: -1px;
 }
 [data-theme="dark"] .side-menu {
-  background: rgba(6,9,18,0.92);
-  border-right-color: rgba(255,255,255,0.06);
+  background: linear-gradient(
+    160deg,
+    rgba(8,10,22,0.90) 0%,
+    rgba(5,7,16,0.96)  100%
+  );
+  border-right-color: rgba(255,255,255,0.07);
 }
-/* Sombra só aparece quando o drawer está visível */
+/* Aberto: spring natural com sombra lateral */
 .side-menu.open {
-  transform: translateX(0);
-  box-shadow: 4px 0 48px rgba(0,0,0,0.32), var(--lg-inset-sm);
+  transform: translateX(0) scaleX(1);
+  opacity: 1;
+  box-shadow:
+    8px 0 64px rgba(0,0,0,0.42),
+    2px 0 16px rgba(67,97,238,0.09),
+    inset -1px 0 0 rgba(255,255,255,0.08);
 }
 @supports not (backdrop-filter: blur(1px)) {
-  .side-menu { background: #131c38; }
+  .side-menu      { background: #131c38; opacity: 1; transform: translateX(-100%); }
+  .side-menu.open { transform: translateX(0); }
 }
 
+/* ── Header ── */
 .side-menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 22px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   gap: 10px;
+  /* Shine no topo */
+  background: linear-gradient(180deg, rgba(255,255,255,0.045) 0%, transparent 100%);
+  flex-shrink: 0;
 }
 .side-menu-header .brand {
   display: flex; align-items: center; gap: 10px;
-  font-weight: 700; font-size: 14px; color: #fff;
+  font-weight: 700; font-size: 14px;
+  color: rgba(255,255,255,0.92);
   letter-spacing: -0.2px;
 }
 .side-menu-close {
-  width: 30px; height: 30px;
-  background: rgba(255,255,255,0.08); border: none;
-  border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.6);
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 10px; cursor: pointer;
+  color: rgba(255,255,255,0.55);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: background 0.15s, color 0.15s;
+  transition: background 0.18s, color 0.18s, transform 0.20s;
+  flex-shrink: 0;
 }
-.side-menu-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.side-menu-close:hover {
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  transform: rotate(90deg);
+}
 
+/* ── Rótulo de seção ── */
 .side-menu-section {
-  padding: 16px 20px 6px;
+  padding: 18px 18px 5px;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  color: rgba(255,255,255,0.35);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,0.28);
   text-transform: uppercase;
 }
 
+/* ── Itens: animação stagger ao abrir ── */
 .side-menu-item {
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 10px 16px;
+  padding: 11px 14px;
   cursor: pointer;
-  border-radius: 10px;
-  margin: 1px 8px;
-  color: rgba(255,255,255,0.65);
+  border-radius: 12px;
+  margin: 2px 10px;
+  color: rgba(255,255,255,0.62);
   font-size: 13.5px;
   font-weight: 500;
-  transition: background 0.14s, color 0.14s;
+  transition: background 0.18s, color 0.18s, transform 0.16s, box-shadow 0.18s;
   text-decoration: none;
-  border: none;
+  border: 1px solid transparent;
   background: none;
-  width: calc(100% - 16px);
+  width: calc(100% - 20px);
   text-align: left;
   font-family: inherit;
+  /* Estado inicial — invisível até o menu abrir */
+  opacity: 0;
+  transform: translateX(-12px);
 }
-.side-menu-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.side-menu-item.active-nav { background: rgba(255,255,255,0.12); color: #fff; font-weight: 600; }
+/* Stagger: cada item entra com delay baseado em --i (definido no HTML) */
+.side-menu.open .side-menu-item {
+  animation: smItemIn 0.36s cubic-bezier(.22,1,.36,1) both;
+  animation-delay: calc(0.05s + var(--i, 0) * 0.04s);
+}
+@keyframes smItemIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.side-menu-item:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.08);
+  color: #fff;
+  transform: translateX(3px);
+}
+.side-menu-item.active-nav {
+  background: rgba(67,97,238,0.22);
+  border-color: rgba(67,97,238,0.30);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ── Ícone em caixa ── */
 .side-menu-item .menu-icon {
-  width: 22px;
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
+  color: rgba(255,255,255,0.68);
+  transition: background 0.18s, color 0.18s;
 }
+.side-menu-item:hover .menu-icon    { background: rgba(255,255,255,0.13); color: #fff; }
+.side-menu-item.active-nav .menu-icon { background: rgba(67,97,238,0.35); color: #fff; }
+
+/* ── Badge ── */
 .side-menu-item .menu-badge {
   margin-left: auto;
   font-size: 10px;
   font-weight: 700;
-  background: rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.11);
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 20px;
   padding: 2px 8px;
 }
+
+/* ── Divisor com fade nas pontas ── */
 .side-menu-divider {
   height: 1px;
-  background: rgba(255,255,255,0.08);
-  margin: 8px 16px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255,255,255,0.09) 25%,
+    rgba(255,255,255,0.09) 75%,
+    transparent);
+  margin: 10px 18px;
 }
+
+/* ── Footer ── */
 .side-menu-footer {
   margin-top: auto;
-  padding: 14px 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,0.07);
   font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  font-weight: 500;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.2px;
+  background: linear-gradient(0deg, rgba(255,255,255,0.03) 0%, transparent 100%);
 }
 
 /* =====================================================
@@ -1095,6 +1183,125 @@ LAYOUT
   font-size: 12px !important;
   padding: 4px 12px !important;
   backdrop-filter: blur(4px);
+}
+
+/* =====================================================
+   CARD-BANNER — cabeçalho estilo ci-banner reutilizável
+   Usado nas seções analíticas (tabelas do dashboard).
+   Variantes de cor via modificador --cb-from / --cb-to.
+===================================================== */
+.card-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  /* gradiente controlado por variáveis locais — sobrescrito em cada variante */
+  background: linear-gradient(135deg, var(--cb-from, #0ea872) 0%, var(--cb-to, #0ea0a0) 100%);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  /* encosta no topo do card — margin-bottom fecha na tabela */
+  margin: -22px -24px 20px;
+  padding: 18px 24px 16px;
+  position: relative;
+  overflow: hidden;
+}
+/* Blobs decorativos — mesma técnica do ci-banner */
+.card-banner::before {
+  content: '';
+  position: absolute;
+  top: -28px; right: -28px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  pointer-events: none;
+}
+.card-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -44px; left: 50px;
+  width: 160px; height: 90px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+  pointer-events: none;
+}
+.card-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.card-banner-icon {
+  width: 42px; height: 42px;
+  background: rgba(255,255,255,.18);
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.card-banner-title {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 2px;
+  letter-spacing: -.25px;
+}
+.card-banner-sub {
+  font-size: 11.5px;
+  color: rgba(255,255,255,.78);
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.card-banner-right {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Pill de contagem dentro do banner */
+.card-banner-pill {
+  background: rgba(255,255,255,.20);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.30);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Variantes de cor — cada tabela analítica tem a sua */
+/* Verde-esmeralda: Contratações Mensais */
+.card-banner--green   { --cb-from: #0ea872; --cb-to: #0ea0a0; }
+/* Roxo: Contratações por Domínio */
+.card-banner--purple  { --cb-from: #7c3aed; --cb-to: #a21caf; }
+/* Âmbar: Classificação de Contratações */
+.card-banner--amber   { --cb-from: #f09b0a; --cb-to: #e8481a; }
+/* Ciano-índigo: Comparativo Orçamento */
+.card-banner--indigo  { --cb-from: #4361ee; --cb-to: #2563eb; }
+
+/* Dark mode: gradientes levemente mais densos */
+[data-theme="dark"] .card-banner--green   { --cb-from: #047857; --cb-to: #0a7a78; }
+[data-theme="dark"] .card-banner--purple  { --cb-from: #6d28d9; --cb-to: #86198f; }
+[data-theme="dark"] .card-banner--amber   { --cb-from: #b45309; --cb-to: #a03010; }
+[data-theme="dark"] .card-banner--indigo  { --cb-from: #3a56d4; --cb-to: #1d4ed8; }
+
+/* Responsivo: tablet */
+@media (max-width: 900px) {
+  .card-banner { padding: 15px 20px 13px; border-radius: 14px 14px 0 0; margin: -22px -24px 18px; }
+  .card-banner-title { font-size: 15px; }
+}
+/* Responsivo: mobile */
+@media (max-width: 600px) {
+  .card-banner { padding: 13px 16px 11px; border-radius: 12px 12px 0 0; margin: -14px -14px 16px; }
+  .card-banner-title { font-size: 14px; }
+  .card-banner-sub  { display: none; }
+  .card-banner-icon { width: 36px; height: 36px; border-radius: 9px; }
 }
 
 /* Barra de pesquisa destaque */
@@ -2235,8 +2442,9 @@ TOAST
   position: fixed; inset: 0; z-index: 10000;
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(4px);
+  background: rgba(10,14,30,.48);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   opacity: 0; transition: opacity 0.18s ease;
   pointer-events: none;
 }
@@ -2768,8 +2976,9 @@ MODAL PDF POR LOCAL
 #modalPdfLocal {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(15,22,40,0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(10,14,30,.48);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   z-index: 9990;
   align-items: center;
   justify-content: center;
@@ -3028,7 +3237,8 @@ SEARCHABLE DROPDOWN
 /* ── Progress overlay ── */
 #pdfProgressOverlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+  background: rgba(10,14,30,.48); backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   z-index: 9999; align-items: center; justify-content: center;
 }
 #pdfProgressOverlay.ativo { display: flex; }
@@ -4373,9 +4583,9 @@ PAINEL DE CONFIGURAÇÕES
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: rgba(10,14,30,.52);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    background: rgba(10,14,30,.48);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
     align-items: center;
     justify-content: center;
     padding: 24px 16px;
@@ -5373,9 +5583,9 @@ PAINEL DE CONFIGURAÇÕES
   position: fixed;
   inset: 0;
   z-index: 1050;
-  background: rgba(10, 14, 30, 0.52);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(10,14,30,.48);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   align-items: center;
   justify-content: center;
   padding: 20px 16px;
@@ -5704,9 +5914,9 @@ canvas.chart-explodable:hover { filter: brightness(1.03); }
 #chartExplodeOverlay {
   display: none; position: fixed; inset: 0;
   z-index: 2000;
-  background: rgba(8,10,24,.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10,14,30,.48);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
   align-items: center; justify-content: center;
   padding: 16px;
   font-family: 'Inter', system-ui, sans-serif;
@@ -6073,8 +6283,8 @@ code, pre, .font-mono { font-family: var(--font-mono); }
 #modalPdfLocal,
 #itemDetalheOverlay,
 #chartExplodeOverlay {
-  backdrop-filter: blur(8px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
 }
 
 /* ── itemDetalhe panel Liquid Glass ──────────────── */
@@ -6313,67 +6523,82 @@ SEÇÃO 3 — ESTRUTURA HTML
 <div class="menu-overlay" id="menuOverlay" onclick="fecharMenu()"></div>
 
 <!-- MENU LATERAL -->
-<nav class="side-menu" id="sideMenu">
+<nav class="side-menu" id="sideMenu" aria-label="Menu de navegação">
   <div class="side-menu-header">
     <div class="brand" style="gap:10px;">
-      <img id="menuLogoImg" src="" alt="Logo" onclick="fecharMenu();mudarAba('dashboard');scrollToSection('kpiGrid')" title="Ir para Indicadores Gerais" style="height:34px;width:34px;object-fit:contain;border-radius:8px;cursor:pointer;flex-shrink:0;transition:opacity .15s;box-shadow:0 0 0 2px rgba(255,255,255,0.15);">
-      <span id="menuBrandText" style="color:#fff;font-weight:700;font-size:14px;letter-spacing:-0.2px;">PCA</span>
+      <img id="menuLogoImg" src="" alt="Logo" onclick="fecharMenu();mudarAba('dashboard');scrollToSection('kpiGrid')" title="Ir para Indicadores Gerais" style="height:36px;width:36px;object-fit:contain;border-radius:9px;cursor:pointer;flex-shrink:0;transition:opacity .15s;box-shadow:0 0 0 1.5px rgba(255,255,255,0.18);">
+      <span id="menuBrandText" style="color:rgba(255,255,255,0.92);font-weight:700;font-size:14px;letter-spacing:-0.2px;">PCA</span>
     </div>
-    <button class="side-menu-close" onclick="fecharMenu()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    <button class="side-menu-close" onclick="fecharMenu()" aria-label="Fechar menu">
+      <i data-lucide="x" style="width:15px;height:15px;"></i>
+    </button>
   </div>
 
-  <div style="overflow-y:auto;flex:1;">
+  <div style="overflow-y:auto;flex:1;padding-bottom:8px;">
     <div class="side-menu-section">Navegação</div>
-    <button class="side-menu-item" onclick="mudarAba('dashboard');scrollToSection('kpiGrid');fecharMenu()">
-      <span class="menu-icon"><i data-lucide="bar-chart-2" style="width:17px;height:17px;"></i></span> Indicadores Gerais
+    <button class="side-menu-item" style="--i:0" onclick="mudarAba('dashboard');scrollToSection('kpiGrid');fecharMenu()">
+      <span class="menu-icon"><i data-lucide="bar-chart-2" style="width:16px;height:16px;"></i></span>
+      Indicadores Gerais
     </button>
-
-    <button class="side-menu-item" onclick="mudarAba('dashboard');scrollToSectionByText('Análise Orçamentária');fecharMenu()">
-      <span class="menu-icon"><i data-lucide="landmark" style="width:17px;height:17px;"></i></span> Análise Orçamentária
+    <button class="side-menu-item" style="--i:1" onclick="mudarAba('dashboard');scrollToSectionByText('Análise Orçamentária');fecharMenu()">
+      <span class="menu-icon"><i data-lucide="landmark" style="width:16px;height:16px;"></i></span>
+      Análise Orçamentária
     </button>
-    <button class="side-menu-item" onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens');fecharMenu()">
-      <span class="menu-icon"><i data-lucide="search" style="width:17px;height:17px;"></i></span> Consulta de Itens
+    <button class="side-menu-item" style="--i:2" onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens');fecharMenu()">
+      <span class="menu-icon"><i data-lucide="search" style="width:16px;height:16px;"></i></span>
+      Consulta de Itens
     </button>
-    <button class="side-menu-item" onclick="mudarAba('documentos');fecharMenu()">
-      <span class="menu-icon"><i data-lucide="folder-open" style="width:17px;height:17px;"></i></span> Documentos Importantes
+    <button class="side-menu-item" style="--i:3" onclick="mudarAba('documentos');fecharMenu()">
+      <span class="menu-icon"><i data-lucide="folder-open" style="width:16px;height:16px;"></i></span>
+      Documentos Importantes
       <span class="menu-badge">Drive</span>
     </button>
-    <button class="side-menu-item" onclick="fecharMenu();abrirConsultaDeclaracao()">
-      <span class="menu-icon"><i data-lucide="file-badge" style="width:17px;height:17px;"></i></span> Consulta de Declaração
+    <button class="side-menu-item" style="--i:4" onclick="fecharMenu();abrirConsultaDeclaracao()">
+      <span class="menu-icon"><i data-lucide="file-badge" style="width:16px;height:16px;"></i></span>
+      Consulta de Declaração
     </button>
 
     <div class="side-menu-divider"></div>
     <div class="side-menu-section">Exportação</div>
-    <button class="side-menu-item" onclick="exportarExcel();fecharMenu()">
-      <span class="menu-icon"><i data-lucide="download" style="width:17px;height:17px;"></i></span> Exportar Excel
+    <button class="side-menu-item" style="--i:5" onclick="exportarExcel();fecharMenu()">
+      <span class="menu-icon"><i data-lucide="download" style="width:16px;height:16px;"></i></span>
+      Exportar Excel
     </button>
-    <button class="side-menu-item" onclick="exportarPDF();fecharMenu()">
-      <span class="menu-icon"><i data-lucide="file-text" style="width:17px;height:17px;"></i></span> Gerar PCA
+    <button class="side-menu-item" style="--i:6" onclick="exportarPDF();fecharMenu()">
+      <span class="menu-icon"><i data-lucide="file-text" style="width:16px;height:16px;"></i></span>
+      Gerar PCA
     </button>
-    <button class="side-menu-item" onclick="abrirModalPdfLocal();fecharMenu()">
-      <span class="menu-icon"><i data-lucide="clipboard-list" style="width:17px;height:17px;"></i></span> Gerar Relatório
+    <button class="side-menu-item" style="--i:7" onclick="abrirModalPdfLocal();fecharMenu()">
+      <span class="menu-icon"><i data-lucide="clipboard-list" style="width:16px;height:16px;"></i></span>
+      Gerar Relatório
     </button>
 
     <div class="side-menu-divider"></div>
-    <div class="side-menu-section">Configurações</div>
-    <button class="side-menu-item" onclick="toggleDarkMode();fecharMenu()">
-      <span class="menu-icon"><i data-lucide="moon" style="width:17px;height:17px;"></i></span> Alternar Tema
+    <div class="side-menu-section">Sistema</div>
+    <button class="side-menu-item" style="--i:8" onclick="toggleDarkMode();fecharMenu()">
+      <span class="menu-icon"><i data-lucide="moon" style="width:16px;height:16px;"></i></span>
+      Alternar Tema
     </button>
-    <button class="side-menu-item" onclick="carregarDoSheets()">
-      <span class="menu-icon"><i data-lucide="refresh-cw" style="width:17px;height:17px;"></i></span> Sincronizar Planilha
+    <button class="side-menu-item" style="--i:9" onclick="carregarDoSheets()">
+      <span class="menu-icon"><i data-lucide="refresh-cw" style="width:16px;height:16px;"></i></span>
+      Sincronizar Planilha
     </button>
-    <div id="menuSyncInfo" style="margin:2px 8px 6px;padding:10px 14px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);font-size:12px;">
-      <div id="menuSyncStatus" style="display:flex;align-items:center;gap:7px;font-weight:600;margin-bottom:5px;color:var(--text-muted)">
-        <span id="menuSyncDot" style="width:8px;height:8px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></span>
+
+    <!-- Card de status: glass escuro sutil -->
+    <div id="menuSyncInfo" style="margin:6px 10px 4px;padding:11px 14px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid rgba(255,255,255,0.08);font-size:12px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+      <div id="menuSyncStatus" style="display:flex;align-items:center;gap:7px;font-weight:600;margin-bottom:4px;color:rgba(255,255,255,0.45);">
+        <span id="menuSyncDot" style="width:7px;height:7px;border-radius:50%;background:rgba(148,163,184,0.6);flex-shrink:0;"></span>
         <span id="menuSyncStatusText">Aguardando...</span>
       </div>
-      <div id="menuSyncDetail" style="color:var(--text-muted);font-size:11px;line-height:1.5;display:none"></div>
+      <div id="menuSyncDetail" style="color:rgba(255,255,255,0.30);font-size:11px;line-height:1.5;display:none"></div>
     </div>
   </div>
 
-  <div style="padding:10px 12px 8px;">
-    <button class="side-menu-item" onclick="abrirConfiguracoes()" style="background:linear-gradient(135deg,#4361ee,#7c3aed);color:#fff;border-radius:12px;padding:12px 20px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px;width:100%;border:none;cursor:pointer;transition:opacity .18s;">
-      <i data-lucide="settings" style="width:18px;height:18px;"></i> Configurações
+  <!-- Botão configurações: pill Liquid Glass com acento índigo -->
+  <div style="padding:10px 10px 12px;">
+    <button class="side-menu-item" style="--i:10;background:linear-gradient(135deg,rgba(67,97,238,0.55),rgba(124,58,237,0.55));border-color:rgba(67,97,238,0.40);color:#fff;border-radius:14px;padding:12px 16px;font-weight:700;font-size:13px;width:100%;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,0.15),0 4px 16px rgba(67,97,238,0.25);margin:0;" onclick="abrirConfiguracoes()">
+      <span class="menu-icon" style="background:rgba(255,255,255,0.15);"><i data-lucide="settings" style="width:16px;height:16px;"></i></span>
+      Configurações
     </button>
   </div>
 
@@ -6711,7 +6936,7 @@ MODAL DE CONFIGURAÇÕES
       </div>
 
       <!-- Modal criar/editar PCA -->
-      <div id="pcaModal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+      <div id="pcaModal" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
         <div style="background:var(--surface);border-radius:18px;padding:32px;width:min(540px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.18);border:1px solid var(--border);max-height:88vh;overflow-y:auto;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
             <h3 id="pcaModalTitulo" style="font-size:18px;font-weight:800;color:var(--text);margin:0;">Novo PCA</h3>
@@ -6871,7 +7096,7 @@ MODAL DE CONFIGURAÇÕES
       </div>
 
       <!-- MODAL: Nova / Editar Repartição -->
-      <div id="reptModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+      <div id="reptModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:420px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -6914,7 +7139,7 @@ MODAL DE CONFIGURAÇÕES
       </div>
 
       <!-- MODAL: Confirmar exclusão -->
-      <div id="reptModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+      <div id="reptModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
             <div style="width:34px;height:34px;background:rgba(220,38,38,.10);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -6992,7 +7217,7 @@ MODAL DE CONFIGURAÇÕES
       </div><!-- /cfgSec-usuarios -->
 
       <!-- MODAL: Novo / Editar Usuário -->
-      <div id="usrModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.48);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px;">
+      <div id="usrModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:580px;margin:0 auto;box-shadow:0 24px 64px rgba(0,0,0,.28);overflow:hidden;">
 
           <!-- Header do modal -->
@@ -7151,7 +7376,7 @@ MODAL DE CONFIGURAÇÕES
       </div><!-- /usrModal -->
 
       <!-- MODAL: Confirmar exclusão de usuário -->
-      <div id="usrModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.48);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+      <div id="usrModalExcluir" style="display:none;position:fixed;inset:0;z-index:2100;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:380px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);">
           <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;">
             <div style="width:34px;height:34px;background:rgba(220,38,38,.10);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -7696,7 +7921,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
         </div>
 
         <!-- Modal de detalhes -->
-        <div id="cdeclModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:20px;">
+        <div id="cdeclModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:10000;align-items:center;justify-content:center;padding:20px;">
           <div style="background:var(--surface);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);border:1px solid var(--border);">
             <div style="padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
               <div>
@@ -8073,7 +8298,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
         </div>
 
         <!-- ── MODAL EDIÇÃO EM LOTE ── -->
-        <div id="editLoteModal" style="display:none;position:fixed;inset:0;background:rgba(15,22,40,.7);z-index:9100;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+        <div id="editLoteModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:9100;align-items:center;justify-content:center;">
           <div style="background:var(--surface);border-radius:20px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.3);position:relative;margin:16px;">
 
             <!-- Header -->
@@ -8272,7 +8497,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
         </div>
 
         <!-- ── MODAL DE EDIÇÃO ── -->
-        <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(15,22,40,.6);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+        <div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);z-index:9000;align-items:center;justify-content:center;">
           <div style="background:var(--surface);border-radius:20px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.25);position:relative;margin:16px;">
 
             <!-- Modal header -->
@@ -8796,7 +9021,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
       </div><!-- /cfgSec-adicionar-itens -->
 
       <!-- Modal pré-visualização de item da fila -->
-      <div id="addPreviewModal" style="display:none;position:fixed;inset:0;z-index:2000;background:#00000066;align-items:center;justify-content:center;">
+      <div id="addPreviewModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,14,30,.48);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);align-items:center;justify-content:center;">
         <div style="background:var(--surface);border-radius:16px;box-shadow:0 20px 60px #0006;width:100%;max-width:620px;max-height:88vh;overflow-y:auto;margin:20px;">
 
           <!-- Header -->
@@ -9357,7 +9582,17 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div>
 
   <div class="card" id="cardOrcamento" style="display:none">
-    <div class="card-title">Comparativo Orçamento × Contratações por Secretaria</div>
+    <div class="card-banner card-banner--indigo">
+      <div class="card-banner-left">
+        <div class="card-banner-icon">
+          <i data-lucide="scale" style="width:20px;height:20px;"></i>
+        </div>
+        <div>
+          <h3 class="card-banner-title">Comparativo Orçamento × Contratações</h3>
+          <p class="card-banner-sub">Análise por Secretaria — valores planejados vs. orçados</p>
+        </div>
+      </div>
+    </div>
     <div class="table-wrapper">
       <table id="tabelaOrcamento">
         <thead>
@@ -9391,7 +9626,17 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div>
 
   <div class="card">
-    <div class="card-title">Classificação de Contratações</div>
+    <div class="card-banner card-banner--amber">
+      <div class="card-banner-left">
+        <div class="card-banner-icon">
+          <i data-lucide="tag" style="width:20px;height:20px;"></i>
+        </div>
+        <div>
+          <h3 class="card-banner-title">Classificação de Contratações</h3>
+          <p class="card-banner-sub">Distribuição por categoria — Material ou Serviço</p>
+        </div>
+      </div>
+    </div>
     <div class="table-wrapper">
       <table id="tabelaClassificacao">
         <thead><tr><th>N°</th><th>CLASSIFICAÇÃO</th><th>CONTRATAÇÕES</th><th>VALOR TOTAL</th><th>PORCENTAGEM</th></tr></thead>
@@ -9403,7 +9648,17 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   <br>
 
   <div class="card">
-    <div class="card-title">Contratações por Domínio</div>
+    <div class="card-banner card-banner--purple">
+      <div class="card-banner-left">
+        <div class="card-banner-icon">
+          <i data-lucide="layers" style="width:20px;height:20px;"></i>
+        </div>
+        <div>
+          <h3 class="card-banner-title">Contratações por Domínio</h3>
+          <p class="card-banner-sub">Agrupamento por domínio de contratação do PCA</p>
+        </div>
+      </div>
+    </div>
     <div class="table-wrapper">
       <table id="tabelaDominio">
         <thead><tr><th>DOMÍNIO</th><th>CONTRATAÇÕES</th><th>VALOR TOTAL</th></tr></thead>
@@ -9415,7 +9670,17 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   <br>
 
   <div class="card">
-    <div class="card-title">Contratações Mensais</div>
+    <div class="card-banner card-banner--green">
+      <div class="card-banner-left">
+        <div class="card-banner-icon">
+          <i data-lucide="calendar" style="width:20px;height:20px;"></i>
+        </div>
+        <div>
+          <h3 class="card-banner-title">Contratações Mensais</h3>
+          <p class="card-banner-sub">Cronograma de contratações previstas por mês</p>
+        </div>
+      </div>
+    </div>
     <div class="table-wrapper">
       <table id="tabelaMeses">
         <thead><tr><th>MÊS/ANO</th><th>CONTRATAÇÕES</th><th>VALOR TOTAL</th></tr></thead>
@@ -11965,18 +12230,27 @@ function _formatarTamanho(bytes) {
 }
 
 /* ── Menu Sanduíche ── */
+/* Mantém meta theme-color sempre transparente — barras Safari independente
+   do estado do menu ou tema. Chamado em abrir, fechar e init.             */
+function _syncThemeColor() {
+  const m = document.querySelector('meta[name="theme-color"]')
+  if (m) m.content = 'transparent'
+}
+
 function abrirMenu() {
   document.getElementById("sideMenu").classList.add("open")
   document.getElementById("menuOverlay").classList.add("open")
   document.getElementById("hamburgerBtn").classList.add("open")
   document.body.style.overflow = "hidden"
-  if (typeof lucide !== "undefined") lucide.createIcons()
+  _syncThemeColor()
+  if (typeof lucide !== "undefined") lucide.createIcons({ nodes: [document.getElementById("sideMenu")] })
 }
 function fecharMenu() {
   document.getElementById("sideMenu").classList.remove("open")
   document.getElementById("menuOverlay").classList.remove("open")
   document.getElementById("hamburgerBtn").classList.remove("open")
   document.body.style.overflow = ""
+  _syncThemeColor()
 }
 
 /* ══════════════════════════════════════════════════════════════
