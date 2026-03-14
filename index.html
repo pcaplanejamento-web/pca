@@ -78,6 +78,24 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 <title id="pageTitle">PCA - Rio Verde</title>
 <link rel="icon" id="pageFavicon" type="image/png" href="">
 
+<!-- =====================================================
+     SAFARI LIQUID GLASS — inline síncrono
+     Executa ANTES de qualquer CDN ou script externo.
+     Garante que a barra do Safari já nasça transparente
+     no primeiro paint, sem flash de cor opaca.
+===================================================== -->
+<script>
+(function(){
+  var m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.content = 'transparent';
+  // Aplica tema salvo imediatamente (evita flash claro→escuro)
+  try {
+    var t = localStorage.getItem('pca-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch(_) {}
+})();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -13692,8 +13710,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   } finally {
     setTimeout(() => {
       _pdfProgressFechar()
-      // pdfProgressFechar já remove os modos e reseta título/ícone
-      // Carrega contagem de pendentes para o badge da aba Aprovação
+      // Cancela o timer agendado por processarLinhas e dispara o toast
+      // exatamente aqui — em sincronia com o fechamento do overlay de boot
+      clearTimeout(window._toastCarregadoTimer)
+      if (typeof window._ultimosDadosCarregados === 'number') {
+        mostrarToast(`${window._ultimosDadosCarregados} itens carregados!`)
+        window._ultimosDadosCarregados = undefined
+      }
       if (typeof window.aprovCarregarContagem === "function") window.aprovCarregarContagem()
     }, 420)
   }
@@ -14480,13 +14503,17 @@ async function _carregarDoSheetsImpl() {
   }
 
 
-  mostrarToast("Sincronizando com Google Sheets...", "warn")
   gsSetStatus("sincronizando")
+  /* Toasts intermediários suprimidos quando o overlay de boot está visível —
+     ficam ocultos atrás dele e causam flash ao fechar. Só exibe quando não
+     há overlay (ex: sincronização manual).                                  */
+  const _overlayAberto = () => !!document.getElementById("pdfProgressOverlay")?.classList.contains("ativo")
+  if (!_overlayAberto()) mostrarToast("Sincronizando com Google Sheets...", "warn")
 
   try {
     /* ── Busca todas as abas em paralelo com batchGet (1 request só) ── */
     const todasAbas = [...new Set([...GS_ABAS, GS_ABA_ORC])]
-    mostrarToast("Buscando dados...", "warn")
+    if (!_overlayAberto()) mostrarToast("Buscando dados...", "warn")
 
     let resultados
     try {
@@ -14668,10 +14695,16 @@ function processarLinhas(linhas) {
   atualizar()
   aplicarFiltrosTabela()
 
-  // Exibe o toast após o overlay fechar (overlay tem delay de 420ms ao fechar)
-  // Se o overlay não estiver ativo, mostra imediatamente
+  // Toast final: se o overlay está aberto, agenda para depois do fade-out.
+  // O timer é cancelável — o caller (boot) pode substituí-lo pela sincronia exata.
   const _overlayAtivo = document.getElementById("pdfProgressOverlay")?.classList.contains("ativo")
-  setTimeout(() => mostrarToast(`${dados.length} itens carregados!`), _overlayAtivo ? 500 : 0)
+  clearTimeout(window._toastCarregadoTimer)
+  window._toastCarregadoTimer = setTimeout(
+    () => mostrarToast(`${dados.length} itens carregados!`),
+    _overlayAtivo ? 480 : 0   // 480ms > 420ms (overlay fecha) → aparece logo após fechar
+  )
+  // Guarda a contagem para o caller poder reexibir em sincronia melhor
+  window._ultimosDadosCarregados = dados.length
 }
 
 /* ── Upload Excel (mantido como fallback) ── */
