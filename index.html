@@ -7,6 +7,68 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 
 <head>
 
+<!-- =====================================================
+     LIQUID GLASS CRÍTICO — carrega antes de tudo
+     Garante que o header já nasça com o efeito pill
+     sem flash de conteúdo sem estilo (FOUC)
+===================================================== -->
+<style id="lg-critical">
+  /* Reset mínimo para o header não tremer no carregamento */
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: #e8ecf4; }
+  [data-theme="dark"] body { background: #0b0f1a; }
+
+  /* ── Pill container — envolve o header com shape de cápsula ── */
+  .header-pill-wrap {
+    position: sticky;
+    top: 10px;
+    z-index: 200;
+    padding: 0 12px;
+    pointer-events: none; /* o wrap não captura cliques — só o header */
+  }
+
+  /* ── Header: pill Liquid Glass imediato ── */
+  header {
+    pointer-events: all;
+    background: rgba(255,255,255,0.55);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.78);
+    border-radius: 999px;           /* pill completo */
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.95),
+      inset 0 -1px 0 rgba(255,255,255,0.18),
+      0 8px 32px rgba(67,97,238,0.10),
+      0 2px  8px rgba(15,22,40,0.06);
+    height: 58px;
+    padding: 0 14px 0 14px;
+    /* overflow: visible para a sombra não ser clipada pelo border-radius */
+    overflow: visible;
+  }
+
+  /* Modo escuro — pill mais denso */
+  [data-theme="dark"] header {
+    background: rgba(16,20,30,0.72);
+    border-color: rgba(255,255,255,0.11);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      inset 0 -1px 0 rgba(0,0,0,0.20),
+      0 8px 32px rgba(0,0,0,0.40),
+      0 2px  8px rgba(0,0,0,0.24);
+  }
+
+  /* Fallback: navegadores sem backdrop-filter */
+  @supports not (backdrop-filter: blur(1px)) {
+    header {
+      background: rgba(232,236,244,0.97);
+      border-color: rgba(200,210,230,0.5);
+    }
+    [data-theme="dark"] header {
+      background: rgba(11,15,26,0.97);
+    }
+  }
+</style>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title id="pageTitle">PCA - Rio Verde</title>
@@ -211,50 +273,72 @@ HEADER — Liquid Glass
    .hdr-compact   → 48px, blur maior, subtítulo oculto
    mobile         → 56px normal, 44px compacto
 ===================================================== */
+/* ── Pill wrapper — posiciona o header flutuante ── */
+.header-pill-wrap {
+  position: sticky;
+  top: 10px;
+  z-index: 200;
+  padding: 0 12px;
+  /* Garante que o wrapper não empurre conteúdo */
+  pointer-events: none;
+}
+
 header {
+  pointer-events: all;
   background: var(--lg-bg-strong);
-  backdrop-filter: blur(var(--lg-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(180%);
-  border-bottom: 1px solid var(--lg-border);
-  padding: 0 24px 0 32px;
-  height: 68px;
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(200%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(200%);
+  border: 1px solid var(--lg-border);
+  /* Pill — shape de cápsula igual ao iOS */
+  border-radius: 999px;
+  padding: 0 14px 0 14px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--lg-inset), 0 1px 0 var(--lg-border-dim), 0 4px 20px rgba(67,97,238,0.06);
+  /* Sem position:sticky próprio — o wrapper cuida disso */
+  position: relative;
+  z-index: 1;
   overflow: visible;
   will-change: height, padding;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 0 rgba(255,255,255,0.18),
+    0 8px 32px rgba(67,97,238,0.10),
+    0 2px  8px rgba(15,22,40,0.06);
 
-  /* Transição fluida para todos os estados — cubic-bezier iOS */
+  /* Transição fluida */
   transition:
     height          0.32s cubic-bezier(.4,0,.2,1),
     padding         0.32s cubic-bezier(.4,0,.2,1),
+    border-radius   0.32s cubic-bezier(.4,0,.2,1),
     background      0.28s ease,
     box-shadow      0.28s ease,
     backdrop-filter 0.28s ease;
 }
 @supports not (backdrop-filter: blur(1px)) {
-  header { background: var(--bg); border-bottom: 1px solid var(--border-dim); }
+  header {
+    background: rgba(232,236,244,0.97);
+    border-color: rgba(200,210,230,0.5);
+  }
 }
 
 /* ── Estado compacto: ativado via JS após 24px de scroll ── */
 header.hdr-compact {
-  height: 48px;
-  padding: 0 20px 0 28px;
+  height: 46px;
+  padding: 0 12px 0 12px;
   backdrop-filter: blur(var(--lg-blur-compact)) saturate(200%);
   -webkit-backdrop-filter: blur(var(--lg-blur-compact)) saturate(200%);
   box-shadow:
-    var(--lg-inset),
-    0 2px 16px rgba(67,97,238,0.09),
-    0 1px 0 var(--lg-border-dim);
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 0 rgba(255,255,255,0.10),
+    0 4px 20px rgba(67,97,238,0.10),
+    0 1px  4px rgba(15,22,40,0.06);
 }
 [data-theme="dark"] header.hdr-compact {
-  background: rgba(16, 20, 30, 0.92);
+  background: rgba(16,20,30,0.92);
 }
 
 /* ── Elementos internos: escalam com o header ─────────── */
@@ -383,17 +467,23 @@ MENU SANDUÍCHE — Liquid Glass
   backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
   -webkit-backdrop-filter: blur(var(--lg-blur-xl)) saturate(200%);
   border-right: 1px solid rgba(255,255,255,0.09);
-  box-shadow: 4px 0 48px rgba(0,0,0,0.32), var(--lg-inset-sm);
+  /* Sombra apenas quando aberto — evita vazamento lateral na tela inicial */
+  box-shadow: none;
   z-index: 999;
   transform: translateX(-100%);
-  transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+  transition: transform 0.32s cubic-bezier(.4,0,.2,1),
+              box-shadow 0.32s cubic-bezier(.4,0,.2,1);
   display: flex; flex-direction: column; overflow: hidden;
 }
 [data-theme="dark"] .side-menu {
   background: rgba(6,9,18,0.92);
   border-right-color: rgba(255,255,255,0.06);
 }
-.side-menu.open { transform: translateX(0); }
+/* Sombra só aparece quando o drawer está visível */
+.side-menu.open {
+  transform: translateX(0);
+  box-shadow: 4px 0 48px rgba(0,0,0,0.32), var(--lg-inset-sm);
+}
 @supports not (backdrop-filter: blur(1px)) {
   .side-menu { background: #131c38; }
 }
@@ -548,7 +638,7 @@ BOTÕES — Liquid Glass
 /* =====================================================
 LAYOUT
 ===================================================== */
-.container { max-width: 1440px; margin: auto; padding: 28px 32px; }
+.container { max-width: 1440px; margin: auto; padding: 24px 32px 28px; }
 
 .page-header {
   margin-bottom: 28px;
@@ -3710,6 +3800,7 @@ RESPONSIVIDADE — TABLET
   canvas     { max-height: 300px; }
   hr         { margin: 36px 0; }
   .container { padding: 20px 20px; }
+  .header-pill-wrap { padding: 0 10px; }
 
   /* Filtro painel — tablet */
   .filtro-busca-row {
@@ -3775,20 +3866,26 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
 @media (max-width: 600px) {
 
   header {
-    padding: 0 12px;
-    height: 56px;
-    min-height: 56px;
+    padding: 0 10px;
+    height: 52px;
+    min-height: 52px;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     /* Blur reduzido no mobile para manter fluidez */
     backdrop-filter: blur(12px) saturate(160%);
     -webkit-backdrop-filter: blur(12px) saturate(160%);
   }
 
+  /* Pill-wrap menor no mobile */
+  .header-pill-wrap {
+    top: 6px;
+    padding: 0 8px;
+  }
+
   /* Compacto mobile: ainda menor */
   header.hdr-compact {
-    height: 44px;
+    height: 42px;
     padding: 0 10px;
   }
 
@@ -9080,6 +9177,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div><!-- /body -->
 </div>
 
+<div class="header-pill-wrap">
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
     <button class="hamburger-btn" id="hamburgerBtn" onclick="abrirMenu()" title="Menu">
@@ -9125,6 +9223,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
     </button>
   </div>
 </header>
+</div><!-- /.header-pill-wrap -->
 
 <div class="container">
 
