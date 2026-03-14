@@ -71,6 +71,10 @@ SEÇÃO 2 — ESTILOS (REDESIGN MODERNO)
   --lg-blur-md:     14px;
   --lg-blur-lg:     28px;
   --lg-blur-xl:     40px;
+  --lg-blur-compact: 24px; /* blur aumentado no header compacto */
+
+  /* Altura do header — publicada via JS; usada no banner sticky */
+  --hdr-h: 68px;
 
   /* Superfícies translúcidas */
   --lg-bg:          rgba(255,255,255,0.60);
@@ -201,6 +205,12 @@ body {
 /* =====================================================
 HEADER — Liquid Glass
 ===================================================== */
+/* =====================================================
+   HEADER — Liquid Glass + comportamento adaptativo
+   Estado normal  → 68px, blur normal
+   .hdr-compact   → 48px, blur maior, subtítulo oculto
+   mobile         → 56px normal, 44px compacto
+===================================================== */
 header {
   background: var(--lg-bg-strong);
   backdrop-filter: blur(var(--lg-blur)) saturate(180%);
@@ -217,10 +227,80 @@ header {
   top: 0;
   z-index: 100;
   box-shadow: var(--lg-inset), 0 1px 0 var(--lg-border-dim), 0 4px 20px rgba(67,97,238,0.06);
-  transition: background 0.3s, box-shadow 0.3s;
+  overflow: visible;
+  will-change: height, padding;
+
+  /* Transição fluida para todos os estados — cubic-bezier iOS */
+  transition:
+    height          0.32s cubic-bezier(.4,0,.2,1),
+    padding         0.32s cubic-bezier(.4,0,.2,1),
+    background      0.28s ease,
+    box-shadow      0.28s ease,
+    backdrop-filter 0.28s ease;
 }
 @supports not (backdrop-filter: blur(1px)) {
   header { background: var(--bg); border-bottom: 1px solid var(--border-dim); }
+}
+
+/* ── Estado compacto: ativado via JS após 24px de scroll ── */
+header.hdr-compact {
+  height: 48px;
+  padding: 0 20px 0 28px;
+  backdrop-filter: blur(var(--lg-blur-compact)) saturate(200%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-compact)) saturate(200%);
+  box-shadow:
+    var(--lg-inset),
+    0 2px 16px rgba(67,97,238,0.09),
+    0 1px 0 var(--lg-border-dim);
+}
+[data-theme="dark"] header.hdr-compact {
+  background: rgba(16, 20, 30, 0.92);
+}
+
+/* ── Elementos internos: escalam com o header ─────────── */
+#headerLogoImg {
+  transition: height 0.32s cubic-bezier(.4,0,.2,1),
+              width  0.32s cubic-bezier(.4,0,.2,1),
+              opacity 0.15s ease;
+}
+header.hdr-compact #headerLogoImg {
+  height: 32px !important;
+  width:  32px !important;
+}
+
+.header-brand > div > div:last-child {
+  transition: opacity 0.24s ease, max-height 0.28s ease;
+  overflow: hidden;
+}
+header.hdr-compact .header-brand > div > div:last-child {
+  /* Subtítulo "Planejamento de Contratações Anuais" desaparece */
+  opacity: 0;
+  max-height: 0;
+}
+
+#headerPcaNomeFixo {
+  transition: font-size 0.28s ease;
+}
+header.hdr-compact #headerPcaNomeFixo {
+  font-size: 14px !important;
+}
+
+.header-brand {
+  transition: gap 0.28s ease;
+}
+header.hdr-compact .header-brand {
+  gap: 8px;
+}
+
+.hamburger-btn {
+  transition: background 0.2s, border-color 0.2s,
+              box-shadow 0.2s, transform 0.15s,
+              width  0.32s cubic-bezier(.4,0,.2,1),
+              height 0.32s cubic-bezier(.4,0,.2,1);
+}
+header.hdr-compact .hamburger-btn {
+  width: 34px;
+  height: 34px;
 }
 
 .header-brand {
@@ -937,7 +1017,7 @@ LAYOUT
   padding: 16px 20px 14px;
   box-shadow: var(--lg-shadow), var(--lg-inset);
   position: sticky;
-  top: 68px;
+  top: var(--hdr-h, 68px); /* sincronizado via JS com a altura real do header */
   z-index: 80;
   transition: box-shadow .25s, border-color .25s, background .25s;
 }
@@ -3696,11 +3776,20 @@ i[data-lucide] { display: inline-flex; align-items: center; justify-content: cen
 
   header {
     padding: 0 12px;
-    height: 60px;
-    min-height: 60px;
+    height: 56px;
+    min-height: 56px;
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    /* Blur reduzido no mobile para manter fluidez */
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  /* Compacto mobile: ainda menor */
+  header.hdr-compact {
+    height: 44px;
+    padding: 0 10px;
   }
 
   /* Hamburguer menor no mobile */
@@ -5965,11 +6054,12 @@ tr.selecionada > td { background: var(--accent-soft) !important; }
 /* ── Performance mobile ───────────────────────────── */
 @media (max-width: 768px) {
   :root {
-    --lg-blur:    10px;
-    --lg-blur-sm:  6px;
-    --lg-blur-md: 12px;
-    --lg-blur-lg: 18px;
-    --lg-blur-xl: 24px;
+    --lg-blur:        10px;
+    --lg-blur-sm:      6px;
+    --lg-blur-md:     12px;
+    --lg-blur-lg:     18px;
+    --lg-blur-xl:     24px;
+    --lg-blur-compact: 16px; /* compacto mobile mais leve */
   }
   .card, .filtro-painel, .tabela-moderna-wrap,
   .ci-search-banner, .modal-box, #toast {
@@ -23580,4 +23670,86 @@ const _pdfCfgOnOpen = (id) => {
 
 })()
 /* ── fim MÓDULO CHART EXPLORER v2 ── */
+/* ══════════════════════════════════════════════════════════════
+   LIQUID GLASS NAVBAR — comportamento adaptativo ao scroll
+   ──────────────────────────────────────────────────────────────
+   Arquitetura de performance:
+   • passive scroll listener   → nunca bloqueia o compositor
+   • requestAnimationFrame     → máximo 1 cálculo por frame 60fps
+   • comparação de booleano    → zero DOM por frame sem mudança
+   • CSS controla a animação   → GPU-friendly, sem style por frame
+   • ResizeObserver            → re-sincroniza --hdr-h em resize
+   • --hdr-h no :root          → banner sticky sempre alinhado
+══════════════════════════════════════════════════════════════ */
+;(function _lgNavbar() {
+
+  var _hdr      = null    /* elemento <header>          */
+  var _rafPend  = false   /* RAF pendente               */
+  var _compact  = false   /* estado compacto ativo      */
+  var THRESHOLD = 24      /* px de scroll para compacto */
+
+  /* Publica a altura real do header como variável CSS global.
+     Mantém o banner sticky (.ci-search-banner) sempre alinhado
+     independentemente do estado (normal ou compacto).          */
+  function _syncHeight() {
+    if (!_hdr) return
+    var h = _hdr.getBoundingClientRect().height
+    document.documentElement.style.setProperty('--hdr-h', Math.round(h) + 'px')
+  }
+
+  /* Avalia o scroll e alterna a classe CSS.
+     Chamado via requestAnimationFrame — máximo 1x por frame.   */
+  function _tick() {
+    _rafPend = false
+    if (!_hdr) return
+    var shouldCompact = window.scrollY > THRESHOLD
+    if (shouldCompact === _compact) return   /* nada mudou */
+    _compact = shouldCompact
+    if (_compact) {
+      _hdr.classList.add('hdr-compact')
+    } else {
+      _hdr.classList.remove('hdr-compact')
+    }
+    /* Aguarda a transição CSS (320ms) para sincronizar --hdr-h */
+    setTimeout(_syncHeight, 340)
+  }
+
+  /* Agenda um RAF apenas se ainda não há um pendente.
+     Garante no máximo 1 cálculo por frame independente da
+     velocidade de scroll do usuário.                           */
+  function _onScroll() {
+    if (_rafPend) return
+    _rafPend = true
+    requestAnimationFrame(_tick)
+  }
+
+  function _init() {
+    _hdr = document.querySelector('header')
+    if (!_hdr) return
+
+    /* Valor inicial de --hdr-h */
+    _syncHeight()
+
+    /* Re-sincroniza ao rotacionar tela ou mudar zoom do sistema */
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(_syncHeight).observe(_hdr)
+    }
+
+    /* passive:true → scroll nunca bloqueia o thread de composição */
+    window.addEventListener('scroll', _onScroll, { passive: true })
+
+    /* Define estado correto se a página já estiver rolada ao abrir */
+    _tick()
+  }
+
+  /* Aguarda DOM pronto */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _init)
+  } else {
+    _init()
+  }
+
+})()
+/* ── fim LIQUID GLASS NAVBAR ── */
+
 </script>
