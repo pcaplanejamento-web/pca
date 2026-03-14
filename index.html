@@ -5273,6 +5273,286 @@ PAINEL DE CONFIGURAÇÕES
 }
 .mcd-btn-fechar:hover { border-color: var(--accent); color: var(--accent); }
 
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO CHART EXPLORER (CEO v2)
+   Visualização ampliada e interativa dos gráficos de Análise por Local.
+══════════════════════════════════════════════════════════════ */
+
+/* Hint de zoom no hover dos cards */
+.chart-clickable-hint {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  background: rgba(67,97,238,.10);
+  border: 1px solid rgba(67,97,238,.22);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent, #4361ee);
+  pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 4px;
+}
+.card:hover .chart-clickable-hint,
+.card.big:hover .chart-clickable-hint { opacity: 1; }
+@media (hover: none) { .chart-clickable-hint { display: none; } }
+
+canvas.chart-explodable { cursor: zoom-in; transition: filter .2s; }
+canvas.chart-explodable:hover { filter: brightness(1.03); }
+
+/* ── Overlay ── */
+#chartExplodeOverlay {
+  display: none; position: fixed; inset: 0;
+  z-index: 2000;
+  background: rgba(8,10,24,.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  align-items: center; justify-content: center;
+  padding: 16px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+#chartExplodeOverlay.ceo-open {
+  display: flex;
+  animation: ceoFadeIn .22s ease;
+}
+@keyframes ceoFadeIn { from { opacity:0 } to { opacity:1 } }
+
+/* ── Painel ── */
+#chartExplodePanel {
+  background: var(--surface, #fff);
+  border-radius: 22px;
+  border: 1px solid var(--border, #e4e6ea);
+  box-shadow: 0 40px 100px rgba(0,0,0,.32), 0 0 0 1px rgba(255,255,255,.04);
+  width: min(960px, 100%);
+  max-height: min(90vh, 860px);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: ceoPanelIn .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes ceoPanelIn {
+  from { opacity:0; transform: scale(.93) translateY(16px) }
+  to   { opacity:1; transform: none }
+}
+
+/* ── Header ── */
+#ceoHeader {
+  display: flex; align-items: center; gap: 12px;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--border, #e4e6ea);
+  flex-shrink: 0;
+}
+#ceoHeaderIcon {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg,rgba(67,97,238,.15),rgba(67,97,238,.05));
+  border: 1px solid rgba(67,97,238,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent, #4361ee); flex-shrink: 0;
+}
+#ceoTitle    { font-size: 15px; font-weight: 700; color: var(--text,#111); letter-spacing:-.2px; }
+#ceoSubtitle { font-size: 11.5px; color: var(--text-muted,#64748b); margin-top:1px; }
+#ceoBtnFechar {
+  margin-left: auto;
+  width: 34px; height: 34px; border-radius: 9px;
+  border: 1px solid var(--border,#e4e6ea);
+  background: transparent; color: var(--text-muted,#64748b);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .14s, color .14s; flex-shrink: 0;
+}
+#ceoBtnFechar:hover { background: var(--surface2,#f3f4f6); color: var(--text,#111); }
+
+/* ── Corpo ── */
+#ceoBody {
+  display: flex; flex: 1; overflow: hidden; min-height: 0;
+  position: relative;
+}
+
+/* Canvas principal */
+#ceoCanvasWrap {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 20px; min-width: 0; position: relative;
+}
+#ceoCanvas { max-width: 100%; max-height: 100%; }
+
+/* Painel lateral */
+#ceoSlicesPanel {
+  width: 250px; flex-shrink: 0;
+  border-left: 1px solid var(--border,#e4e6ea);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+#ceoSlicesPanelTitle {
+  padding: 14px 16px 8px;
+  font-size: 10.5px; font-weight: 700;
+  color: var(--text-muted,#64748b);
+  text-transform: uppercase; letter-spacing:.06em;
+  flex-shrink: 0; border-bottom: 1px solid var(--border,#e4e6ea);
+}
+#ceoSlicesList {
+  flex: 1; overflow-y: auto; padding: 6px 8px 12px;
+}
+#ceoSlicesList::-webkit-scrollbar { width: 3px; }
+#ceoSlicesList::-webkit-scrollbar-thumb { background: var(--border,#e4e6ea); border-radius:99px; }
+
+.ceo-slice-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 8px; border-radius: 10px; cursor: pointer;
+  transition: background .14s, transform .18s, border-color .14s;
+  border: 1.5px solid transparent;
+  position: relative;
+}
+.ceo-slice-item::before {
+  content: ''; position: absolute; left: 0; top: 10%; bottom: 10%;
+  width: 0; border-radius: 99px;
+  background: currentColor; opacity: .12;
+  transition: width .22s cubic-bezier(.34,1.56,.64,1);
+}
+.ceo-slice-item:hover { background: var(--surface2,#f3f4f6); transform: translateX(3px); }
+.ceo-slice-item.ceo-active {
+  background: rgba(67,97,238,.07);
+  border-color: rgba(67,97,238,.2);
+  transform: translateX(4px);
+}
+.ceo-slice-item.ceo-active::before { width: 3px; }
+.ceo-slice-dot {
+  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+}
+.ceo-slice-item:hover .ceo-slice-dot,
+.ceo-slice-item.ceo-active .ceo-slice-dot { transform: scale(1.3); }
+.ceo-slice-info { flex: 1; min-width: 0; }
+.ceo-slice-label {
+  font-size: 11.5px; font-weight: 600; color: var(--text,#111);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ceo-slice-val   { font-size: 10.5px; color: var(--text-muted,#64748b); margin-top:1px; }
+.ceo-slice-pct   { font-size: 12px; font-weight: 700; color: var(--accent,#4361ee); flex-shrink:0; min-width:38px; text-align:right; }
+/* Badge para fatia pequena */
+.ceo-slice-small .ceo-slice-label::after { content:' ·'; color:#f59e0b; font-weight:900; }
+
+/* ── Cartão de detalhe flutuante (ao clicar num elemento) ── */
+#ceoDetailCard {
+  position: absolute; z-index: 10;
+  background: var(--surface,#fff);
+  border: 1.5px solid var(--border,#e4e6ea);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.18);
+  min-width: 200px; max-width: 260px;
+  pointer-events: none;
+  opacity: 0; transform: scale(.9) translateY(6px);
+  transition: opacity .22s, transform .22s cubic-bezier(.16,1,.3,1);
+}
+#ceoDetailCard.ceo-detail-visible {
+  opacity: 1; transform: none;
+}
+#ceoDetailName  { font-size: 13px; font-weight: 700; color: var(--text,#111); margin-bottom:8px; line-height:1.3; }
+.ceo-detail-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text-muted,#64748b);
+  padding: 3px 0; border-bottom: 1px solid var(--border,#e4e6ea);
+}
+.ceo-detail-row:last-child { border-bottom: none; }
+.ceo-detail-row strong { color: var(--text,#111); font-weight: 700; }
+#ceoDetailBar {
+  height: 5px; border-radius: 99px;
+  background: var(--surface2,#f3f4f6);
+  margin-top: 8px; overflow: hidden;
+}
+#ceoDetailBarFill {
+  height: 100%; border-radius: 99px;
+  transition: width .4s cubic-bezier(.25,.8,.25,1);
+}
+
+/* ── Barra inferior de controles ── */
+#ceoToolbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 22px 12px;
+  border-top: 1px solid var(--border,#e4e6ea);
+  flex-shrink: 0;
+}
+#ceoFooterText {
+  flex: 1; font-size: 11px; color: var(--text-muted,#64748b);
+}
+.ceo-btn-tool {
+  padding: 5px 14px; border-radius: 8px;
+  border: 1.5px solid var(--border,#e4e6ea);
+  background: transparent; cursor: pointer;
+  font-size: 11px; font-weight: 600;
+  color: var(--text-muted,#64748b);
+  display: flex; align-items: center; gap: 5px;
+  transition: background .14s, border-color .14s, color .14s;
+  font-family: inherit;
+}
+.ceo-btn-tool:hover { background: var(--surface2,#f3f4f6); border-color: var(--accent,#4361ee); color: var(--accent,#4361ee); }
+.ceo-btn-tool.ceo-btn-active { background: rgba(67,97,238,.1); border-color: rgba(67,97,238,.3); color: var(--accent,#4361ee); }
+.ceo-legend-small {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px;
+  background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25);
+  border-radius: 99px; padding: 2px 8px; color: #92400e;
+}
+
+/* ── Painel de barras horizontais (mode "explorar") ── */
+#ceoBarsWrap {
+  display: none; flex: 1; flex-direction: column;
+  overflow-y: auto; padding: 16px 20px; gap: 8px;
+}
+#ceoBarsWrap.ceo-bars-visible { display: flex; }
+.ceo-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  animation: ceoBarIn .3s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes ceoBarIn { from { opacity:0; transform:translateX(-10px) } to { opacity:1; transform:none } }
+.ceo-bar-label {
+  width: 140px; flex-shrink: 0;
+  font-size: 11.5px; font-weight: 600; color: var(--text,#111);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  text-align: right; cursor: pointer;
+}
+.ceo-bar-label:hover { color: var(--accent,#4361ee); }
+.ceo-bar-track {
+  flex: 1; height: 22px; border-radius: 6px;
+  background: var(--surface2,#f3f4f6);
+  position: relative; overflow: visible; cursor: pointer;
+}
+.ceo-bar-fill {
+  height: 100%; border-radius: 6px;
+  transition: width .5s cubic-bezier(.25,.8,.25,1), filter .18s, transform .18s;
+  transform-origin: left;
+  min-width: 3px;
+}
+.ceo-bar-track:hover .ceo-bar-fill { filter: brightness(1.1); transform: scaleY(1.1); }
+.ceo-bar-track.ceo-bar-active .ceo-bar-fill { filter: brightness(1.15); transform: scaleY(1.18); }
+.ceo-bar-val {
+  width: 90px; flex-shrink: 0;
+  font-size: 11px; font-weight: 600; color: var(--text-muted,#64748b);
+}
+.ceo-bar-pct-inline {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; font-weight: 700; color: rgba(0,0,0,.55);
+  pointer-events: none; white-space: nowrap;
+}
+
+/* ── Responsividade mobile ── */
+@media (max-width: 640px) {
+  #chartExplodePanel { border-radius: 18px 18px 0 0; max-height: 94vh; }
+  #chartExplodeOverlay { align-items: flex-end; padding: 0; }
+  #chartExplodeOverlay.ceo-open { animation: ceoSlideUp .28s cubic-bezier(.16,1,.3,1); }
+  @keyframes ceoSlideUp { from { opacity:0; transform:translateY(30px) } to { opacity:1; transform:none } }
+  #ceoBody { flex-direction: column; }
+  #ceoSlicesPanel { width:100%; border-left:none; border-top:1px solid var(--border,#e4e6ea); max-height:180px; }
+  #ceoSlicesList  { display:flex; flex-wrap:wrap; gap:4px; padding:6px 10px; }
+  .ceo-slice-item { min-width:130px; flex:1; }
+  #ceoCanvasWrap  { padding:12px; max-height:260px; }
+  #ceoBarsWrap    { padding:10px 12px; }
+  .ceo-bar-label  { width:100px; font-size:10.5px; }
+  #ceoDetailCard  { max-width:220px; }
+  #ceoToolbar     { padding:8px 14px 10px; flex-wrap:wrap; }
+}
+
+
 </style>
 </head>
 <body>
@@ -8383,30 +8663,35 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   </div>
 
   <div class="grid">
-    <div class="card big">
+    <div class="card big" style="position:relative;">
       <button class="btn-export-chart" onclick="exportarGrafico('classChart','classificacao')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Classificação dos Itens</div>
-      <canvas id="classChart" role="img"></canvas>
+      <canvas id="classChart" class="chart-explodable" role="img" onclick="ceoAbrir('classChart','Classificação dos Itens')" title="Clique para expandir"></canvas>
+      <span class="chart-clickable-hint"><i data-lucide="zoom-in" style="width:10px;height:10px;"></i> Expandir</span>
     </div>
-    <div class="card">
+    <div class="card" style="position:relative;">
       <button class="btn-export-chart" onclick="exportarGrafico('dominioChart','dominio')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Domínio</div>
-      <canvas id="dominioChart" role="img"></canvas>
+      <canvas id="dominioChart" class="chart-explodable" role="img" onclick="ceoAbrir('dominioChart','Domínio de Contratação')" title="Clique para expandir"></canvas>
+      <span class="chart-clickable-hint"><i data-lucide="zoom-in" style="width:10px;height:10px;"></i> Expandir</span>
     </div>
-    <div class="card">
+    <div class="card" style="position:relative;">
       <button class="btn-export-chart" onclick="exportarGrafico('priorChart','prioridade')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Grau de Prioridade</div>
-      <canvas id="priorChart" role="img"></canvas>
+      <canvas id="priorChart" class="chart-explodable" role="img" onclick="ceoAbrir('priorChart','Grau de Prioridade')" title="Clique para expandir"></canvas>
+      <span class="chart-clickable-hint"><i data-lucide="zoom-in" style="width:10px;height:10px;"></i> Expandir</span>
     </div>
-    <div class="card">
+    <div class="card" style="position:relative;">
       <button class="btn-export-chart" onclick="exportarGrafico('mesChart','cronograma')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Cronograma Mensal</div>
-      <canvas id="mesChart" role="img"></canvas>
+      <canvas id="mesChart" class="chart-explodable" role="img" onclick="ceoAbrir('mesChart','Cronograma Mensal')" title="Clique para expandir"></canvas>
+      <span class="chart-clickable-hint"><i data-lucide="zoom-in" style="width:10px;height:10px;"></i> Expandir</span>
     </div>
-    <div class="card">
+    <div class="card" style="position:relative;">
       <button class="btn-export-chart" onclick="exportarGrafico('periodicoChart','periodico')" style="display:flex;align-items:center;gap:4px;"><i data-lucide="download" style="width:11px;height:11px;"></i> PNG</button>
       <div class="card-title">Contratações Periódicas</div>
-      <canvas id="periodicoChart" role="img"></canvas>
+      <canvas id="periodicoChart" class="chart-explodable" role="img" onclick="ceoAbrir('periodicoChart','Contratações Periódicas')" title="Clique para expandir"></canvas>
+      <span class="chart-clickable-hint"><i data-lucide="zoom-in" style="width:10px;height:10px;"></i> Expandir</span>
     </div>
   </div>
 
@@ -22302,4 +22587,542 @@ const _pdfCfgOnOpen = (id) => {
 
 })() // fim FLOATING DOCK + CONSULTA DECLARAÇÃO
 
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MÓDULO CHART EXPLORER (CEO v2) — visualização ampliada
+══════════════════════════════════════════════════════════════ -->
+<div id="chartExplodeOverlay" role="dialog" aria-modal="true" aria-labelledby="ceoTitle">
+  <div id="chartExplodePanel">
+
+    <!-- Header -->
+    <div id="ceoHeader">
+      <div id="ceoHeaderIcon">
+        <i data-lucide="pie-chart" style="width:18px;height:18px;"></i>
+      </div>
+      <div style="min-width:0;">
+        <div id="ceoTitle">Gráfico</div>
+        <div id="ceoSubtitle">Clique em uma fatia para explorar</div>
+      </div>
+      <button id="ceoBtnFechar" onclick="ceoFechar()" title="Fechar (Esc)" aria-label="Fechar">
+        <i data-lucide="x" style="width:16px;height:16px;"></i>
+      </button>
+    </div>
+
+    <!-- Corpo -->
+    <div id="ceoBody">
+      <!-- Canvas do gráfico original ampliado -->
+      <div id="ceoCanvasWrap">
+        <canvas id="ceoCanvas"></canvas>
+        <!-- Cartão de detalhe ao clicar -->
+        <div id="ceoDetailCard">
+          <div id="ceoDetailColor" style="width:14px;height:14px;border-radius:50%;margin-bottom:8px;"></div>
+          <div id="ceoDetailName"></div>
+          <div class="ceo-detail-row"><span>Valor</span><strong id="ceoDetailVal"></strong></div>
+          <div class="ceo-detail-row"><span>Participação</span><strong id="ceoDetailPct"></strong></div>
+          <div class="ceo-detail-row"><span>Posição</span><strong id="ceoDetailRank"></strong></div>
+          <div id="ceoDetailBar"><div id="ceoDetailBarFill"></div></div>
+        </div>
+      </div>
+
+      <!-- Painel lateral (pie/doughnut) -->
+      <div id="ceoSlicesPanel">
+        <div id="ceoSlicesPanelTitle">Categorias — clique para explorar</div>
+        <div id="ceoSlicesList"></div>
+      </div>
+
+      <!-- Painel de barras horizontais (modo explorar) -->
+      <div id="ceoBarsWrap"></div>
+    </div>
+
+    <!-- Toolbar inferior -->
+    <div id="ceoToolbar">
+      <span id="ceoFooterText"></span>
+      <button class="ceo-btn-tool" id="ceoBtnGrafico" onclick="ceoModoGrafico()" title="Ver gráfico original">
+        <i data-lucide="pie-chart" style="width:12px;height:12px;"></i>
+        Gráfico
+      </button>
+      <button class="ceo-btn-tool" id="ceoBtnBarras" onclick="ceoModoBarras()" title="Ver como barras horizontais">
+        <i data-lucide="bar-chart" style="width:12px;height:12px;"></i>
+        Explorar
+      </button>
+      <span class="ceo-legend-small" id="ceoPequenasBadge" style="display:none;">
+        <span style="width:7px;height:7px;background:#f59e0b;border-radius:50%;display:inline-block;"></span>
+        <span id="ceoPequenasCount"></span> fatias pequenas
+      </span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO CHART EXPLORER (CEO v2)
+   Versão aprimorada com:
+   • Cartão de detalhe flutuante ao clicar
+   • Modo "Explorar": barras horizontais para todos os valores
+   • Animação de offset explode nas fatias
+   • Suporte completo a pie, doughnut e bar charts
+   • Desktop (hover/click) e mobile (tap)
+══════════════════════════════════════════════════════════════ */
+;(function() {
+
+  /* ── Estado interno ── */
+  var _inst       = null   // Chart.js no modal
+  var _fonteId    = null   // canvasId original
+  var _ativo      = -1     // índice do elemento selecionado
+  var _modo       = 'grafico'  // 'grafico' | 'barras'
+  var _cache      = {}     // { labels, valores, cores, total, tipo }
+  var _rafId      = null   // requestAnimationFrame para o detail card
+
+  /* ── Helpers ── */
+  function _fmt(v) {
+    return typeof formatBRL === 'function'
+      ? formatBRL(v)
+      : v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' })
+  }
+
+  function _getChart(canvasId) {
+    var cv = document.getElementById(canvasId)
+    if (!cv) return null
+    if (typeof Chart !== 'undefined' && Chart.getChart) return Chart.getChart(cv)
+    if (typeof charts !== 'undefined')
+      return charts.find(function(c) { return c.canvas === cv }) || null
+    return null
+  }
+
+  function _getCores(chart) {
+    try {
+      var ds = chart.data.datasets[0]
+      if (Array.isArray(ds.backgroundColor)) return ds.backgroundColor.slice()
+      return (chart.data.labels || []).map(function(_, i) {
+        var b = ds.backgroundColor || '#4361ee'
+        return Array.isArray(b) ? b[i] : b
+      })
+    } catch(e) { return [] }
+  }
+
+  function _el(id) { return document.getElementById(id) }
+
+  /* ── Abre o modal ── */
+  window.ceoAbrir = function(canvasId, titulo) {
+    var chartFonte = _getChart(canvasId)
+    if (!chartFonte) return
+
+    _fonteId = canvasId
+    _ativo   = -1
+    _modo    = 'grafico'
+
+    var tipo   = chartFonte.config.type
+    var isPie  = ['pie','doughnut'].includes(tipo)
+    var labels = (chartFonte.data.labels || []).slice()
+    var vals   = ((chartFonte.data.datasets[0] || {}).data || []).slice()
+    var cores  = _getCores(chartFonte)
+    var total  = vals.reduce(function(s, v) { return s + (v || 0) }, 0)
+
+    _cache = { labels:labels, valores:vals, cores:cores, total:total, tipo:tipo, isPie:isPie }
+
+    /* Header */
+    _el('ceoTitle').textContent    = titulo || 'Gráfico'
+    _el('ceoSubtitle').textContent = isPie
+      ? 'Clique em uma fatia ou item da lista para explorar'
+      : 'Clique em uma barra para ver detalhes'
+    _el('ceoHeaderIcon').innerHTML =
+      '<i data-lucide="' + (isPie ? 'pie-chart' : 'bar-chart-2') + '" style="width:18px;height:18px;"></i>'
+
+    /* Painel lateral: só para pie/doughnut no modo gráfico */
+    _el('ceoSlicesPanel').style.display = isPie ? '' : 'none'
+
+    /* Pequenas */
+    var nPeq = isPie
+      ? vals.filter(function(v) { return total > 0 && (v/total)*100 < 2 }).length
+      : 0
+    if (nPeq > 0) {
+      _el('ceoPequenasBadge').style.display = ''
+      _el('ceoPequenasCount').textContent   = nPeq
+    } else {
+      _el('ceoPequenasBadge').style.display = 'none'
+    }
+
+    /* Footer */
+    _el('ceoFooterText').textContent =
+      labels.length + ' ' + (isPie ? 'categorias' : 'períodos') +
+      (nPeq > 0 ? ' · use Explorar para ver as menores' : '')
+
+    /* Botões toolbar */
+    _el('ceoBtnGrafico').classList.add('ceo-btn-active')
+    _el('ceoBtnBarras').classList.remove('ceo-btn-active')
+
+    /* Abre overlay */
+    var overlay = _el('chartExplodeOverlay')
+    overlay.classList.add('ceo-open')
+
+    /* Ícones Lucide */
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons({ nodes: [_el('ceoHeader'), _el('ceoToolbar')] })
+    }
+
+    /* Esconde detail card */
+    _esconderDetail()
+
+    /* Constrói gráfico */
+    _construirGrafico()
+
+    /* Listeners globais */
+    overlay._clickFn = function(e) { if (e.target === overlay) window.ceoFechar() }
+    overlay.addEventListener('click', overlay._clickFn)
+    overlay._keyFn   = function(e) { if (e.key === 'Escape') window.ceoFechar() }
+    document.addEventListener('keydown', overlay._keyFn)
+    document.body.style.overflow = 'hidden'
+  }
+
+  /* ── Fecha e limpa ── */
+  window.ceoFechar = function() {
+    var overlay = _el('chartExplodeOverlay')
+    overlay.classList.remove('ceo-open')
+    if (overlay._clickFn) overlay.removeEventListener('click', overlay._clickFn)
+    if (overlay._keyFn)   document.removeEventListener('keydown', overlay._keyFn)
+    if (_inst) { _inst.destroy(); _inst = null }
+    if (_rafId) { cancelAnimationFrame(_rafId); _rafId = null }
+    _el('ceoSlicesList').innerHTML = ''
+    _el('ceoBarsWrap').innerHTML   = ''
+    _el('ceoBarsWrap').classList.remove('ceo-bars-visible')
+    _el('ceoCanvasWrap').style.display = ''
+    _el('ceoSlicesPanel').style.display = ''
+    _esconderDetail()
+    document.body.style.overflow = ''
+    _fonteId = null; _ativo = -1; _cache = {}
+  }
+
+  /* ── Modo Gráfico ── */
+  window.ceoModoGrafico = function() {
+    _modo = 'grafico'
+    _ativo = -1
+    _el('ceoBtnGrafico').classList.add('ceo-btn-active')
+    _el('ceoBtnBarras').classList.remove('ceo-btn-active')
+    _el('ceoBarsWrap').classList.remove('ceo-bars-visible')
+    _el('ceoBarsWrap').innerHTML = ''
+    _el('ceoCanvasWrap').style.display = ''
+    _el('ceoSlicesPanel').style.display = _cache.isPie ? '' : 'none'
+    _esconderDetail()
+    if (!_inst) _construirGrafico()
+    else { _inst.data.datasets[0].offset = []; _inst.update() }
+  }
+
+  /* ── Modo Explorar (barras horizontais) ── */
+  window.ceoModoBarras = function() {
+    _modo = 'barras'
+    _ativo = -1
+    _el('ceoBtnGrafico').classList.remove('ceo-btn-active')
+    _el('ceoBtnBarras').classList.add('ceo-btn-active')
+    _el('ceoCanvasWrap').style.display = 'none'
+    _el('ceoSlicesPanel').style.display = 'none'
+    _esconderDetail()
+    _renderizarBarras()
+    _el('ceoBarsWrap').classList.add('ceo-bars-visible')
+  }
+
+  /* ── Constrói Chart.js no canvas do modal ── */
+  function _construirGrafico() {
+    if (_inst) { _inst.destroy(); _inst = null }
+    var canvas = _el('ceoCanvas')
+    if (!canvas || !Object.keys(_cache).length) return
+
+    var { labels, valores, cores, total, tipo, isPie } = _cache
+
+    /* Dataset */
+    var dataset = { data: valores, backgroundColor: cores }
+    if (isPie) {
+      dataset.hoverOffset  = 22   // fatia empurra para fora no hover
+      dataset.offset       = 0    // offset base
+      dataset.borderWidth  = 2
+      dataset.borderColor  = 'transparent'
+    } else {
+      dataset.borderRadius   = 5
+      dataset.borderSkipped  = false
+    }
+
+    /* Callback tooltip */
+    var tipLabel = function(ctx) {
+      var raw = isPie ? ctx.parsed : ctx.parsed.y
+      var pct = total > 0 ? ((raw / total) * 100).toFixed(1) : '0.0'
+      return '  ' + _fmt(raw) + '  (' + pct + '%)'
+    }
+
+    /* Opções */
+    var opts = {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 500, easing: 'easeOutCubic' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: tipLabel },
+          padding: 10,
+          cornerRadius: 8
+        }
+      }
+    }
+
+    if (isPie) {
+      /* Click: destacar fatia com explosion effect */
+      opts.onClick = function(evt, elements) {
+        if (!elements.length) { _destacarFatia(-1); return }
+        var idx = elements[0].index
+        _destacarFatia(_ativo === idx ? -1 : idx)
+        /* Posiciona o detail card próximo ao evento */
+        var rect = canvas.getBoundingClientRect()
+        var wrap = _el('ceoCanvasWrap').getBoundingClientRect()
+        _mostrarDetail(idx, evt.x - wrap.left, evt.y - wrap.top)
+      }
+      opts.onHover = function(evt, elements) {
+        evt.native.target.style.cursor = elements.length ? 'pointer' : 'default'
+      }
+    } else {
+      /* Bar: click para detalhe */
+      opts.onClick = function(evt, elements) {
+        if (!elements.length) { _destacarFatia(-1); _esconderDetail(); return }
+        var idx = elements[0].index
+        _destacarFatia(_ativo === idx ? -1 : idx)
+        var wrap = _el('ceoCanvasWrap').getBoundingClientRect()
+        if (_ativo >= 0) _mostrarDetail(idx, evt.x - wrap.left, evt.y - wrap.top)
+        else _esconderDetail()
+      }
+      opts.onHover = function(evt, elements) {
+        evt.native.target.style.cursor = elements.length ? 'pointer' : 'default'
+      }
+      opts.scales = {
+        y: {
+          ticks: {
+            callback: function(v) {
+              if (v >= 1e6) return 'R$' + (v/1e6).toFixed(1) + 'M'
+              if (v >= 1e3) return 'R$' + (v/1e3).toFixed(0) + 'K'
+              return _fmt(v)
+            }
+          }
+        }
+      }
+    }
+
+    _inst = new Chart(canvas, { type: tipo, data: { labels: labels, datasets: [dataset] }, options: opts })
+
+    /* Renderiza lista lateral */
+    if (isPie) _renderizarLateral()
+  }
+
+  /* ── Destaca elemento no gráfico (explosion effect) ── */
+  function _destacarFatia(idx) {
+    _ativo = idx
+    if (!_inst) return
+
+    var isPie = _cache.isPie
+    var len   = (_cache.labels || []).length
+
+    if (isPie) {
+      /* Offset array: fatia ativa fica "explodida" para fora */
+      var offsets = []
+      for (var i = 0; i < len; i++) {
+        offsets.push(i === idx ? 20 : (idx >= 0 ? 2 : 0))
+      }
+      _inst.data.datasets[0].offset = offsets
+
+      /* Opacidade: demais fatias ficam levemente apagadas */
+      if (idx >= 0) {
+        _inst.data.datasets[0].backgroundColor = _cache.cores.map(function(c, i) {
+          return i === idx ? c : _hexAlpha(c, 0.38)
+        })
+      } else {
+        _inst.data.datasets[0].backgroundColor = _cache.cores.slice()
+      }
+    } else {
+      /* Bar: destaca barra ativa com brilho */
+      _inst.data.datasets[0].backgroundColor = _cache.cores.map(function(c, i) {
+        return i === idx ? c : _hexAlpha(c, idx >= 0 ? 0.35 : 1)
+      })
+    }
+
+    _inst.update('active')
+
+    /* Sincroniza lista lateral */
+    document.querySelectorAll('.ceo-slice-item').forEach(function(el) {
+      var i = parseInt(el.getAttribute('data-idx'), 10)
+      el.classList.toggle('ceo-active', i === idx)
+      if (i === idx) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    })
+    /* Sincroniza barras horizontais */
+    document.querySelectorAll('.ceo-bar-track').forEach(function(el) {
+      var i = parseInt(el.getAttribute('data-idx'), 10)
+      el.classList.toggle('ceo-bar-active', i === idx)
+    })
+  }
+
+  /* ── Converte cor para rgba com alpha reduzido ── */
+  function _hexAlpha(cor, alpha) {
+    /* Suporta hex #rrggbb, rgb(), rgba() e nomes de cor */
+    try {
+      var tmp = document.createElement('div')
+      tmp.style.color = cor
+      document.body.appendChild(tmp)
+      var computed = getComputedStyle(tmp).color
+      document.body.removeChild(tmp)
+      var m = computed.match(/\d+/g)
+      if (m && m.length >= 3) {
+        return 'rgba(' + m[0] + ',' + m[1] + ',' + m[2] + ',' + alpha + ')'
+      }
+    } catch(e) {}
+    return cor
+  }
+
+  /* ── Exibe o cartão de detalhe flutuante ── */
+  function _mostrarDetail(idx, x, y) {
+    var { labels, valores, total, cores } = _cache
+    var label = labels[idx] || '—'
+    var val   = valores[idx] || 0
+    var pct   = total > 0 ? ((val/total)*100).toFixed(1) : '0.0'
+    var cor   = cores[idx]  || '#4361ee'
+    /* Ranking */
+    var rank  = valores.slice().sort(function(a,b) { return b-a }).indexOf(val) + 1
+
+    _el('ceoDetailColor').style.background = cor
+    _el('ceoDetailName').textContent        = label
+    _el('ceoDetailVal').textContent         = _fmt(val)
+    _el('ceoDetailPct').textContent         = pct + '%'
+    _el('ceoDetailRank').textContent        = rank + 'º de ' + labels.length
+    _el('ceoDetailBarFill').style.background = cor
+    _el('ceoDetailBarFill').style.width      = pct + '%'
+
+    var card = _el('ceoDetailCard')
+    var wrap = _el('ceoCanvasWrap')
+    var ww   = wrap.offsetWidth, wh = wrap.offsetHeight
+    var cw   = 220, ch = 140
+
+    /* Posiciona o card evitando sair do painel */
+    var cx = Math.min(x + 16, ww - cw - 10)
+    var cy = Math.min(y - 10, wh - ch - 10)
+    cx = Math.max(cx, 10); cy = Math.max(cy, 10)
+
+    card.style.left = cx + 'px'
+    card.style.top  = cy + 'px'
+    card.classList.add('ceo-detail-visible')
+  }
+
+  function _esconderDetail() {
+    var card = _el('ceoDetailCard')
+    if (card) card.classList.remove('ceo-detail-visible')
+  }
+
+  /* ── Renderiza lista lateral de fatias ── */
+  function _renderizarLateral() {
+    var { labels, valores, cores, total } = _cache
+    var lista = _el('ceoSlicesList')
+    if (!lista) return
+
+    var itens = labels.map(function(lbl, i) {
+      return { idx: i, label: lbl, valor: valores[i] || 0, cor: cores[i] || '#ccc' }
+    }).sort(function(a,b) { return b.valor - a.valor })
+
+    lista.innerHTML = itens.map(function(item) {
+      var pct  = total > 0 ? ((item.valor/total)*100) : 0
+      var peq  = pct < 2
+      return '<div class="ceo-slice-item' + (peq ? ' ceo-slice-small' : '') + '" ' +
+             'data-idx="' + item.idx + '" ' +
+             'onclick="ceoClicarFatia(' + item.idx + ')" ' +
+             'title="' + item.label + ': ' + _fmt(item.valor) + ' (' + pct.toFixed(1) + '%)">' +
+               '<span class="ceo-slice-dot" style="background:' + item.cor + ';"></span>' +
+               '<span class="ceo-slice-info">' +
+                 '<div class="ceo-slice-label">' + item.label + '</div>' +
+                 '<div class="ceo-slice-val">' + _fmt(item.valor) + '</div>' +
+               '</span>' +
+               '<span class="ceo-slice-pct">' + pct.toFixed(1) + '%</span>' +
+             '</div>'
+    }).join('')
+  }
+
+  /* ── Renderiza painel de barras horizontais ── */
+  function _renderizarBarras() {
+    var { labels, valores, cores, total } = _cache
+    var wrap = _el('ceoBarsWrap')
+    if (!wrap) return
+
+    /* Ordena por valor decrescente */
+    var itens = labels.map(function(lbl, i) {
+      return { idx: i, label: lbl, valor: valores[i] || 0, cor: cores[i] || '#4361ee' }
+    }).sort(function(a,b) { return b.valor - a.valor })
+
+    var maxVal = itens[0] ? itens[0].valor : 1
+
+    wrap.innerHTML = itens.map(function(item, pos) {
+      var pct    = total > 0 ? ((item.valor/total)*100).toFixed(1) : '0.0'
+      var barPct = maxVal > 0 ? ((item.valor/maxVal)*100).toFixed(2) : '0'
+      var delay  = pos * 35  // animação escalonada
+
+      return '<div class="ceo-bar-row" style="animation-delay:' + delay + 'ms">' +
+               '<div class="ceo-bar-label" title="' + item.label + '" ' +
+                    'onclick="ceoClicarFatia(' + item.idx + ')">' + item.label + '</div>' +
+               '<div class="ceo-bar-track" data-idx="' + item.idx + '" ' +
+                    'onclick="ceoClicarBarraH(' + item.idx + ',event)">' +
+                 '<div class="ceo-bar-fill" style="width:0%;background:' + item.cor + ';" ' +
+                      'data-w="' + barPct + '"></div>' +
+                 '<span class="ceo-bar-pct-inline">' + pct + '%</span>' +
+               '</div>' +
+               '<div class="ceo-bar-val">' + _fmt(item.valor) + '</div>' +
+             '</div>'
+    }).join('')
+
+    /* Anima barras após render (rAF garante que o DOM já pintou) */
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        wrap.querySelectorAll('.ceo-bar-fill').forEach(function(el) {
+          el.style.width = el.getAttribute('data-w') + '%'
+        })
+      })
+    })
+  }
+
+  /* ── Click em barra horizontal ── */
+  window.ceoClicarBarraH = function(idx, evt) {
+    _destacarFatia(_ativo === idx ? -1 : idx)
+    if (_ativo >= 0) {
+      var wrap = _el('ceoBarsWrap').getBoundingClientRect()
+      _mostrarDetail(idx, evt.clientX - wrap.left, evt.clientY - wrap.top)
+    } else {
+      _esconderDetail()
+    }
+  }
+
+  /* ── Click na lista lateral ── */
+  window.ceoClicarFatia = function(idx) {
+    var novo = _ativo === idx ? -1 : idx
+    _destacarFatia(novo)
+
+    /* Se estamos no modo gráfico e é um gráfico de pizza, mostra detail card */
+    if (_modo === 'grafico' && _cache.isPie && novo >= 0) {
+      /* Obtém coordenadas aproximadas do centro da fatia */
+      var canvas = _el('ceoCanvas')
+      if (canvas && _inst) {
+        var meta = _inst.getDatasetMeta(0)
+        if (meta && meta.data && meta.data[novo]) {
+          var elem = meta.data[novo]
+          var wrap = _el('ceoCanvasWrap').getBoundingClientRect()
+          var ex   = elem.x + (elem.outerRadius || 60) * Math.cos(elem.startAngle + (elem.endAngle - elem.startAngle)/2) * 0.6
+          var ey   = elem.y + (elem.outerRadius || 60) * Math.sin(elem.startAngle + (elem.endAngle - elem.startAngle)/2) * 0.6
+          _mostrarDetail(novo, ex, ey)
+        } else {
+          _esconderDetail()
+        }
+      }
+    } else if (_modo === 'barras' && novo >= 0) {
+      var barEl = document.querySelector('.ceo-bar-track[data-idx="' + novo + '"]')
+      if (barEl) {
+        var rect = barEl.getBoundingClientRect()
+        var wrap = _el('ceoBarsWrap').getBoundingClientRect()
+        _mostrarDetail(novo, rect.right - wrap.left + 10, rect.top - wrap.top)
+      }
+    } else {
+      _esconderDetail()
+    }
+  }
+
+})()
+/* ── fim MÓDULO CHART EXPLORER v2 ── */
 </script>
