@@ -7,14 +7,6 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
 
 <head>
 
-<!-- theme-color PRIMEIRO — Safari lê no parse inicial, antes de qualquer CSS.
-     Posição aqui garante barra transparente desde o primeiro pixel renderizado. -->
-<meta name="theme-color" content="transparent">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta charset="UTF-8">
-
 <!-- =====================================================
      LIQUID GLASS CRÍTICO — carrega antes de tudo
      Garante que o header já nasça com o efeito pill
@@ -77,6 +69,12 @@ SEÇÃO 1 — CONFIGURAÇÕES DA PÁGINA
   }
 </style>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- Barras do Safari sempre transparentes (superior e inferior) -->
+<meta name="theme-color" content="transparent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title id="pageTitle">PCA - Rio Verde</title>
 <link rel="icon" id="pageFavicon" type="image/png" href="">
 
@@ -6455,9 +6453,420 @@ tr.selecionada > td { background: var(--accent-soft) !important; }
     box-shadow: none !important;
   }
 }
+/* =====================================================
+   ASSISTENTE IA — PCA Copilot
+   Botão flutuante + painel de chat Liquid Glass
+   Integração: Claude API (claude-sonnet-4-6) tool_use
+===================================================== */
+#aiCopilotBtn {
+  position: fixed; bottom: 108px; right: 24px; z-index: 910;
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.55);
+  background: linear-gradient(145deg, #4361ee 0%, #7c3aed 100%);
+  box-shadow: 0 8px 24px rgba(67,97,238,0.38), inset 0 1px 0 rgba(255,255,255,0.28);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff;
+  transition: transform 0.24s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s ease;
+  will-change: transform;
+}
+#aiCopilotBtn:hover { transform: scale(1.10); box-shadow: 0 12px 32px rgba(67,97,238,0.50), inset 0 1px 0 rgba(255,255,255,0.32); }
+#aiCopilotBtn:active { transform: scale(0.94); }
+#aiCopilotBtn.ai-ready::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  border: 1.5px solid rgba(67,97,238,0.35); animation: aiPulse 2.4s ease-in-out infinite;
+}
+@keyframes aiPulse { 0%,100%{opacity:0;transform:scale(1)} 50%{opacity:1;transform:scale(1.18)} }
+#aiCopilotBtn .ai-typing-dot {
+  position: absolute; top: 6px; right: 6px; width: 10px; height: 10px; border-radius: 50%;
+  background: #10b981; border: 1.5px solid #fff; display: none;
+  animation: aiDotPop 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+#aiCopilotBtn.ai-loading .ai-typing-dot { display: block; }
+@keyframes aiDotPop { from{transform:scale(0)} to{transform:scale(1)} }
+
+#aiCopilotPanel {
+  position: fixed; bottom: 170px; right: 24px; z-index: 1080;
+  width: min(400px, calc(100vw - 32px)); max-height: min(600px, calc(100vh - 200px));
+  display: flex; flex-direction: column;
+  background: var(--lg-bg-strong);
+  backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--lg-blur-lg)) saturate(180%);
+  border: 1px solid var(--lg-border); border-radius: 22px;
+  box-shadow: var(--lg-shadow-xl), inset 0 1px 0 rgba(255,255,255,0.90), inset 0 -1px 0 rgba(255,255,255,0.12);
+  overflow: hidden; opacity: 0; transform: scale(0.88) translateY(16px);
+  pointer-events: none; transform-origin: bottom right;
+  transition: opacity 0.28s cubic-bezier(.22,1,.36,1), transform 0.28s cubic-bezier(.22,1,.36,1);
+}
+#aiCopilotPanel.ai-open { opacity: 1; transform: scale(1) translateY(0); pointer-events: all; }
+@supports not (backdrop-filter: blur(1px)) { #aiCopilotPanel { background: var(--surface); } }
+
+.ai-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px 12px; border-bottom: 1px solid var(--lg-border-dim);
+  background: linear-gradient(180deg, rgba(67,97,238,0.06) 0%, transparent 100%); flex-shrink: 0;
+}
+.ai-panel-header-left { display: flex; align-items: center; gap: 10px; }
+.ai-panel-avatar {
+  width: 36px; height: 36px; border-radius: 11px;
+  background: linear-gradient(145deg, #4361ee, #7c3aed);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(67,97,238,0.30), inset 0 1px 0 rgba(255,255,255,0.25);
+}
+.ai-panel-title { font-size: 13.5px; font-weight: 700; color: var(--text); letter-spacing: -0.2px; }
+.ai-panel-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.ai-panel-close {
+  width: 28px; height: 28px; background: rgba(0,0,0,0.05); border: 1px solid var(--lg-border-dim);
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+.ai-panel-close:hover { background: rgba(0,0,0,0.10); color: var(--text); transform: rotate(90deg); }
+
+/* ── Chat de Suporte Humano — abas e estilos ──────────────── */
+.ai-tab-bar {
+  display: flex; gap: 0; border-bottom: 1px solid var(--lg-border-dim);
+  flex-shrink: 0; padding: 0 16px; background: rgba(0,0,0,.02);
+}
+.ai-tab-btn {
+  flex: 1; padding: 9px 4px 8px; background: none; border: none;
+  border-bottom: 2px solid transparent; font-size: 12px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; display: inline-flex;
+  align-items: center; justify-content: center; gap: 5px;
+  transition: color .18s, border-color .18s; font-family: inherit;
+  margin-bottom: -1px;
+}
+.ai-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.ai-tab-btn:hover:not(.active) { color: var(--text); }
+.ai-tab-pane { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.ai-tab-pane.active { display: flex; }
+
+/* Badge de notificação na aba suporte */
+.ai-tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px;
+  background: #ef4444; color: #fff; font-size: 9px; font-weight: 800;
+  line-height: 1; visibility: hidden;
+}
+.ai-tab-badge.visible { visibility: visible; }
+
+/* Mensagens do suporte */
+.sup-messages {
+  flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+}
+.sup-messages::-webkit-scrollbar { width: 4px; }
+.sup-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.sup-msg { display: flex; gap: 8px; align-items: flex-end;
+  animation: aiMsgIn .28s cubic-bezier(.22,1,.36,1) both; }
+.sup-msg.sup-msg-user { flex-direction: row-reverse; }
+.sup-msg-bubble {
+  max-width: 82%; padding: 9px 13px; border-radius: 16px;
+  font-size: 12.5px; line-height: 1.55; font-family: 'Inter',system-ui,sans-serif;
+}
+.sup-msg-suporte .sup-msg-bubble {
+  background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim);
+  color: var(--text); border-bottom-left-radius: 5px;
+}
+.sup-msg-user .sup-msg-bubble {
+  background: linear-gradient(135deg,#059669,#047857); color: #fff;
+  border-bottom-right-radius: 5px; box-shadow: 0 2px 8px rgba(5,150,105,.25);
+}
+.sup-msg-meta {
+  font-size: 10px; color: var(--text-muted); margin-top: 3px;
+  padding: 0 4px; text-align: right;
+}
+.sup-msg-suporte .sup-msg-meta { text-align: left; }
+.sup-msg-icon {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(145deg,#059669,#047857);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Estado vazio / conectando */
+.sup-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 10px; padding: 24px 16px; text-align: center;
+}
+.sup-empty-icon {
+  width: 48px; height: 48px; border-radius: 16px;
+  background: linear-gradient(145deg,#059669,#047857);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(5,150,105,.25);
+}
+.sup-empty-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.sup-empty-sub { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+
+/* Status online/aguardando */
+.sup-status-bar {
+  display: flex; align-items: center; gap: 6px; padding: 7px 16px;
+  font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--lg-border-dim);
+  background: rgba(5,150,105,.04); flex-shrink: 0;
+}
+.sup-status-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: #94a3b8;
+}
+.sup-status-dot.online  { background: #10b981; animation: aiPulse 2s ease-in-out infinite; }
+.sup-status-dot.waiting { background: #f59e0b; }
+
+/* Input do suporte */
+.sup-input-wrap {
+  display: flex; align-items: flex-end; gap: 8px; padding: 10px 14px 14px;
+  border-top: 1px solid var(--lg-border-dim); flex-shrink: 0;
+}
+.sup-input {
+  flex: 1; background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim);
+  border-radius: 14px; padding: 9px 13px; font-family: 'Inter',system-ui,sans-serif;
+  font-size: 13px; color: var(--text); outline: none; resize: none;
+  min-height: 38px; max-height: 120px; line-height: 1.5;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: border-color .18s, box-shadow .18s;
+}
+.sup-input::placeholder { color: var(--text-light); }
+.sup-input:focus { border-color: rgba(5,150,105,.35); box-shadow: 0 0 0 3px rgba(5,150,105,.08); }
+.sup-send-btn {
+  width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg,#059669,#047857); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 2px 8px rgba(5,150,105,.28);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .2s;
+}
+.sup-send-btn:hover { transform: scale(1.08); }
+.sup-send-btn:active { transform: scale(0.92); }
+.sup-send-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.ai-messages {
+  flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+}
+.ai-messages::-webkit-scrollbar { width: 4px; }
+.ai-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.ai-msg { display: flex; gap: 8px; align-items: flex-end; animation: aiMsgIn 0.28s cubic-bezier(.22,1,.36,1) both; }
+@keyframes aiMsgIn { from{opacity:0;transform:translateY(8px) scale(0.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+.ai-msg.ai-msg-user { flex-direction: row-reverse; }
+.ai-msg-bubble { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.55; font-family: 'Inter',system-ui,sans-serif; }
+.ai-msg-assistant .ai-msg-bubble { background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim); color: var(--text); border-bottom-left-radius: 5px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.ai-msg-user .ai-msg-bubble { background: linear-gradient(135deg,#4361ee,#6f42c1); color: #fff; border-bottom-right-radius: 5px; box-shadow: 0 2px 8px rgba(67,97,238,0.28); }
+.ai-msg-icon { width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0; background: linear-gradient(145deg,#4361ee,#7c3aed); display: flex; align-items: center; justify-content: center; }
+.ai-typing { display: flex; gap: 4px; align-items: center; padding: 12px 14px; }
+.ai-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: aiTypingDot 1.2s infinite ease-in-out; opacity: 0.5; }
+.ai-typing span:nth-child(1){animation-delay:0s} .ai-typing span:nth-child(2){animation-delay:.18s} .ai-typing span:nth-child(3){animation-delay:.36s}
+@keyframes aiTypingDot { 0%,80%,100%{transform:scale(0.7);opacity:.4} 40%{transform:scale(1.1);opacity:1} }
+
+.ai-result-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 8px; }
+.ai-result-table th { background: rgba(67,97,238,0.10); color: var(--accent); padding: 5px 8px; text-align: left; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+.ai-result-table td { padding: 5px 8px; border-bottom: 1px solid var(--lg-border-dim); color: var(--text); }
+.ai-result-table tr:last-child td { border-bottom: none; }
+.ai-action-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; background: rgba(67,97,238,0.10); border: 1px solid rgba(67,97,238,0.20); color: var(--accent); font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; margin: 2px; transition: background .15s, transform .15s; }
+.ai-action-chip:hover { background: rgba(67,97,238,0.18); transform: translateY(-1px); }
+
+.ai-suggestions { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 14px 4px; border-top: 1px solid var(--lg-border-dim); flex-shrink: 0; }
+.ai-suggestion-chip { padding: 5px 11px; background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim); border-radius: 20px; font-size: 11.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; white-space: nowrap; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background .18s, color .18s, border-color .18s; }
+.ai-suggestion-chip:hover { background: var(--accent-soft); border-color: rgba(67,97,238,.25); color: var(--accent); }
+.ai-faq-chip { display: block; width: 100%; padding: 10px 13px; background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim); border-radius: 10px; font-size: 12.5px; font-weight: 500; color: var(--text); cursor: pointer; text-align: left; font-family: inherit; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background .18s, border-color .18s, transform .15s; }
+.ai-faq-chip:hover { background: var(--accent-soft); border-color: rgba(67,97,238,.25); color: var(--accent); transform: translateX(2px); }
+
+.ai-input-wrap { display: flex; align-items: flex-end; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--lg-border-dim); flex-shrink: 0; }
+.ai-input { flex: 1; background: var(--lg-bg-sm); border: 1px solid var(--lg-border-dim); border-radius: 14px; padding: 10px 14px; font-family: 'Inter',system-ui,sans-serif; font-size: 13px; color: var(--text); outline: none; resize: none; min-height: 40px; max-height: 120px; line-height: 1.5; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: border-color .18s, box-shadow .18s; }
+.ai-input::placeholder { color: var(--text-light); }
+.ai-input:focus { border-color: rgba(67,97,238,.35); box-shadow: 0 0 0 3px rgba(67,97,238,.08); }
+.ai-send-btn { width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0; background: linear-gradient(135deg,#4361ee,#7c3aed); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 2px 8px rgba(67,97,238,.30); transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, opacity .2s; }
+.ai-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(67,97,238,.40); }
+.ai-send-btn:active { transform: scale(0.92); }
+.ai-send-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+.ai-api-notice { margin: 8px 14px; padding: 10px 13px; background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.22); border-radius: 11px; font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+.ai-api-notice strong { color: var(--text); }
+
+@media (max-width: 600px) {
+  #aiCopilotBtn { bottom: 100px; right: 16px; }
+  #aiCopilotPanel { bottom: 0; right: 0; left: 0; width: 100%; border-radius: 22px 22px 0 0; max-height: 80vh; transform-origin: bottom center; }
+}
+@media print { #aiCopilotBtn, #aiCopilotPanel { display: none !important; } }
+
+/* ── Suporte Admin ──────────────────────────────────────── */
+.sup-admin-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  height: calc(100vh - 200px);
+  min-height: 480px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+@media (max-width: 860px) {
+  .sup-admin-layout { grid-template-columns: 1fr; height: auto; }
+  .sup-admin-list   { max-height: 240px; }
+}
+.sup-admin-list {
+  border-right: 1.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface2);
+}
+.sup-admin-list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  font-size: 12px; font-weight: 700; color: var(--text); flex-shrink: 0;
+}
+.sup-admin-list-body {
+  flex: 1; overflow-y: auto; padding: 6px 0;
+}
+.sup-admin-list-body::-webkit-scrollbar { width: 4px; }
+.sup-admin-list-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.sup-conv-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background .15s, border-color .15s;
+}
+.sup-conv-item:hover  { background: var(--surface3, rgba(0,0,0,.04)); }
+.sup-conv-item.active { background: rgba(5,150,105,.07); border-left-color: #059669; }
+.sup-conv-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg,#4361ee,#7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff;
+}
+.sup-conv-info { flex: 1; min-width: 0; }
+.sup-conv-nome { font-size: 12.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sup-conv-preview { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.sup-conv-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.sup-conv-hora { font-size: 10px; color: var(--text-muted); }
+.sup-conv-new {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #059669; flex-shrink: 0;
+  display: none;
+}
+.sup-conv-new.visible { display: block; }
+
+/* Painel de chat admin */
+.sup-admin-chat {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  overflow: hidden;
+}
+.sup-admin-chat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--surface2);
+}
+.sup-admin-chat-msgs {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  scroll-behavior: smooth;
+}
+.sup-admin-chat-msgs::-webkit-scrollbar { width: 5px; }
+.sup-admin-chat-msgs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.sup-admin-chat-input {
+  display: flex; align-items: flex-end; gap: 10px;
+  padding: 12px 20px 16px; border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sup-admin-textarea {
+  flex: 1; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 10px 14px; font-family: inherit;
+  font-size: 13px; color: var(--text); resize: none; outline: none;
+  min-height: 42px; max-height: 120px; line-height: 1.5;
+  transition: border-color .18s;
+}
+.sup-admin-textarea:focus { border-color: rgba(5,150,105,.4); }
+.sup-admin-send {
+  width: 42px; height: 42px; border-radius: 11px; flex-shrink: 0;
+  background: linear-gradient(135deg,#059669,#047857); border: none;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,.28);
+  transition: transform .2s, opacity .2s;
+}
+.sup-admin-send:hover   { transform: scale(1.07); }
+.sup-admin-send:active  { transform: scale(0.93); }
+.sup-admin-send:disabled{ opacity: .45; cursor: not-allowed; transform: none; }
+.sup-admin-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 10px; color: var(--text-muted); font-size: 13px;
+  padding: 32px;
+}
+
+/* Mensagens no admin (reutiliza estilos sup-msg do frontend) */
+.sup-admin-chat-msgs .sup-msg-bubble {
+  max-width: 75%; padding: 9px 13px; border-radius: 14px;
+  font-size: 13px; line-height: 1.55; font-family: inherit;
+}
+.sup-admin-chat-msgs .msg-admin .sup-msg-bubble {
+  background: linear-gradient(135deg,#059669,#047857); color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 6px rgba(5,150,105,.22);
+}
+.sup-admin-chat-msgs .msg-usuario .sup-msg-bubble {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-bottom-left-radius: 4px;
+}
+.sup-admin-chat-msgs .msg-row {
+  display: flex; gap: 8px; align-items: flex-end;
+}
+.sup-admin-chat-msgs .msg-row.msg-admin { flex-direction: row-reverse; }
+.sup-msg-time { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding: 0 4px; }
+.msg-admin .sup-msg-time { text-align: right; }
+
+/* Botão WhatsApp — usado no painel admin e painel usuário */
+.btn-whatsapp {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 13px; border-radius: 20px; border: none; cursor: pointer;
+  background: #25d366; color: #fff; font-size: 12px; font-weight: 700;
+  font-family: inherit; white-space: nowrap; text-decoration: none;
+  flex-shrink: 0; transition: background .18s, transform .18s, box-shadow .18s;
+  box-shadow: 0 2px 8px rgba(37,211,102,.30);
+}
+.btn-whatsapp:hover  { background: #1ebe5d; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,211,102,.38); }
+.btn-whatsapp:active { transform: scale(0.96); }
+
+/* ── FAQ CONFIG ─────────────────────────────────────────── */
+.faq-card { background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;transition:border-color .18s,box-shadow .18s; }
+.faq-card:hover { border-color:rgba(234,88,12,.35);box-shadow:0 2px 12px rgba(234,88,12,.08); }
+.faq-card-pergunta { font-size:13.5px;font-weight:700;color:var(--text);line-height:1.4; }
+.faq-card-resposta { font-size:12.5px;color:var(--text-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+.faq-card-keywords { display:flex;flex-wrap:wrap;gap:5px;margin-top:2px; }
+.faq-kw-tag { padding:2px 9px;background:rgba(234,88,12,.09);border:1px solid rgba(234,88,12,.20);border-radius:99px;font-size:10.5px;font-weight:600;color:#ea580c; }
+.faq-card-actions { display:flex;gap:8px;margin-top:4px;padding-top:10px;border-top:1px solid var(--border); }
+.faq-btn-edit,.faq-btn-del { display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s; }
+.faq-btn-edit { background:var(--surface);color:var(--text); }
+.faq-btn-edit:hover { border-color:rgba(234,88,12,.4);color:#ea580c;background:rgba(234,88,12,.06); }
+.faq-btn-del  { background:var(--surface);color:#ef4444;border-color:rgba(239,68,68,.25); }
+.faq-btn-del:hover  { background:rgba(239,68,68,.08);border-color:#ef4444; }
+
+/* ── TUTORIAL OVERLAY ───────────────────────────────────── */
+#tutorialOverlay { position:fixed;inset:0;z-index:2000;pointer-events:none;background:rgba(10,14,30,.40);opacity:0;transition:opacity .28s; }
+/* overlay nunca captura mouse — events passam para elementos abaixo */
+#tutorialOverlay.ativo { opacity:1;pointer-events:none; }
+#tutorialBanner { position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);z-index:2010;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:14px;font-size:13px;box-shadow:0 8px 28px rgba(0,0,0,.40);border:1px solid rgba(255,255,255,.15);opacity:0;transition:opacity .28s,transform .28s;white-space:nowrap; }
+#tutorialBanner.ativo { opacity:1;transform:translateX(-50%) translateY(0); }
+#tutorialBanner button { padding:7px 16px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s; }
+#tutorialBanner button:hover { background:rgba(255,255,255,.25); }
+.tutorial-tooltip { position:fixed;z-index:2020;background:var(--surface);border:1.5px solid rgba(124,58,237,.35);border-radius:12px;padding:12px 15px;max-width:280px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.20);pointer-events:none;opacity:0;transform:scale(.94) translateY(6px);transition:opacity .22s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1); }
+.tutorial-tooltip.visivel { opacity:1;transform:scale(1) translateY(0); }
+.tutorial-tooltip-titulo { font-size:12px;font-weight:800;color:#7c3aed;margin-bottom:5px; }
+.tutorial-tooltip-texto  { font-size:12px;color:var(--text);line-height:1.55; }
+[data-tutorial] { outline:2px solid transparent;outline-offset:3px;transition:outline-color .22s,box-shadow .22s; }
+body.tutorial-ativo [data-tutorial] { cursor:help !important; }
+body.tutorial-ativo [data-tutorial]:hover { outline-color:rgba(124,58,237,.70);box-shadow:0 0 0 4px rgba(124,58,237,.12); }
 
 </style>
 <body>
+
+<!-- Tutorial overlay + tooltip (renderizados pelo módulo _tutorial) -->
+<div id="tutorialOverlay"></div>
+<div id="tutorialBanner">
+  <i data-lucide="graduation-cap" style="width:18px;height:18px;flex-shrink:0;opacity:.9;"></i>
+  <span>Passe o mouse sobre os elementos destacados</span>
+  <button onclick="tutorialProximo()" style="background:rgba(255,255,255,.20);">Pr&#xF3;ximo</button>
+  <button onclick="tutorialEncerrar()">Encerrar</button>
+</div>
+<div id="tutorialTooltip" class="tutorial-tooltip">
+  <div class="tutorial-tooltip-titulo" id="tutorialTitulo"></div>
+  <div class="tutorial-tooltip-texto" id="tutorialTexto"></div>
+</div>
 
 <!-- =====================================================
 SEÇÃO 3 — ESTRUTURA HTML
@@ -6729,6 +7138,8 @@ MODAL DE CONFIGURAÇÕES
       <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:4px 12px 8px;">Integração</div>
       <button class="cfg-nav-item active" id="cfgNav-sheets"     onclick="cfgMostrarSecao('sheets')"><i data-lucide="sheet" style="width:15px;height:15px;flex-shrink:0;"></i><span>Google Sheets</span></button>
       <button class="cfg-nav-item"        id="cfgNav-api"         onclick="cfgMostrarSecao('api')"><i data-lucide="key" style="width:15px;height:15px;flex-shrink:0;"></i><span>Chave de API</span></button>
+      <button class="cfg-nav-item"        id="cfgNav-ia-copilot"  onclick="cfgMostrarSecao('ia-copilot')" style="background:linear-gradient(135deg,rgba(67,97,238,.12),rgba(124,58,237,.06));color:#7c3aed;font-weight:700;"><i data-lucide="sparkles" style="width:15px;height:15px;flex-shrink:0;"></i><span>IA Copilot</span></button>
+      <button class="cfg-nav-item" id="cfgNav-faq" onclick="cfgMostrarSecao('faq')" style="background:linear-gradient(135deg,rgba(234,88,12,.10),rgba(234,88,12,.04));color:#ea580c;font-weight:700;"><i data-lucide="help-circle" style="width:15px;height:15px;flex-shrink:0;"></i><span>FAQ</span></button>
       <button class="cfg-nav-item"        id="cfgNav-primeiro"    onclick="cfgMostrarSecao('primeiro')" style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.05));color:#059669;font-weight:700;"><i data-lucide="rocket" style="width:15px;height:15px;flex-shrink:0;"></i><span>Primeiro Acesso</span></button>
       <button class="cfg-nav-item"        id="cfgNav-drive-sync"  onclick="cfgMostrarSecao('drive-sync')"><i data-lucide="refresh-cw" style="width:15px;height:15px;flex-shrink:0;"></i><span>Sync com Drive</span></button>
 
@@ -6748,6 +7159,15 @@ MODAL DE CONFIGURAÇÕES
       <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:16px 12px 8px;">Documentos</div>
       <button class="cfg-nav-item" id="cfgNav-declaracao-pca" onclick="cfgMostrarSecao('declaracao-pca')" style="background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.05));color:#059669;font-weight:700;"><i data-lucide="file-badge" style="width:15px;height:15px;flex-shrink:0;"></i><span>Declaracao PCA</span></button>
       <button class="cfg-nav-item" id="cfgNav-consulta-declaracao" onclick="cfgMostrarSecao('consulta-declaracao')" style="background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(16,185,129,.02));color:#047857;font-weight:700;"><i data-lucide="search" style="width:15px;height:15px;flex-shrink:0;"></i><span>Consulta Declaracao</span></button>
+
+      <!-- ── Suporte ───────────────────────────────────────────── -->
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:16px 12px 8px;">Suporte</div>
+      <button class="cfg-nav-item" id="cfgNav-suporte" onclick="cfgMostrarSecao('suporte')" style="background:linear-gradient(135deg,rgba(5,150,105,.10),rgba(5,150,105,.04));color:#059669;font-weight:700;">
+        <i data-lucide="message-circle" style="width:15px;height:15px;flex-shrink:0;"></i>
+        <span>Suporte
+          <span id="supAdminBadge" style="display:none;background:#059669;color:#fff;border-radius:99px;font-size:10px;padding:1px 6px;margin-left:4px;font-weight:800;"></span>
+        </span>
+      </button>
 
       <!-- ── Edições ────────────────────────────────────────── -->
       <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-muted);padding:16px 12px 8px;">Edições</div>
@@ -6926,6 +7346,141 @@ MODAL DE CONFIGURAÇÕES
             </div>
           </div>
           <div><button onclick="salvarConfiguracoes()" class="cfg-btn-save">💾 Salvar</button></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           SEÇÃO: IA COPILOT
+      ══════════════════════════════════════════ -->
+      <div id="cfgSec-ia-copilot" class="cfg-section" style="display:none;">
+        <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+          <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 6px;">IA Copilot</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin:0;">Configure o provedor de IA para o assistente do PCA. A chave é salva na aba <strong>IAAPI</strong> da planilha <strong>PCA_CONFIG</strong>.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px;max-width:560px;">
+
+          <!-- Toggle IA ativa/desativada -->
+          <div style="background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;">
+                <i data-lucide="sparkles" style="width:15px;height:15px;color:#7c3aed;"></i>
+                PCA Copilot ativo
+              </div>
+              <div id="iaToggleDesc" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <span id="iaToggleLabel" style="font-size:12px;font-weight:700;"></span>
+              <button id="iaToggleBtn" onclick="cfgIaToggle()"
+                style="position:relative;width:46px;height:26px;border-radius:13px;border:none;cursor:pointer;transition:background .22s;flex-shrink:0;outline:none;"
+                aria-role="switch" aria-label="Ativar/desativar IA">
+                <span id="iaToggleThumb"
+                  style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.22);transition:left .22s cubic-bezier(.34,1.56,.64,1);"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Seletor de provedor -->
+          <div class="cfg-field">
+            <label class="cfg-label">Provedor de IA</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <!-- Anthropic -->
+              <label id="cfgIaCardAnthropic" onclick="cfgIaSelecionarProvedor('anthropic')"
+                style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px solid var(--accent);border-radius:14px;cursor:pointer;background:var(--accent-soft);transition:all .18s;">
+                <input type="radio" name="cfgIaProvedor" value="anthropic" id="cfgIaRadioAnthropic" style="accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;">
+                <div>
+                  <div style="font-weight:700;font-size:13px;color:var(--text);">Anthropic</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Claude Sonnet — pago</div>
+                </div>
+              </label>
+              <!-- Gemini -->
+              <label id="cfgIaCardGemini" onclick="cfgIaSelecionarProvedor('gemini')"
+                style="display:flex;align-items:center;gap:12px;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;background:var(--surface2);transition:all .18s;">
+                <input type="radio" name="cfgIaProvedor" value="gemini" id="cfgIaRadioGemini" style="accent-color:#4285f4;width:16px;height:16px;flex-shrink:0;">
+                <div>
+                  <div style="font-weight:700;font-size:13px;color:var(--text);">Google Gemini</div>
+                  <div style="font-size:11px;color:#059669;font-weight:600;margin-top:2px;">Gratuito — 1.500 req/dia</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status da chave atual -->
+          <div id="cfgIaStatusBlock" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;">
+            <span id="cfgIaDot" style="width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0;"></span>
+            <span id="cfgIaStatusText" style="font-size:12px;font-weight:600;color:var(--text-muted);">Verificando...</span>
+          </div>
+
+          <!-- Campo chave Anthropic -->
+          <div class="cfg-field" id="cfgIaCampoAnthropic">
+            <label class="cfg-label">
+              Chave API Anthropic <span style="color:#ef4444">*</span>
+              <span style="background:rgba(124,58,237,.12);color:#7c3aed;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:6px;">IAAPI — ANTHROPIC</span>
+            </label>
+            <div style="position:relative;">
+              <input type="password" id="cfgAnthropicKey" class="cfg-input"
+                placeholder="sk-ant-api03-..."
+                style="padding-right:44px;font-family:monospace;font-size:13px;"
+                oninput="cfgIaAtualizarStatus()">
+              <button onclick="(function(){var i=document.getElementById('cfgAnthropicKey');i.type=i.type==='password'?'text':'password'})()"
+                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;"
+                title="Mostrar/ocultar" aria-label="Alternar visibilidade">👁</button>
+            </div>
+            <small class="cfg-hint">Obtenha em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;">console.anthropic.com → API Keys</a>. Começa com <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;">sk-ant-</code>.</small>
+          </div>
+
+          <!-- Campo chave Gemini -->
+          <div class="cfg-field" id="cfgIaCampoGemini" style="display:none;">
+            <label class="cfg-label">
+              Chave API Gemini <span style="color:#ef4444">*</span>
+              <span style="background:rgba(66,133,244,.12);color:#4285f4;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:6px;">IAAPI — GEMINI</span>
+            </label>
+            <div style="position:relative;">
+              <input type="password" id="cfgGeminiKey" class="cfg-input"
+                placeholder="AIzaSy..."
+                style="padding-right:44px;font-family:monospace;font-size:13px;"
+                oninput="cfgIaAtualizarStatus()">
+              <button onclick="(function(){var i=document.getElementById('cfgGeminiKey');i.type=i.type==='password'?'text':'password'})()"
+                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:16px;"
+                title="Mostrar/ocultar" aria-label="Alternar visibilidade">👁</button>
+            </div>
+            <small class="cfg-hint">Obtenha gratuitamente em <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:#4285f4;font-weight:600;">aistudio.google.com → API Keys</a>. Começa com <code style="background:var(--surface2);padding:1px 4px;border-radius:3px;">AIzaSy</code>. Limite: 1.500 req/dia gratuitos.</small>
+          </div>
+
+          <!-- Info armazenamento -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;">Armazenamento:</div>
+            <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--text-muted);line-height:1.6;">
+              <div style="display:flex;align-items:flex-start;gap:8px;">
+                <span style="background:rgba(124,58,237,.12);color:#7c3aed;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;">IAAPI</span>
+                Nome da IA em col A · Chave em col B (linhas: ANTHROPIC, GEMINI, PROVEDOR_ATIVO)
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:8px;">
+                <span style="background:rgba(67,97,238,.10);color:#4361ee;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;">LOCAL</span>
+                Salvo no localStorage para uso offline imediato
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:8px;">
+                <span style="background:rgba(16,185,129,.10);color:#059669;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;">BOOT</span>
+                Carregado automaticamente ao iniciar via Sheets API
+              </div>
+            </div>
+          </div>
+
+          <!-- Botões -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="cfgSalvarIaKey()" class="cfg-btn-save" id="btnSalvarIaKey">
+              Salvar Chave na PCA_CONFIG
+            </button>
+            <button onclick="cfgTestarIaKey()"
+              style="padding:10px 20px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;"
+              id="btnTestarIaKey">
+              Testar Conexão
+            </button>
+          </div>
+
+          <!-- Resultado do teste -->
+          <div id="cfgIaTesteResult" style="display:none;padding:12px 16px;border-radius:10px;font-size:12px;line-height:1.6;"></div>
+
         </div>
       </div>
 
@@ -9439,6 +9994,176 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 
       </div><!-- /cfgSec-aprovacao -->
 
+      <!-- ══════════════════════════════════════════════════════
+           FAQ — Perguntas & Respostas
+      ══════════════════════════════════════════════════════════ -->
+      <div id="cfgSec-faq" class="cfg-section" style="display:none;">
+
+        <!-- Cabeçalho -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border);">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 5px;font-family:'DM Sans','Inter',sans-serif;">FAQ</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin:0;">Gerencie as perguntas e respostas exibidas no Copilot. As FAQs são usadas como base de conhecimento na busca inteligente do chat.</p>
+          </div>
+          <button onclick="faqAbrirModal()" id="faqBtnNovo"
+            style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,#ea580c,#c2410c);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(234,88,12,.30);transition:opacity .15s;">
+            <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>Nova FAQ
+          </button>
+        </div>
+
+        <!-- Barra de busca -->
+        <div style="position:relative;margin-bottom:16px;">
+          <i data-lucide="search" style="position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-muted);pointer-events:none;"></i>
+          <input id="faqBusca" type="text" placeholder="Buscar por pergunta, resposta ou palavra-chave..."
+            oninput="faqFiltrar(this.value)"
+            style="width:100%;box-sizing:border-box;padding:10px 14px 10px 38px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .18s;">
+        </div>
+
+        <!-- Status -->
+        <div id="faqStatus" style="display:none;font-size:12.5px;padding:9px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:14px;"></div>
+
+        <!-- Contador -->
+        <div id="faqContador" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
+
+        <!-- Lista de FAQs -->
+        <div id="faqLista" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="padding:32px;text-align:center;color:var(--text-muted);font-size:13px;">
+            <i data-lucide="help-circle" style="width:36px;height:36px;opacity:.25;display:block;margin:0 auto 10px;"></i>
+            Carregando FAQs...
+          </div>
+        </div>
+
+      </div><!-- /cfgSec-faq -->
+
+      <!-- Modal FAQ -->
+      <div id="faqModal" style="display:none;position:fixed;inset:0;z-index:1300;background:rgba(10,14,30,.5);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);align-items:center;justify-content:center;">
+        <div style="background:var(--surface);border-radius:18px;padding:28px 32px;width:min(560px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2);border:1px solid var(--border);animation:lgDrop .34s cubic-bezier(.22,1,.36,1) both;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+            <h3 id="faqModalTitulo" style="font-size:17px;font-weight:800;color:var(--text);margin:0;">Nova FAQ</h3>
+            <button onclick="faqFecharModal()" style="background:rgba(0,0,0,.06);border:none;cursor:pointer;border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:background .15s;">
+              <i data-lucide="x" style="width:14px;height:14px;"></i>
+            </button>
+          </div>
+
+          <input type="hidden" id="faqModalId">
+
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="cfg-field">
+              <label class="cfg-label">Pergunta <span style="color:#ef4444;">*</span></label>
+              <input id="faqModalPergunta" type="text" class="cfg-input" placeholder="Ex: Como adicionar um item ao PCA?">
+            </div>
+            <div class="cfg-field">
+              <label class="cfg-label">Resposta <span style="color:#ef4444;">*</span></label>
+              <textarea id="faqModalResposta" class="cfg-input" rows="5"
+                style="resize:vertical;min-height:100px;font-family:inherit;line-height:1.6;"
+                placeholder="Escreva a resposta completa. Ela será exibida integralmente no chat."></textarea>
+            </div>
+            <div class="cfg-field">
+              <label class="cfg-label">Palavras-chave <span style="font-size:11px;font-weight:500;color:var(--text-muted);">(separadas por vírgula)</span></label>
+              <input id="faqModalKeywords" type="text" class="cfg-input" placeholder="Ex: pca, contratação, item, secretaria">
+              <small class="cfg-hint">Palavras-chave aumentam a precisão da busca inteligente no chat.</small>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:22px;">
+            <button onclick="faqFecharModal()"
+              style="padding:10px 20px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+              Cancelar
+            </button>
+            <button onclick="faqSalvar()" id="faqBtnSalvar"
+              style="padding:10px 22px;border-radius:10px;background:linear-gradient(135deg,#ea580c,#c2410c);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(234,88,12,.28);">
+              Salvar FAQ
+            </button>
+          </div>
+        </div>
+      </div><!-- /faqModal -->
+
+      <!-- ══════════════════════════════════════════════════════
+           SUPORTE — Painel de atendimento da equipe
+      ══════════════════════════════════════════════════════════ -->
+      <div id="cfgSec-suporte" class="cfg-section" style="display:none;">
+
+        <!-- Cabeçalho -->
+        <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 4px;font-family:'DM Sans','Inter',sans-serif;">Suporte</h2>
+            <p style="font-size:13px;color:var(--text-muted);margin:0;">Conversas abertas pelos usuários. Responda diretamente aqui — a mensagem aparece em tempo real no chat deles.</p>
+          </div>
+          <button onclick="supAdminCarregar()" id="supAdminBtnRefresh"
+            style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">
+            <i data-lucide="refresh-cw" style="width:13px;height:13px;"></i>Atualizar
+          </button>
+        </div>
+
+        <!-- Status -->
+        <div id="supAdminStatus" style="display:none;font-size:13px;padding:10px 14px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;"></div>
+
+        <!-- Layout lista + chat -->
+        <div class="sup-admin-layout">
+
+          <!-- Coluna esquerda: lista de conversas -->
+          <div class="sup-admin-list">
+            <div class="sup-admin-list-header">
+              <span>Conversas</span>
+              <span id="supAdminCount" style="font-size:11px;color:var(--text-muted);font-weight:500;"></span>
+            </div>
+            <div class="sup-admin-list-body" id="supAdminListBody">
+              <div style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;">
+                Carregando...
+              </div>
+            </div>
+          </div>
+
+          <!-- Coluna direita: chat ativo -->
+          <div class="sup-admin-chat" id="supAdminChatArea">
+
+            <!-- Estado inicial: nenhuma conversa selecionada -->
+            <div class="sup-admin-empty" id="supAdminChatEmpty">
+              <i data-lucide="message-circle" style="width:40px;height:40px;opacity:.25;"></i>
+              <span>Selecione uma conversa para responder</span>
+            </div>
+
+            <!-- Header da conversa ativa (oculto até selecionar) -->
+            <div class="sup-admin-chat-header" id="supAdminChatHeader" style="display:none;">
+              <div id="supAdminChatAvatar" class="sup-conv-avatar" style="width:34px;height:34px;font-size:12px;">?</div>
+              <div style="flex:1;min-width:0;">
+                <div id="supAdminChatNome" style="font-size:13px;font-weight:700;color:var(--text);"></div>
+                <div id="supAdminChatSub"  style="font-size:11px;color:var(--text-muted);margin-top:1px;"></div>
+              </div>
+              <!-- Botão WhatsApp: abre conversa com o usuário (telefone vem da sessão) -->
+              <a id="supAdminWaBtn"
+                 href="https://wa.me/5564984570020?text=Ol%C3%A1%21+Retornando+seu+contato+sobre+o+PCA."
+                 target="_blank" rel="noopener"
+                 class="btn-whatsapp"
+                 title="Continuar pelo WhatsApp — Diretoria de Planejamento"
+                 aria-label="Abrir WhatsApp">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                WhatsApp
+              </a>
+            </div>
+
+            <!-- Mensagens da conversa ativa -->
+            <div class="sup-admin-chat-msgs" id="supAdminChatMsgs" style="display:none;"></div>
+
+            <!-- Input de resposta -->
+            <div class="sup-admin-chat-input" id="supAdminChatInput" style="display:none;">
+              <textarea id="supAdminTextarea" class="sup-admin-textarea"
+                placeholder="Digite a resposta..." rows="1"
+                onkeydown="supAdminHandleKey(event)"
+                oninput="supAdminAutoResize(this)"></textarea>
+              <button id="supAdminSendBtn" class="sup-admin-send"
+                onclick="supAdminEnviar()" aria-label="Enviar resposta">
+                <i data-lucide="send" style="width:15px;height:15px;"></i>
+              </button>
+            </div>
+
+          </div><!-- /sup-admin-chat -->
+        </div><!-- /sup-admin-layout -->
+
+      </div><!-- /cfgSec-suporte -->
+
     </div><!-- /main -->
   </div><!-- /body -->
 </div>
@@ -9446,7 +10171,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 <div class="header-pill-wrap">
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
-    <button class="hamburger-btn" id="hamburgerBtn" onclick="abrirMenu()" title="Menu">
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="abrirMenu()" title="Menu" data-tutorial="menu">
       <span></span><span></span><span></span>
     </button>
     <div class="header-brand">
@@ -9522,7 +10247,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   <div id="bannerIgnoradas"></div>
 
   <!-- INDICADORES GERAIS -->
-  <div class="section-header" id="kpiGrid">
+  <div class="section-header" id="kpiGrid" data-tutorial="kpis">
     <div style="display:flex;align-items:center;gap:9px;">
       <div style="width:34px;height:34px;background:var(--accent-soft);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i data-lucide="layout-dashboard" style="width:17px;height:17px;color:var(--accent);"></i>
@@ -9973,7 +10698,7 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
   <!-- TABELA DE ITENS -->
   <div class="tabela-moderna-wrap">
     <div class="table-wrapper">
-      <table id="tabelaItens">
+      <table id="tabelaItens" data-tutorial="tabela">
         <thead>
           <tr>
             <th>LOCAL</th><th>SEQ.</th><th>CÓDIGO</th><th>PRODUTO</th>
@@ -10138,7 +10863,154 @@ Vinicius Fonseca Campos | Procuradoria Geral do Município</textarea>
 <!-- =====================================================
      FLOATING DOCK — Menu flutuante iOS-style
 ===================================================== -->
-<div id="floatingDock" role="navigation" aria-label="Ações rápidas">
+<!-- =====================================================
+     ASSISTENTE IA — PCA Copilot
+===================================================== -->
+
+<!-- Botão FAB -->
+<button id="aiCopilotBtn" onclick="aiTogglePanel()" aria-label="Assistente IA" title="Assistente PCA" data-tutorial="copilot">
+  <i data-lucide="sparkles" style="width:22px;height:22px;"></i>
+  <span class="ai-typing-dot"></span>
+</button>
+
+<!-- Painel de chat -->
+<div id="aiCopilotPanel" role="dialog" aria-modal="false" aria-label="Assistente PCA Copilot">
+
+  <!-- Header compacto -->
+  <div class="ai-panel-header">
+    <div class="ai-panel-header-left">
+      <div class="ai-panel-avatar">
+        <i data-lucide="sparkles" style="width:17px;height:17px;color:#fff;"></i>
+      </div>
+      <div>
+        <div class="ai-panel-title">PCA Copilot</div>
+        <div class="ai-panel-subtitle" id="aiPanelSubtitle">Assistente inteligente do PCA</div>
+      </div>
+    </div>
+    <button class="ai-panel-close" onclick="aiTogglePanel()" aria-label="Fechar">
+      <i data-lucide="x" style="width:13px;height:13px;"></i>
+    </button>
+  </div>
+
+  <!-- ── Modo IA desativada: FAQ dinâmico + Tutorial + WhatsApp ── -->
+  <div id="aiPane-faq" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+
+    <!-- Busca no FAQ -->
+    <div style="padding:12px 14px 8px;flex-shrink:0;border-bottom:1px solid var(--lg-border-dim);">
+      <div style="position:relative;">
+        <i data-lucide="search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:12px;height:12px;color:var(--text-muted);pointer-events:none;"></i>
+        <input id="aiFaqBusca" type="text" placeholder="Buscar nas perguntas..."
+          oninput="aiFaqFiltrarPainel(this.value)"
+          style="width:100%;box-sizing:border-box;padding:7px 10px 7px 28px;border:1px solid var(--lg-border-dim);border-radius:9px;background:var(--lg-bg-sm);color:var(--text);font-size:12px;font-family:inherit;outline:none;backdrop-filter:blur(8px);">
+      </div>
+    </div>
+
+    <!-- Chips FAQ (renderizados dinamicamente) -->
+    <div style="padding:10px 14px 6px;flex-shrink:0;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Perguntas frequentes</div>
+      <div style="display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;" id="aiFaqList">
+        <!-- populado por aiFaqRenderChips() -->
+      </div>
+    </div>
+
+    <!-- Mensagens do FAQ -->
+    <div class="ai-messages" id="aiFaqMessages" style="flex:1;min-height:0;"></div>
+
+    <!-- Rodapé: Tutorial + WhatsApp -->
+    <div style="padding:10px 14px 14px;border-top:1px solid var(--lg-border-dim);flex-shrink:0;display:flex;flex-direction:column;gap:7px;">
+      <button onclick="tutorialIniciar()"
+        style="display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border-radius:10px;background:var(--lg-bg-sm);border:1px solid var(--lg-border-dim);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .18s;">
+        <i data-lucide="graduation-cap" style="width:13px;height:13px;color:#7c3aed;flex-shrink:0;"></i>
+        Tutorial interativo da interface
+      </button>
+      <a href="https://wa.me/5564984570020?text=Ol%C3%A1%21+Preciso+de+ajuda+com+o+PCA."
+         target="_blank" rel="noopener" class="btn-whatsapp"
+         style="justify-content:center;padding:9px 14px;font-size:12px;border-radius:10px;"
+         aria-label="WhatsApp Diretoria de Planejamento">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Falar com a Diretoria de Planejamento
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Modo IA ativa: chat normal ────────────────── -->
+  <div id="aiPane-ia" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+    <div class="ai-messages" id="aiMessages"></div>
+    <div class="ai-suggestions" id="aiSuggestions">
+      <button class="ai-suggestion-chip" onclick="aiSendSuggestion(this.textContent)">Total por secretaria</button>
+      <button class="ai-suggestion-chip" onclick="aiSendSuggestion(this.textContent)">Itens de alta prioridade</button>
+      <button class="ai-suggestion-chip" onclick="aiSendSuggestion(this.textContent)">Valor total do PCA</button>
+      <button class="ai-suggestion-chip" onclick="aiSendSuggestion(this.textContent)">Itens com saldo esgotado</button>
+      <button class="ai-suggestion-chip" onclick="aiSendSuggestion(this.textContent)">Resumo por classificação</button>
+    </div>
+    <div style="padding:4px 14px 4px;display:flex;justify-content:flex-end;border-top:1px solid var(--lg-border-dim);">
+      <button onclick="tutorialIniciar()"
+        style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:8px;background:none;border:1px solid var(--lg-border-dim);color:var(--text-muted);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s,color .15s,border-color .15s;"
+        title="Ativar tutorial interativo — passe o mouse sobre os elementos">
+        <i data-lucide="graduation-cap" style="width:12px;height:12px;color:#7c3aed;flex-shrink:0;"></i>
+        Tutorial interativo
+      </button>
+    </div>
+    <div class="ai-input-wrap">
+      <textarea id="aiInput" class="ai-input"
+        placeholder="Pergunte sobre o PCA..." rows="1"
+        aria-label="Mensagem para o assistente"
+        onkeydown="aiHandleKey(event)" oninput="aiAutoResize(this)"></textarea>
+      <button class="ai-send-btn" id="aiSendBtn" onclick="aiEnviar()" aria-label="Enviar">
+        <i data-lucide="send" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── (Suporte removido do painel flutuante) ──── -->
+  <div id="aiPane-suporte" style="display:none;">
+
+    <!-- Status da equipe -->
+    <div class="sup-status-bar" id="supStatusBar">
+      <span class="sup-status-dot waiting" id="supStatusDot"></span>
+      <span id="supStatusText" style="flex:1;">Diretoria de Planejamento — PCA</span>
+      <a href="https://wa.me/5564984570020?text=Ol%C3%A1%21+Preciso+de+ajuda+com+o+PCA."
+         target="_blank" rel="noopener"
+         class="btn-whatsapp"
+         title="Falar pelo WhatsApp"
+         style="padding:4px 10px;font-size:11px;"
+         aria-label="WhatsApp">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="flex-shrink:0;">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        WA
+      </a>
+    </div>
+
+    <!-- Mensagens do suporte -->
+    <div class="sup-messages" id="supMessages">
+      <!-- Estado inicial -->
+      <div class="sup-empty" id="supEmpty">
+        <div class="sup-empty-icon">
+          <i data-lucide="message-circle" style="width:22px;height:22px;color:#fff;"></i>
+        </div>
+        <div class="sup-empty-title">Fale com nossa equipe</div>
+        <div class="sup-empty-sub">Envie sua mensagem e a<br><strong>Diretoria de Planejamento</strong><br>responderá diretamente aqui.</div>
+      </div>
+    </div>
+
+    <!-- Input do suporte -->
+    <div class="sup-input-wrap">
+      <textarea id="supInput" class="sup-input"
+        placeholder="Digite sua mensagem..." rows="1"
+        aria-label="Mensagem para o suporte"
+        onkeydown="supHandleKey(event)"
+        oninput="supAutoResize(this)"></textarea>
+      <button class="sup-send-btn" id="supSendBtn" onclick="supEnviar()" aria-label="Enviar">
+        <i data-lucide="send" style="width:15px;height:15px;"></i>
+      </button>
+    </div>
+
+  </div><!-- /aiPane-suporte -->
+
+</div>
+
+<div id="floatingDock" role="navigation" aria-label="Ações rápidas" data-tutorial="dock">
   <!-- Wrapper interno com scroll horizontal -->
   <div class="dock-scroll-inner">
 
@@ -11154,6 +12026,7 @@ function aparMostrarTab(id) {
   const CATALOGO = [
     { id:"sheets",         label:"Google Sheets",   icon:"sheet",         cor:"#4361ee" },
     { id:"api",            label:"Chave de API",    icon:"key",           cor:"#6b7280" },
+    { id:"ia-copilot",     label:"IA Copilot",      icon:"sparkles",      cor:"#7c3aed" },
     { id:"primeiro",       label:"Primeiro Acesso", icon:"rocket",        cor:"#059669" },
     { id:"drive-sync",     label:"Sync com Drive",  icon:"refresh-cw",    cor:"#6b7280" },
     { id:"pcas",           label:"Gerenciar PCAs",  icon:"layers",        cor:"#4361ee" },
@@ -11168,6 +12041,7 @@ function aparMostrarTab(id) {
     { id:"editar-itens",      label:"Editar Itens",    icon:"edit-3",        cor:"#d97706" },
     { id:"excluir-itens",     label:"Excluir Itens",   icon:"trash-2",       cor:"#dc2626" },
     { id:"declaracao-pca",    label:"Declaracao PCA",  icon:"file-badge",    cor:"#059669" },
+    { id:"faq",               label:"FAQ",             icon:"help-circle",   cor:"#ea580c" },
   ]
 
   /* ── Estado interno ───────────────────────────────────────── */
@@ -11845,6 +12719,7 @@ function aparMostrarTab(id) {
   const _ITENS = {
     "sheets":         { label:"Google Sheets",   icon:"sheet",        cor:null,      extra:"" },
     "api":            { label:"Chave de API",    icon:"key",          cor:null,      extra:"" },
+    "ia-copilot":     { label:"IA Copilot",      icon:"sparkles",     cor:"#7c3aed", gradiente:"rgba(67,97,238,.12),rgba(124,58,237,.06)" },
     "primeiro":       { label:"Primeiro Acesso", icon:"rocket",       cor:"#059669", gradiente:"rgba(16,185,129,.12),rgba(16,185,129,.05)" },
     "drive-sync":     { label:"Sync com Drive",  icon:"refresh-cw",   cor:null,      extra:"" },
     "pcas":           { label:"Gerenciar PCAs",  icon:"layers",       cor:"#4361ee", gradiente:"rgba(67,97,238,.12),rgba(67,97,238,.05)" },
@@ -11859,6 +12734,7 @@ function aparMostrarTab(id) {
     "editar-itens":   { label:"Editar Itens",    icon:"edit-3",       cor:"#d97706", gradiente:"rgba(245,158,11,.10),rgba(245,158,11,.04)" },
     "excluir-itens":  { label:"Excluir Itens",   icon:"trash-2",      cor:"#dc2626", gradiente:"rgba(239,68,68,.10),rgba(239,68,68,.04)" },
     "declaracao-pca": { label:"Declaracao PCA",  icon:"file-badge",   cor:"#059669", gradiente:"rgba(16,185,129,.10),rgba(16,185,129,.04)" },
+    "faq":            { label:"FAQ",             icon:"help-circle",  cor:"#ea580c", gradiente:"rgba(234,88,12,.10),rgba(234,88,12,.04)" },
   }
 
   /* Gera o HTML de um botão de nav idêntico ao original */
@@ -12653,6 +13529,9 @@ function cfgMostrarSecao(id) {
   if (id === "historico" && typeof window._histAplicarFiltroReparticao === "function") {
     window._histAplicarFiltroReparticao()
   }
+  // Ao abrir IA Copilot: preenche campo e atualiza status
+  if (id === "ia-copilot") cfgIaAbrirSecao()
+  if (id === "faq" && typeof faqCarregar === "function") faqCarregar()
   // Fecha sidebar automaticamente no mobile após selecionar seção
   if (window.innerWidth < 768) {
     const sidebar = document.getElementById('cfgSidebar')
@@ -12662,6 +13541,326 @@ function cfgMostrarSecao(id) {
   }
 }
 /* salvarConfiguracoes definida no bloco bootstrap abaixo */
+
+/* ──────────────────────────────────────────────────────────────
+   IA COPILOT — funções da seção de configuração
+   Salva a chave Anthropic na aba IAAPI da PCA_CONFIG e em
+   localStorage. Leitura feita em bootstrapSistema() no boot.
+   ────────────────────────────────────────────────────────────── */
+
+/* ── IA COPILOT — configuração e seleção de provedor ─────────────────
+   Suporta dois provedores: "anthropic" (pago) e "gemini" (gratuito).
+   As chaves ficam em IAAPI (estrutura vertical): col A=Nome da IA, col B=API Key.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Seleciona provedor e atualiza a UI */
+function cfgIaSelecionarProvedor(prov) {
+  AI_PROVIDER = prov
+  localStorage.setItem(LS.aiProvider, prov)
+  _cfgIaRenderProvedor()
+  cfgIaAtualizarStatus()
+  // Persiste o provedor selecionado na IAAPI da PCA_CONFIG
+  _cfgIaSalvarProvedor(prov)
+}
+
+/* Grava o provedor ativo na aba IAAPI — fire-and-forget */
+function _cfgIaSalvarProvedor(prov) {
+  if (!WEBAPP_URL || !CONFIG_SHEET_ID) return
+  // Salva provedor
+  const pProv = new URLSearchParams({
+    acao         : 'salvarIaApiKey',
+    configId     : CONFIG_SHEET_ID,
+    chaveAnthrop : '',
+    chaveGemini  : '',
+    provedor     : prov,
+  })
+  fetch(WEBAPP_URL + '?' + pProv.toString(), {
+    method: 'GET', mode: 'no-cors', cache: 'no-store',
+  }).catch(e => console.warn('[PCA] _cfgIaSalvarProvedor:', e.message))
+  // Garante IA_ATIVO persistido (migração de estrutura se necessário)
+  const pToggle = new URLSearchParams({
+    acao    : 'salvarToggleIa',
+    configId: CONFIG_SHEET_ID,
+    iaAtivo : String(typeof AI_ATIVO !== 'undefined' ? AI_ATIVO : true),
+  })
+  fetch(WEBAPP_URL + '?' + pToggle.toString(), {
+    method: 'GET', mode: 'no-cors', cache: 'no-store',
+  }).catch(e => console.warn('[PCA] _cfgIaSalvarProvedor toggle:', e.message))
+}
+
+/* Renderiza qual card/campo está ativo */
+function _cfgIaRenderProvedor() {
+  const prov = AI_PROVIDER || 'anthropic'
+
+  const cardA = document.getElementById('cfgIaCardAnthropic')
+  const cardG = document.getElementById('cfgIaCardGemini')
+  const campoA = document.getElementById('cfgIaCampoAnthropic')
+  const campoG = document.getElementById('cfgIaCampoGemini')
+  const radA  = document.getElementById('cfgIaRadioAnthropic')
+  const radG  = document.getElementById('cfgIaRadioGemini')
+
+  const isA = prov === 'anthropic'
+
+  if (cardA) {
+    cardA.style.borderColor = isA ? 'var(--accent)' : 'var(--border)'
+    cardA.style.background  = isA ? 'var(--accent-soft)' : 'var(--surface2)'
+  }
+  if (cardG) {
+    cardG.style.borderColor = !isA ? '#4285f4' : 'var(--border)'
+    cardG.style.background  = !isA ? 'rgba(66,133,244,.07)' : 'var(--surface2)'
+  }
+  if (campoA) campoA.style.display = isA ? '' : 'none'
+  if (campoG) campoG.style.display = !isA ? '' : 'none'
+  if (radA)   radA.checked = isA
+  if (radG)   radG.checked = !isA
+}
+
+/* Abre a seção — preenche campos e sincroniza UI */
+function cfgIaAbrirSecao() {
+  const inpA = document.getElementById('cfgAnthropicKey')
+  const inpG = document.getElementById('cfgGeminiKey')
+  // CORREÇÃO 7: fallback ao localStorage se as variáveis globais ainda estiverem
+  // vazias (bootstrap assíncrono ainda não concluiu a leitura da planilha)
+  const valA = (AI_API_KEY    && AI_API_KEY.trim())    ? AI_API_KEY    : (localStorage.getItem(LS.aiKey)      || '')
+  const valG = (AI_GEMINI_KEY && AI_GEMINI_KEY.trim()) ? AI_GEMINI_KEY : (localStorage.getItem(LS.geminiKey)  || '')
+  if (!AI_PROVIDER || !AI_PROVIDER.trim()) {
+    AI_PROVIDER = localStorage.getItem(LS.aiProvider) || 'anthropic'
+  }
+  if (inpA) inpA.value = valA
+  if (inpG) inpG.value = valG
+  _cfgIaRenderProvedor()
+  cfgIaAtualizarStatus()
+}
+
+/* Atualiza dot de status conforme provedor e chave ativa */
+function cfgIaAtualizarStatus() {
+  const dot    = document.getElementById('cfgIaDot')
+  const texto  = document.getElementById('cfgIaStatusText')
+  if (!dot || !texto) return
+
+  const prov = AI_PROVIDER || 'anthropic'
+  const inpA = document.getElementById('cfgAnthropicKey')
+  const inpG = document.getElementById('cfgGeminiKey')
+
+  let val
+  if (prov === 'gemini') {
+    val = (inpG?.value || AI_GEMINI_KEY || '').trim()
+    if (!val) {
+      dot.style.background = '#94a3b8'; texto.textContent = 'Gemini: nenhuma chave configurada'; texto.style.color = 'var(--text-muted)'
+    } else if (!val.startsWith('AIzaSy')) {
+      dot.style.background = '#f59e0b'; texto.textContent = 'Gemini: formato inválido (deve começar com AIzaSy)'; texto.style.color = '#b45309'
+    } else {
+      dot.style.background = '#10b981'; texto.textContent = 'Gemini: ' + val.slice(0, 12) + '••••••••'; texto.style.color = '#059669'
+    }
+  } else {
+    val = (inpA?.value || AI_API_KEY || '').trim()
+    if (!val) {
+      dot.style.background = '#94a3b8'; texto.textContent = 'Anthropic: nenhuma chave configurada'; texto.style.color = 'var(--text-muted)'
+    } else if (!val.startsWith('sk-ant-')) {
+      dot.style.background = '#f59e0b'; texto.textContent = 'Anthropic: formato inválido (deve começar com sk-ant-)'; texto.style.color = '#b45309'
+    } else {
+      dot.style.background = '#10b981'; texto.textContent = 'Anthropic: ' + val.slice(0, 14) + '••••••••'; texto.style.color = '#059669'
+    }
+  }
+}
+
+/* Salva chave do provedor ativo no localStorage + PCA_CONFIG (aba IAAPI) */
+async function cfgSalvarIaKey() {
+  const btn  = document.getElementById('btnSalvarIaKey')
+  const prov = AI_PROVIDER || 'anthropic'
+  const isG  = prov === 'gemini'
+
+  const inpA = document.getElementById('cfgAnthropicKey')
+  const inpG = document.getElementById('cfgGeminiKey')
+  const keyA = inpA?.value.trim() || ''
+  const keyG = inpG?.value.trim() || ''
+
+  const keyAtiva = isG ? keyG : keyA
+
+  if (!keyAtiva) {
+    mostrarToast('Digite a chave antes de salvar.', 'warn'); return
+  }
+  if (!isG && !keyAtiva.startsWith('sk-ant-')) {
+    mostrarToast('Chave Anthropic inválida — deve começar com sk-ant-', 'warn'); return
+  }
+  if (isG && !keyAtiva.startsWith('AIzaSy')) {
+    mostrarToast('Chave Gemini inválida — deve começar com AIzaSy', 'warn'); return
+  }
+
+  // 1. Persiste em memória + localStorage
+  if (isG) {
+    AI_GEMINI_KEY = keyAtiva
+    localStorage.setItem(LS.geminiKey, keyAtiva)
+  } else {
+    AI_API_KEY = keyAtiva
+    localStorage.setItem(LS.aiKey, keyAtiva)
+  }
+  localStorage.setItem(LS.aiProvider, prov)
+  cfgIaAtualizarStatus()
+
+  // 2. Grava na aba IAAPI da PCA_CONFIG via POST (mesmo padrão salvarAppsScriptUrl)
+  if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+    mostrarToast('Chave salva localmente. Configure o Web App para gravar na planilha.', 'warn'); return
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...' }
+  try {
+    const params = {
+      acao         : 'salvarIaApiKey',
+      configId     : CONFIG_SHEET_ID,
+      chaveAnthrop : keyA,   // envia ambas; Apps Script só grava se não-vazio
+      chaveGemini  : keyG,
+      provedor     : prov,
+      iaAtivo      : String(typeof AI_ATIVO !== 'undefined' ? AI_ATIVO : true),
+    }
+
+    // Tentativa 1: POST com CORS — lê a resposta e confirma a gravação
+    let gravadoNaPlanilha = false
+    try {
+      const resp = await fetch(WEBAPP_URL, {
+        method : 'POST', mode: 'cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body   : new URLSearchParams(params).toString(),
+      })
+      if (resp.ok) {
+        const json = await resp.json().catch(() => ({}))
+        if (json.ok !== false) gravadoNaPlanilha = true
+        else throw new Error(json.erro || 'Apps Script retornou erro')
+      } else {
+        throw new Error('HTTP ' + resp.status)
+      }
+    } catch(corsErr) {
+      // Tentativa 2: GET no-cors — Apps Script recebe via e.parameter (doGet)
+      // sem problemas de redirect/CORS. Fire-and-forget confiável.
+      console.warn('[PCA] cfgSalvarIaKey — POST/CORS falhou, usando GET fallback:', corsErr.message)
+      const qs = new URLSearchParams(params)
+      await fetch(`${WEBAPP_URL}?${qs.toString()}`, {
+        method: 'GET', mode: 'no-cors', cache: 'no-store',
+      })
+      // Aguarda o Apps Script processar (assíncrono no servidor)
+      await new Promise(r => setTimeout(r, 1200))
+      gravadoNaPlanilha = true  // fire-and-forget: assumir sucesso
+    }
+
+    if (gravadoNaPlanilha) {
+      mostrarToast({ title: 'Chave salva com sucesso', sub: 'Gravada na aba IAAPI da PCA_CONFIG' }, 'ok')
+    }
+  } catch(e) {
+    console.warn('[PCA] cfgSalvarIaKey erro:', e.message)
+    mostrarToast('Chave salva localmente. Erro ao gravar na planilha: ' + e.message, 'warn')
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar Chave na PCA_CONFIG' }
+  }
+}
+
+/* Testa a chave do provedor ativo */
+async function cfgTestarIaKey() {
+  const btn       = document.getElementById('btnTestarIaKey')
+  const resultado = document.getElementById('cfgIaTesteResult')
+  const prov      = AI_PROVIDER || 'anthropic'
+  const isG       = prov === 'gemini'
+
+  const inpA = document.getElementById('cfgAnthropicKey')
+  const inpG = document.getElementById('cfgGeminiKey')
+  const key  = isG
+    ? (inpG?.value.trim() || AI_GEMINI_KEY || '')
+    : (inpA?.value.trim() || AI_API_KEY    || '')
+
+  if (!key) { mostrarToast('Configure e salve uma chave válida primeiro.', 'warn'); return }
+  if (!isG && !key.startsWith('sk-ant-')) { mostrarToast('Chave Anthropic inválida.', 'warn'); return }
+  if (isG  && !key.startsWith('AIzaSy'))  { mostrarToast('Chave Gemini inválida.', 'warn');    return }
+
+  if (btn)      { btn.disabled = true; btn.textContent = 'Testando...' }
+  if (resultado){ resultado.style.display = 'none' }
+
+  const _exibirResultado = (ok, msg) => {
+    if (!resultado) return
+    resultado.style.display    = 'block'
+    resultado.style.background = ok ? 'rgba(16,185,129,.08)' : 'rgba(239,68,68,.07)'
+    resultado.style.border     = ok ? '1px solid rgba(16,185,129,.25)' : '1px solid rgba(239,68,68,.22)'
+    resultado.style.color      = ok ? '#065f46' : '#991b1b'
+    resultado.innerHTML        = msg
+    mostrarToast(ok ? (isG ? 'Chave Gemini válida.' : 'Chave Anthropic válida.') : msg.replace(/<[^>]+>/g,''), ok ? 'ok' : 'erro')
+  }
+
+  try {
+    if (isG) {
+      // Gemini: chamada direta (sem CORS por ser GET com key na URL)
+      // Testa usando gemini-2.0-flash (padrão v1beta — março/2026).
+      // gemini-1.5-flash e gemini-1.5-flash-latest foram descontinuados.
+      const _gModelos = ['gemini-2.0-flash', 'gemini-2.0-flash-lite']
+      let _gTestOk = false
+      let _gModelUsado = ''
+      let _gLastErr = ''
+      for (const modelo of _gModelos) {
+        const url  = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(key)}`
+        const resp = await fetch(url, {
+          method : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body   : JSON.stringify({ contents: [{ parts: [{ text: 'Responda: OK' }] }] }),
+        })
+        const data = await resp.json()
+        if (resp.ok && data.candidates?.[0]?.content) {
+          _gTestOk = true; _gModelUsado = modelo; break
+        }
+        const err = data.error?.message || 'HTTP ' + resp.status
+        _gLastErr  = err
+        // Tenta próximo modelo para: quota excedida, not found, indisponível.
+        // Para imediatamente apenas em erro de autenticação (401/403).
+        const _isAuth = resp.status === 401 || resp.status === 403
+        if (_isAuth) break
+      }
+      if (_gTestOk) {
+        _exibirResultado(true, `<strong>Gemini conectado</strong> (${_gModelUsado}). Chave válida e funcionando gratuitamente.`)
+      } else {
+        const isQuota = _gLastErr.toLowerCase().includes('quota') || _gLastErr.toLowerCase().includes('exceeded')
+        const hint = isQuota
+          ? '<br><small>Todos os modelos com quota esgotada. Verifique seu projeto no <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> ou aguarde o reset diário.</small>'
+          : ''
+        throw new Error(_gLastErr + (isQuota ? ' [quota]' : ''))
+      }
+    } else {
+      // Anthropic: proxy via Apps Script se disponível
+      if (WEBAPP_URL && CONFIG_SHEET_ID) {
+        // CORREÇÃO 4: POST em vez de GET para não expor a chave sk-ant- na URL
+        const resp = await fetch(WEBAPP_URL, {
+          method: 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ acao: 'testarIaApiKey', configId: CONFIG_SHEET_ID, chaveAnthrop: key }).toString(),
+        })
+        const data = await resp.json().catch(() => ({}))
+        if (!data.ok && data.erro?.toLowerCase().includes('desconhecida')) {
+          _exibirResultado(false, '<strong>Apps Script desatualizado.</strong> Reimplante o V18.2.'); return
+        }
+        if (data.ok && data.valida) {
+          _exibirResultado(true, '<strong>Anthropic conectado.</strong> Chave válida e funcionando.')
+        } else {
+          _exibirResultado(false, '<strong>Chave inválida.</strong> ' + (data.erro || 'Sem permissão.'))
+        }
+      } else {
+        // Fallback direto
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body  : JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{ role: 'user', content: 'OK' }] }),
+        })
+        const data = await resp.json()
+        if (resp.ok && data.content?.[0]?.text) {
+          _exibirResultado(true, '<strong>Anthropic conectado.</strong> Chave válida.')
+        } else {
+          throw new Error(data.error?.message || 'HTTP ' + resp.status)
+        }
+      }
+    }
+  } catch(e) {
+    const ehCors = e.message === 'Failed to fetch' || e.message.includes('NetworkError')
+    _exibirResultado(false,
+      '<strong>Erro de conexão.</strong> ' +
+      (ehCors ? 'Verifique sua conexão com a internet.' : e.message))
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Testar Conexão' }
+  }
+}
 
 
 
@@ -13783,6 +14982,9 @@ const LS = Object.freeze({
   abas          : "cfg-sheet-abas",
   aba_orc       : "cfg-sheet-orc",
   driveId       : "cfg-drive-id",
+  aiKey         : "pca-ai-key",           // Chave API Anthropic — aba IAAPI da PCA_CONFIG
+  geminiKey     : "pca-gemini-key",        // Chave API Gemini — aba IAAPI da PCA_CONFIG
+  aiProvider    : "pca-ai-provider",       // Provedor ativo: "anthropic" | "gemini"
 })
 
 // ── Estado em memória — nunca acessar diretamente fora deste módulo ──
@@ -13806,6 +15008,10 @@ let GS_API_KEY      = localStorage.getItem(LS.apiKey)        || API_KEY_BOOT
 let GS_ABAS         = JSON.parse(localStorage.getItem(LS.abas) || '["DADOSPCA"]')
 let GS_ABA_ORC      = localStorage.getItem(LS.aba_orc)       || "DADOSORÇAMENTO"
 let _DRIVE_FOLDER   = localStorage.getItem(LS.driveId)       || PASTA_DADOS_ID
+let AI_API_KEY      = localStorage.getItem(LS.aiKey)         || ""  // Chave Anthropic — aba IAAPI
+let AI_GEMINI_KEY   = localStorage.getItem(LS.geminiKey)     || ""  // Chave Gemini — aba IAAPI
+let AI_PROVIDER     = localStorage.getItem(LS.aiProvider)    || "anthropic"  // Provedor ativo
+let AI_ATIVO        = localStorage.getItem('pca-ia-ativo') !== 'false'  // toggle — true por padrão
 let _SISTEMA_PRONTO = false
 
 // ── Modelo de configuração ────────────────────────────────────
@@ -13848,13 +15054,15 @@ function _aplicarEmMemoria(cfg) {
 // ── Sincroniza campos do painel de configurações ──────────────
 function _preencherCamposCfg() {
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? "" }
-  set("cfgSheetId",   GS_SHEET_ID)
-  set("cfgApiKey",    GS_API_KEY)
-  set("cfgSheetAba",  GS_ABAS[0] || "")
-  set("cfgSheetOrc",  GS_ABA_ORC)
-  set("cfgDriveId",   _DRIVE_FOLDER)
-  set("cfgConfigId",  CONFIG_SHEET_ID)
-  set("cfgWebAppUrl", WEBAPP_URL)
+  set("cfgSheetId",       GS_SHEET_ID)
+  set("cfgApiKey",        GS_API_KEY)
+  set("cfgSheetAba",      GS_ABAS[0] || "")
+  set("cfgSheetOrc",      GS_ABA_ORC)
+  set("cfgDriveId",       _DRIVE_FOLDER)
+  set("cfgConfigId",      CONFIG_SHEET_ID)
+  set("cfgWebAppUrl",     WEBAPP_URL)
+  set("cfgAnthropicKey",  AI_API_KEY)   // chave Anthropic — aba IAAPI
+  set("cfgGeminiKey",     AI_GEMINI_KEY) // chave Gemini   — aba IAAPI
   const disp = document.getElementById("cfgFileIdDisplay")
   if (disp) disp.textContent = CONFIG_SHEET_ID || "—"
   // Badge: indica se a URL está salva na planilha (não só no localStorage)
@@ -13941,7 +15149,13 @@ async function bootstrapSistema() {
     } else {
     }
 
-    // 2b. Sincroniza lista de PCAs no módulo de gerenciamento
+    // 2c. Lê chaves IA (Anthropic A2, Gemini B2, provedor C2) da aba IAAPI da PCA_CONFIG.
+    //     _lerAiKeyDaPlanilha aplica todas as chaves em memória e localStorage internamente.
+    //     CORREÇÃO 3: removida a re-atribuição redundante de AI_API_KEY após a chamada —
+    //     a função já faz isso corretamente para todos os provedores.
+    await _lerAiKeyDaPlanilha(CONFIG_SHEET_ID)
+
+    // 2d. Sincroniza lista de PCAs no módulo de gerenciamento
     if (pcas.length > 0) {
         if (typeof window._pcaSincronizarDaConfig === "function") {
         window._pcaSincronizarDaConfig(pcas, pcaAtivoId)
@@ -14073,6 +15287,74 @@ async function _lerAppsScriptUrlDaPlanilha(configSheetId) {
     return val ? String(val).trim() : null
   } catch(e) {
     console.warn("[PCA] _lerAppsScriptUrlDaPlanilha:", e.message)
+    return null
+  }
+}
+
+/* Lê chaves IA e provedor da aba IAAPI da PCA_CONFIG via Sheets API pública.
+   Estrutura: A2=Anthropic | B2=Gemini | C2=provedor ativo
+   Silencioso: retorna null se a aba não existir.                           */
+/* Lê chaves IA da aba IAAPI da PCA_CONFIG via Sheets API pública.
+   Estrutura real da aba: 2 colunas verticais
+     Col A = "Nome da IA"    (ex: ANTHROPIC, GEMINI, PROVEDOR_ATIVO)
+     Col B = "API Key da IA" (ex: sk-ant-..., AIzaSy..., gemini)
+   Silencioso: retorna null se a aba não existir ou estiver vazia.     */
+async function _lerAiKeyDaPlanilha(configSheetId) {
+  if (!configSheetId || !GS_API_KEY) return null
+  try {
+    // Lê todas as linhas da aba (até 200) — estrutura vertical Nome | Chave
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${configSheetId}/values/IAAPI!A1:B200`
+              + `?valueRenderOption=UNFORMATTED_VALUE&key=${GS_API_KEY}`
+    const r = await fetch(url)
+    if (!r.ok) {
+      // Aba ainda não existe (400/404) — normal na primeira vez.
+      // Será criada pelo Apps Script ao salvar a chave pela primeira vez.
+      console.info('[PCA] IAAPI: aba não encontrada (HTTP', r.status, ') — salve a chave para criá-la.')
+      return null
+    }
+    const data = await r.json()
+    const rows = data.values || []
+
+    // Constrói mapa NOME_MAIÚSCULO → chave (pula linha de cabeçalho)
+    const map = {}
+    rows.forEach(row => {
+      const nome = String(row[0] || '').trim().toUpperCase()
+      if (nome && nome !== 'NOME DA IA') map[nome] = String(row[1] || '').trim()
+    })
+
+    const keyA  = map['ANTHROPIC']      || null
+    const keyG  = map['GEMINI']         || null
+    const prov  = map['PROVEDOR_ATIVO'] || null
+    const ativo = map['IA_ATIVO']       || null  // 'true' | 'false' | null
+
+    // Só aplica se o valor da planilha for válido — não sobrescreve chave
+    // em memória com valor inválido ou vazio vindo da planilha.
+    if (keyA && keyA.startsWith('sk-ant-')) {
+      AI_API_KEY = keyA
+      localStorage.setItem(LS.aiKey, keyA)
+    }
+    if (keyG && keyG.startsWith('AIzaSy')) {
+      AI_GEMINI_KEY = keyG
+      localStorage.setItem(LS.geminiKey, keyG)
+    }
+    if (prov && ['anthropic', 'gemini'].includes(prov)) {
+      AI_PROVIDER = prov
+      localStorage.setItem(LS.aiProvider, prov)
+    }
+    if (ativo !== null) {
+      AI_ATIVO = ativo !== 'false'
+      localStorage.setItem('pca-ia-ativo', String(AI_ATIVO))
+      // Aplica imediatamente na UI se o painel já estiver aberto
+      if (typeof window._iaAplicarEstado === 'function') window._iaAplicarEstado()
+    }
+
+    console.info('[PCA] IAAPI carregada — Anthropic:', keyA ? 'presente' : 'ausente',
+                 '| Gemini:', keyG ? 'presente' : 'ausente',
+                 '| Provedor:', prov || 'não definido',
+                 '| IA Ativo:', AI_ATIVO)
+    return keyA || null
+  } catch(e) {
+    console.warn('[PCA] _lerAiKeyDaPlanilha:', e.message)
     return null
   }
 }
@@ -14482,27 +15764,13 @@ async function _carregarDoSheetsImpl() {
   }
 
 
-  /* Durante o boot o pdfProgressOverlay já está aberto com o banner
-     "Iniciando o Sistema PCA...". Usamos _pdfProgressSet para atualizar
-     o texto dentro do banner, evitando que toasts sobreponham o overlay. */
-  const _overlayJaAberto = document.getElementById('pdfProgressOverlay')
-    ?.classList.contains('ativo')
-
-  if (_overlayJaAberto) {
-    _pdfProgressSet(89, 'Conectando ao Google Sheets...')
-  } else {
-    mostrarToast('Sincronizando com Google Sheets...', 'warn')
-  }
-  gsSetStatus('sincronizando')
+  mostrarToast("Sincronizando com Google Sheets...", "warn")
+  gsSetStatus("sincronizando")
 
   try {
     /* ── Busca todas as abas em paralelo com batchGet (1 request só) ── */
     const todasAbas = [...new Set([...GS_ABAS, GS_ABA_ORC])]
-    if (_overlayJaAberto) {
-      _pdfProgressSet(92, 'Buscando dados...')
-    } else {
-      mostrarToast('Buscando dados...', 'warn')
-    }
+    mostrarToast("Buscando dados...", "warn")
 
     let resultados
     try {
@@ -14684,16 +15952,10 @@ function processarLinhas(linhas) {
   atualizar()
   aplicarFiltrosTabela()
 
-  // O toast "X itens carregados" deve aparecer APÓS o banner de progresso
-  // fechar completamente. _pdfProgressFechar() usa: 420ms (remove .ativo) +
-  // 300ms (reset interno) = 720ms total. Usamos 750ms como margem segura.
-  // Se o overlay não estiver ativo, exibe imediatamente.
-  const _overlayAtivo = document.getElementById('pdfProgressOverlay')
-    ?.classList.contains('ativo')
-  setTimeout(
-    () => mostrarToast(`${dados.length} itens carregados!`),
-    _overlayAtivo ? 750 : 0
-  )
+  // Exibe o toast após o overlay fechar (overlay tem delay de 420ms ao fechar)
+  // Se o overlay não estiver ativo, mostra imediatamente
+  const _overlayAtivo = document.getElementById("pdfProgressOverlay")?.classList.contains("ativo")
+  setTimeout(() => mostrarToast(`${dados.length} itens carregados!`), _overlayAtivo ? 500 : 0)
 }
 
 /* ── Upload Excel (mantido como fallback) ── */
@@ -21953,6 +23215,1394 @@ const _pdfCfgOnOpen = (id) => {
     if (salva) { _sessao = salva; _atualizarHeader() }
   })()
 
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO CHAT SUPORTE
+   Chat de suporte humano direto no painel flutuante.
+   Fluxo:
+     1. Usuário envia mensagem → Apps Script → aba CHAT_SUPORTE
+        na PCA_CONFIG (colunas: SESSION_ID | DATA_HORA | REMETENTE
+        | MENSAGEM | LIDA).
+     2. Equipe responde adicionando linhas com REMETENTE="SUPORTE"
+        diretamente na planilha.
+     3. Polling a cada 12 s enquanto a aba Suporte está aberta.
+══════════════════════════════════════════════════════════════ */
+;(function _supChat() {
+  'use strict'
+
+  /* ── Estado ──────────────────────────────────────────────── */
+  const _SESSION_KEY = 'pca-sup-session'
+  let _sessionId     = localStorage.getItem(_SESSION_KEY) || _gerarSessao()
+  let _pollingTimer  = null
+  let _ultimaMsg     = null   // timestamp da última mensagem recebida
+  let _abaAtiva      = false  // true = aba suporte visível
+  let _enviando      = false
+
+  function _gerarSessao() {
+    const id = 'sup-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6)
+    localStorage.setItem(_SESSION_KEY, id)
+    return id
+  }
+
+  /* ── Helpers de UI ───────────────────────────────────────── */
+  function _el(id) { return document.getElementById(id) }
+
+  function _setStatus(estado) {
+    const dot  = _el('supStatusDot')
+    const txt  = _el('supStatusText')
+    if (!dot || !txt) return
+    dot.className = 'sup-status-dot ' + estado
+    const msgs = {
+      online  : 'Equipe disponível — Diretoria de Planejamento',
+      waiting : 'Aguardando resposta...',
+      offline : 'Fora do horário — responderemos em breve',
+    }
+    txt.textContent = msgs[estado] || 'Diretoria de Planejamento — PCA'
+  }
+
+  function _fmtHora(iso) {
+    try {
+      const d = new Date(iso)
+      return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    } catch(_) { return '' }
+  }
+
+  /* Insere uma mensagem na área de chat do suporte */
+  function _renderMsg(remetente, texto, dataHora) {
+    const wrap   = _el('supMessages')
+    const empty  = _el('supEmpty')
+    if (!wrap) return
+    if (empty) empty.style.display = 'none'
+
+    const isSuport = remetente.toUpperCase() === 'SUPORTE'
+    const cls      = isSuport ? 'sup-msg-suporte' : 'sup-msg-user'
+    const hora     = _fmtHora(dataHora)
+    const nome     = isSuport ? 'Diretoria de Planejamento' : 'Você'
+    const textoEsc = String(texto).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
+
+    const div = document.createElement('div')
+    div.className = `sup-msg ${cls}`
+    if (isSuport) {
+      div.innerHTML = `
+        <div class="sup-msg-icon">
+          <i data-lucide="users" style="width:13px;height:13px;color:#fff;"></i>
+        </div>
+        <div>
+          <div class="sup-msg-bubble">${textoEsc}</div>
+          <div class="sup-msg-meta">${nome} · ${hora}</div>
+        </div>`
+    } else {
+      div.innerHTML = `
+        <div>
+          <div class="sup-msg-bubble">${textoEsc}</div>
+          <div class="sup-msg-meta">${hora}</div>
+        </div>`
+    }
+    wrap.appendChild(div)
+    wrap.scrollTop = wrap.scrollHeight
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [div] })
+  }
+
+  /* ── Enviar mensagem (usuário → planilha) ────────────────── */
+  window.supEnviar = async function() {
+    if (_enviando) return
+    const inp   = _el('supInput')
+    const btn   = _el('supSendBtn')
+    const texto = inp?.value.trim()
+    if (!texto) return
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+      _renderMsg('SUPORTE', 'Configure o Web App nas Configurações para usar o suporte.', new Date().toISOString())
+      return
+    }
+
+    inp.value = ''
+    supAutoResize(inp)
+    _enviando = true
+    if (btn) btn.disabled = true
+
+    _renderMsg('USUARIO', texto, new Date().toISOString())
+    _setStatus('waiting')
+
+    try {
+      const params = new URLSearchParams({
+        acao      : 'enviarMensagemSuporte',
+        configId  : CONFIG_SHEET_ID,
+        sessionId : _sessionId,
+        remetente : 'USUARIO',
+        mensagem  : texto,
+        usuario   : (typeof window._loginGetSessao === 'function'
+                      ? (window._loginGetSessao()?.nome || 'Anônimo')
+                      : 'Anônimo'),
+      })
+      // POST cors; fallback GET no-cors se CORS falhar
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method: 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+      } catch(_) {
+        await fetch(`${WEBAPP_URL}?${params.toString()}`, {
+          method: 'GET', mode: 'no-cors', cache: 'no-store',
+        })
+      }
+      _ultimaMsg = new Date().toISOString()
+    } catch(e) {
+      console.warn('[Suporte]', e.message)
+    } finally {
+      _enviando = false
+      if (btn) btn.disabled = false
+      inp?.focus()
+    }
+  }
+
+  /* ── Polling: busca respostas da equipe ──────────────────── */
+  async function _poll() {
+    if (!_abaAtiva || !WEBAPP_URL || !CONFIG_SHEET_ID) return
+    try {
+      const qs = new URLSearchParams({
+        acao      : 'lerMensagensSuporte',
+        configId  : CONFIG_SHEET_ID,
+        sessionId : _sessionId,
+        desde     : _ultimaMsg || '',
+      })
+      const r = await fetch(`${WEBAPP_URL}?${qs.toString()}`, {
+        method: 'GET', cache: 'no-store',
+      })
+      if (!r.ok) return
+      const data = await r.json().catch(() => ({}))
+      if (!data.ok || !Array.isArray(data.mensagens)) return
+
+      let temNova = false
+      data.mensagens.forEach(m => {
+        if (m.remetente?.toUpperCase() === 'SUPORTE') {
+          _renderMsg('SUPORTE', m.mensagem, m.dataHora)
+          _ultimaMsg = m.dataHora
+          temNova = true
+        }
+      })
+      if (temNova) {
+        _setStatus('online')
+        if (!_abaAtiva) _atualizarBadge(true)
+      }
+    } catch(e) {
+      console.warn('[Suporte poll]', e.message)
+    }
+  }
+
+  function _iniciarPolling() {
+    if (_pollingTimer) return
+    _pollingTimer = setInterval(_poll, 12000)
+    _poll()  // primeira verificação imediata
+  }
+
+  function _pararPolling() {
+    if (_pollingTimer) { clearInterval(_pollingTimer); _pollingTimer = null }
+  }
+
+  /* ── Badge de notificação na aba ─────────────────────────── */
+  function _atualizarBadge(mostrar) {
+    const badge = _el('supBadge')
+    if (badge) badge.classList.toggle('visible', !!mostrar)
+  }
+
+  /* ── Controle das abas ───────────────────────────────────── */
+  window.aiMudarAba = function(aba) {
+    const abas = ['ia', 'suporte']
+    abas.forEach(a => {
+      const tab  = _el(`aiTab-${a}`)
+      const pane = _el(`aiPane-${a}`)
+      const ativo = a === aba
+      if (tab)  { tab.classList.toggle('active', ativo); tab.setAttribute('aria-selected', ativo) }
+      if (pane) pane.classList.toggle('active', ativo)
+    })
+    _abaAtiva = aba === 'suporte'
+    if (_abaAtiva) {
+      _atualizarBadge(false)
+      _iniciarPolling()
+    } else {
+      _pararPolling()
+    }
+  }
+
+  /* ── Input helpers ───────────────────────────────────────── */
+  window.supHandleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); supEnviar() }
+  }
+  window.supAutoResize = function(el) {
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  }
+
+  /* ── Inicialização ───────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Conecta parar polling ao fechar painel
+    const origToggle = window.aiTogglePanel
+    if (typeof origToggle === 'function' && !window.__supPanelPatched) {
+      window.__supPanelPatched = true
+      window.aiTogglePanel = function() {
+        origToggle()
+        const panel = document.getElementById('aiCopilotPanel')
+        const aberto = panel?.classList.contains('ai-open')
+        if (!aberto) { _pararPolling(); _abaAtiva = false }
+      }
+    }
+  })
+
+})()
+/* ── fim CHAT_SUPORTE ── */
+
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO SUPORTE ADMIN
+   Interface da equipe de suporte — painel de atendimento.
+   Carrega todas as conversas da aba CHAT_SUPORTE da PCA_CONFIG,
+   agrupa por SESSION_ID, e permite responder em tempo real.
+   Polling automático a cada 15 s enquanto a seção estiver aberta.
+══════════════════════════════════════════════════════════════ */
+;(function _supAdmin() {
+  'use strict'
+
+  /* ── Estado ──────────────────────────────────────────────── */
+  let _conversas     = {}   // { sessionId: { nome, usuario, msgs:[], temNova } }
+  let _sessaoAtiva   = null // sessionId selecionado
+  let _pollingTimer  = null
+  let _enviando      = false
+  let _secaoAberta   = false
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  const _el = id => document.getElementById(id)
+
+  function _setStatus(msg, tipo) {
+    const el = _el('supAdminStatus')
+    if (!el) return
+    const bgs  = { ok:'#dcfce7', erro:'#fee2e2', info:'#eff6ff', '':'var(--surface2)' }
+    const txts = { ok:'#166534', erro:'#991b1b', info:'#1e40af', ''  :'var(--text-muted)' }
+    el.style.display    = msg ? 'block' : 'none'
+    el.style.background = bgs[tipo]  || bgs['']
+    el.style.color      = txts[tipo] || txts['']
+    el.textContent      = msg
+  }
+
+  function _fmtHora(iso) {
+    if (!iso) return ''
+    try {
+      const d = new Date(iso)
+      const hoje = new Date()
+      if (d.toDateString() === hoje.toDateString()) {
+        return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      }
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+        + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    } catch(_) { return '' }
+  }
+
+  function _iniciais(nome) {
+    return (nome || 'U').trim().split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase() || '?'
+  }
+
+  function _esc(t) {
+    return String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     CARREGAR TODAS AS MENSAGENS
+  ══════════════════════════════════════════════════════════ */
+  window.supAdminCarregar = async function() {
+    if (!CONFIG_SHEET_ID || !GS_API_KEY) {
+      _setStatus('Configure o Google Sheets e a API Key para usar o suporte.', 'info')
+      return
+    }
+    _setStatus('Carregando conversas...', 'info')
+    try {
+      // Lê a aba CHAT_SUPORTE diretamente via Sheets API pública
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG_SHEET_ID}/values/CHAT_SUPORTE!A1:F500`
+               + `?valueRenderOption=FORMATTED_VALUE&key=${GS_API_KEY}`
+      const r = await fetch(url)
+      if (!r.ok) {
+        if (r.status === 400 || r.status === 404) {
+          _setStatus('', '')
+          _renderLista({})  // aba ainda não existe — zero conversas
+          return
+        }
+        throw new Error('HTTP ' + r.status)
+      }
+      const data  = await r.json()
+      const rows  = (data.values || []).slice(1)  // pula cabeçalho
+
+      // Agrupa por SESSION_ID
+      const conv = {}
+      rows.forEach(row => {
+        const sessionId = String(row[0] || '').trim()
+        const dataHora  = String(row[1] || '')
+        const remetente = String(row[2] || '').toUpperCase()
+        const mensagem  = String(row[3] || '')
+        const usuario   = String(row[4] || 'Anônimo')
+        const lida      = String(row[5] || '').toUpperCase()
+        if (!sessionId || !mensagem) return
+
+        if (!conv[sessionId]) {
+          conv[sessionId] = {
+            sessionId,
+            nome    : usuario,
+            msgs    : [],
+            temNova : false,
+            ultimaData: '',
+          }
+        }
+        conv[sessionId].msgs.push({ dataHora, remetente, mensagem, lida })
+        if (dataHora > conv[sessionId].ultimaData) {
+          conv[sessionId].ultimaData = dataHora
+          if (remetente === 'USUARIO') conv[sessionId].nomeDisplay = usuario
+        }
+        // Marca se há mensagem do usuário não respondida
+        if (remetente === 'USUARIO' && lida !== 'SIM') {
+          conv[sessionId].temNova = true
+        }
+      })
+
+      _conversas = conv
+      _setStatus('', '')
+      _renderLista(conv)
+
+      // Atualiza badge da nav
+      const totalNovo = Object.values(conv).filter(c => c.temNova).length
+      _atualizarBadgeNav(totalNovo)
+
+      // Se havia sessão ativa, re-renderiza o chat
+      if (_sessaoAtiva && conv[_sessaoAtiva]) {
+        _renderChat(_sessaoAtiva)
+      }
+    } catch(e) {
+      _setStatus('Erro ao carregar: ' + e.message, 'erro')
+      console.error('[SupAdmin]', e.message)
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     RENDERIZAR LISTA DE CONVERSAS
+  ══════════════════════════════════════════════════════════ */
+  function _renderLista(conv) {
+    const body  = _el('supAdminListBody')
+    const count = _el('supAdminCount')
+    if (!body) return
+
+    const lista = Object.values(conv).sort((a, b) =>
+      (b.ultimaData || '').localeCompare(a.ultimaData || '')
+    )
+
+    if (count) count.textContent = lista.length
+      ? `${lista.length} conversa${lista.length > 1 ? 's' : ''}`
+      : 'Nenhuma conversa'
+
+    if (lista.length === 0) {
+      body.innerHTML = `<div style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px;">
+        <i data-lucide="inbox" style="width:28px;height:28px;opacity:.3;display:block;margin:0 auto 8px;"></i>
+        Nenhuma mensagem recebida ainda.
+      </div>`
+      if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [body] })
+      return
+    }
+
+    body.innerHTML = lista.map(c => {
+      const ultimaMsg = c.msgs[c.msgs.length - 1]
+      const ini = _iniciais(c.nomeDisplay || c.nome)
+      const ativo = c.sessionId === _sessaoAtiva ? ' active' : ''
+      const novaDot = c.temNova
+        ? '<span class="sup-conv-new visible"></span>'
+        : '<span class="sup-conv-new"></span>'
+      return `<div class="sup-conv-item${ativo}" onclick="supAdminSelecionarConversa('${_escAttr(c.sessionId)}')">
+        <div class="sup-conv-avatar">${ini}</div>
+        <div class="sup-conv-info">
+          <div class="sup-conv-nome">${_esc(c.nomeDisplay || c.nome || 'Usuário')}</div>
+          <div class="sup-conv-preview">${_esc(ultimaMsg?.mensagem || '').slice(0, 50)}</div>
+        </div>
+        <div class="sup-conv-meta">
+          <span class="sup-conv-hora">${_fmtHora(c.ultimaData)}</span>
+          ${novaDot}
+        </div>
+      </div>`
+    }).join('')
+
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [body] })
+  }
+
+  function _escAttr(s) { return String(s).replace(/'/g, "\\'") }
+
+  /* ══════════════════════════════════════════════════════════
+     SELECIONAR E RENDERIZAR CONVERSA
+  ══════════════════════════════════════════════════════════ */
+  window.supAdminSelecionarConversa = function(sessionId) {
+    _sessaoAtiva = sessionId
+    // Atualiza destaque na lista
+    document.querySelectorAll('.sup-conv-item').forEach(el => {
+      el.classList.toggle('active', el.onclick?.toString().includes(sessionId))
+    })
+    _renderChat(sessionId)
+  }
+
+  function _renderChat(sessionId) {
+    const conv = _conversas[sessionId]
+    if (!conv) return
+
+    const header = _el('supAdminChatHeader')
+    const empty  = _el('supAdminChatEmpty')
+    const msgs   = _el('supAdminChatMsgs')
+    const input  = _el('supAdminChatInput')
+    const nome   = _el('supAdminChatNome')
+    const sub    = _el('supAdminChatSub')
+    const avatar = _el('supAdminChatAvatar')
+
+    // Mostra/oculta elementos
+    if (empty)  empty.style.display  = 'none'
+    if (header) header.style.display = ''
+    if (msgs)   msgs.style.display   = ''
+    if (input)  input.style.display  = ''
+
+    // Header
+    if (nome)   nome.textContent   = conv.nomeDisplay || conv.nome || 'Usuário'
+    if (sub)    sub.textContent    = `Sessão ${sessionId.slice(0, 16)}... · ${conv.msgs.length} mensagem(ns)`
+    if (avatar) avatar.textContent = _iniciais(conv.nomeDisplay || conv.nome)
+
+    // Mensagens
+    if (!msgs) return
+    msgs.innerHTML = conv.msgs.map(m => {
+      const isAdmin = m.remetente === 'SUPORTE'
+      const cls     = isAdmin ? 'msg-admin' : 'msg-usuario'
+      const label   = isAdmin ? 'Você (equipe)' : (conv.nomeDisplay || 'Usuário')
+      return `<div>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;${isAdmin ? 'text-align:right;' : ''}">${_esc(label)}</div>
+        <div class="msg-row ${cls}">
+          <div>
+            <div class="sup-msg-bubble">${_esc(m.mensagem)}</div>
+            <div class="sup-msg-time">${_fmtHora(m.dataHora)}</div>
+          </div>
+        </div>
+      </div>`
+    }).join('')
+    msgs.scrollTop = msgs.scrollHeight
+
+    // Limpa o badge de nova mensagem
+    if (conv.temNova) {
+      conv.temNova = false
+      _renderLista(_conversas)
+      _atualizarBadgeNav(Object.values(_conversas).filter(c => c.temNova).length)
+    }
+
+    // Foca no textarea
+    setTimeout(() => _el('supAdminTextarea')?.focus(), 80)
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     ENVIAR RESPOSTA DA EQUIPE
+  ══════════════════════════════════════════════════════════ */
+  window.supAdminEnviar = async function() {
+    if (_enviando || !_sessaoAtiva) return
+    const ta   = _el('supAdminTextarea')
+    const btn  = _el('supAdminSendBtn')
+    const texto = ta?.value.trim()
+    if (!texto) return
+
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+      _setStatus('Configure o Web App para enviar respostas.', 'info'); return
+    }
+
+    ta.value = ''
+    supAdminAutoResize(ta)
+    _enviando = true
+    if (btn) btn.disabled = true
+
+    // Otimismo: adiciona a mensagem localmente imediatamente
+    const agora = new Date().toISOString()
+    if (_conversas[_sessaoAtiva]) {
+      _conversas[_sessaoAtiva].msgs.push({
+        dataHora  : agora,
+        remetente : 'SUPORTE',
+        mensagem  : texto,
+        lida      : 'SIM',
+      })
+      _conversas[_sessaoAtiva].ultimaData = agora
+      _renderChat(_sessaoAtiva)
+      _renderLista(_conversas)
+    }
+
+    try {
+      const sessao = typeof window.loginGetSessao === 'function'
+        ? window.loginGetSessao() : null
+      const params = new URLSearchParams({
+        acao      : 'enviarMensagemSuporte',
+        configId  : CONFIG_SHEET_ID,
+        sessionId : _sessaoAtiva,
+        remetente : 'SUPORTE',
+        mensagem  : texto,
+        usuario   : sessao?.nome || 'Equipe PCA',
+      })
+      // POST cors; fallback GET no-cors
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method: 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+      } catch(_) {
+        await fetch(`${WEBAPP_URL}?${params.toString()}`, {
+          method: 'GET', mode: 'no-cors', cache: 'no-store',
+        })
+      }
+    } catch(e) {
+      console.warn('[SupAdmin enviar]', e.message)
+      _setStatus('Mensagem enviada localmente, mas houve um erro ao gravar: ' + e.message, 'info')
+    } finally {
+      _enviando = false
+      if (btn) btn.disabled = false
+      ta?.focus()
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     POLLING E BADGE
+  ══════════════════════════════════════════════════════════ */
+  function _atualizarBadgeNav(total) {
+    const badge = _el('supAdminBadge')
+    if (!badge) return
+    badge.style.display = total > 0 ? 'inline' : 'none'
+    badge.textContent   = total
+  }
+
+  function _iniciarPolling() {
+    if (_pollingTimer) return
+    _pollingTimer = setInterval(supAdminCarregar, 15000)
+  }
+  function _pararPolling() {
+    if (_pollingTimer) { clearInterval(_pollingTimer); _pollingTimer = null }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     INPUT HELPERS
+  ══════════════════════════════════════════════════════════ */
+  window.supAdminHandleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); supAdminEnviar() }
+  }
+  window.supAdminAutoResize = function(el) {
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     HOOK: ao abrir a seção Suporte
+  ══════════════════════════════════════════════════════════ */
+  const _origCfg = window.cfgMostrarSecao
+  if (typeof _origCfg === 'function' && !window.__supAdminPatched) {
+    window.__supAdminPatched = true
+    window.cfgMostrarSecao = function(id) {
+      _origCfg(id)
+      if (id === 'suporte') {
+        _secaoAberta = true
+        supAdminCarregar()
+        _iniciarPolling()
+      } else {
+        if (_secaoAberta) {
+          _secaoAberta = false
+          _pararPolling()
+        }
+      }
+    }
+  }
+
+})()
+/* ── fim SUPORTE ADMIN ── */
+
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO IA TOGGLE + FAQ
+   Controla se a IA está ativa ou não.
+   Estado persistido em: IAAPI (linha IA_ATIVO) via Apps Script
+   e localStorage ('pca-ia-ativo') como fallback offline.
+══════════════════════════════════════════════════════════════ */
+;(function _iaToggle() {
+  'use strict'
+
+  /* ══════════════════════════════════════════════════════════
+     MOTOR DE FAQ DINÂMICO
+     Fonte de dados: window._faqCache (populado por _moduloFaq)
+     Fallback: FAQ_BUILTIN hardcoded abaixo
+  ══════════════════════════════════════════════════════════ */
+  const FAQ_BUILTIN = [
+    { id:'b1', pergunta:'O que é o PCA?',
+      resposta:'O PCA (Plano de Contratações Anual) é o planejamento das contratações que o município pretende realizar no ano. Ele centraliza todos os itens a serem contratados, com valores, quantidades e prioridades por secretaria.',
+      keywords:'pca,plano,contratações,anual,planejamento' },
+    { id:'b2', pergunta:'Como adicionar um item ao PCA?',
+      resposta:'Acesse Configurações → Adicionar Item. Preencha os campos obrigatórios (secretaria, produto, valor, quantidade) e clique em Salvar. O item será enviado para aprovação antes de ser efetivado.',
+      keywords:'adicionar,item,novo,secretaria,produto' },
+    { id:'b3', pergunta:'Como gerar o relatório PDF?',
+      resposta:'No Dashboard, clique no botão Gerar PCA no menu lateral. Você pode gerar o relatório completo ou filtrado por secretaria. O PDF é gerado com todos os itens do PCA ativo.',
+      keywords:'pdf,relatório,exportar,imprimir,gerar' },
+    { id:'b4', pergunta:'Como filtrar itens por secretaria?',
+      resposta:'No topo da tela, ao lado do nome do PCA, clique no seletor de Repartição/Secretaria. Os KPIs e a tabela serão atualizados para mostrar apenas os itens da secretaria selecionada.',
+      keywords:'filtro,secretaria,repartição,selector,selecionar' },
+    { id:'b5', pergunta:'Como exportar os dados para Excel?',
+      resposta:'Na tela principal, clique em Exportar Excel na área de Consulta de Itens. O arquivo baixado contém todos os itens visíveis na tabela, respeitando os filtros ativos.',
+      keywords:'excel,exportar,xlsx,planilha,download' },
+    { id:'b6', pergunta:'O que é saldo utilizado?',
+      resposta:'Saldo utilizado é o valor que já foi empenhado ou declarado para um item do PCA. O saldo restante indica quanto ainda está disponível para novas contratações daquele item.',
+      keywords:'saldo,utilizado,empenho,declaração,restante' },
+    { id:'b7', pergunta:'Como alterar o PCA ativo?',
+      resposta:'No cabeçalho do sistema, clique na seta ao lado do nome do PCA. Um menu exibirá todos os PCAs cadastrados para seleção. Você também pode gerenciá-los em Configurações → Gerenciar PCAs.',
+      keywords:'pca ativo,trocar,alterar,selecionar pca' },
+  ]
+
+  /* Retorna lista unificada (cache dinâmico + builtin fallback) */
+  function _getFaqs() {
+    const cache = window._faqCache
+    // Usa cache da planilha se disponível, senão fallback builtin
+    if (Array.isArray(cache) && cache.length > 0) return cache
+    return FAQ_BUILTIN
+  }
+
+  /* ── Motor de similaridade textual (Jaccard por tokens) ───── */
+  function _norm(t) { return String(t||'').toLowerCase().replace(/[^a-záéíóúãõâêôç\s]/g,'').trim() }
+  function _tokens(t) { return _norm(t).split(/\s+/).filter(w => w.length > 2) }
+  function _jaccard(a, b) {
+    const sa = new Set(a), sb = new Set(b)
+    const inter = [...sa].filter(x => sb.has(x)).length
+    const union = new Set([...sa,...sb]).size
+    return union ? inter / union : 0
+  }
+
+  /* Busca FAQ mais relevante para uma pergunta (retorna {faq, score}) */
+  window._faqBuscarResposta = function(pergunta) {
+    const faqs = _getFaqs()
+    if (!faqs.length) return null
+    const qTok = _tokens(pergunta)
+    if (!qTok.length) return null
+
+    let melhor = null, melhorScore = 0
+    for (const faq of faqs) {
+      const campos = [faq.pergunta, faq.resposta, faq.keywords||''].join(' ')
+      const fTok   = _tokens(campos)
+      // Jaccard base
+      let score = _jaccard(qTok, fTok)
+      // Bônus: palavra da pergunta aparece literalmente no título FAQ
+      if (qTok.some(w => _norm(faq.pergunta).includes(w))) score += 0.25
+      // Bônus: keyword exata presente
+      const kws = (faq.keywords||'').split(',').map(k => _norm(k.trim()))
+      if (qTok.some(w => kws.some(k => k.includes(w)))) score += 0.20
+      if (score > melhorScore) { melhorScore = score; melhor = faq }
+    }
+    return melhorScore > 0.08 ? { faq: melhor, score: melhorScore } : null
+  }
+
+  /* ── Renderiza chips no painel flutuante ──────────────────── */
+  window.aiFaqRenderChips = function(filtro) {
+    const container = document.getElementById('aiFaqList')
+    if (!container) return
+    const faqs = _getFaqs()
+    const q    = _norm(filtro || '')
+    const vis  = q
+      ? faqs.filter(f => {
+          const full = _norm([f.pergunta, f.resposta, f.keywords||''].join(' '))
+          return full.includes(q) || _jaccard(_tokens(q), _tokens(full)) > 0.05
+        })
+      : faqs
+
+    if (!vis.length) {
+      container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 4px;">Nenhuma pergunta encontrada.</div>'
+      return
+    }
+    container.innerHTML = vis.map(f =>
+      `<button class="ai-faq-chip" onclick="aiFaqResponder(this)" data-faq-id="${f.id}">${
+        String(f.pergunta).replace(/</g,'&lt;')
+      }</button>`
+    ).join('')
+  }
+
+  window.aiFaqFiltrarPainel = function(v) { window.aiFaqRenderChips(v) }
+
+  /* ── Renderiza resposta do FAQ ──────────────────────────── */
+  window.aiFaqResponder = function(btn) {
+    const pergunta = btn.textContent.trim()
+    const faqs     = _getFaqs()
+    const faq      = faqs.find(f => f.pergunta.trim() === pergunta)
+    const resposta = faq ? faq.resposta : null
+    if (!resposta) return
+
+    const msgs = document.getElementById('aiFaqMessages')
+    if (!msgs) return
+    btn.style.opacity = '.45'
+    btn.disabled = true
+
+    const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
+    const wrap = document.createElement('div')
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:0 4px;animation:aiMsgIn .28s cubic-bezier(.22,1,.36,1) both;'
+    wrap.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;">
+        <div class="ai-msg-bubble" style="background:linear-gradient(135deg,#4361ee,#6f42c1);color:#fff;border-bottom-right-radius:5px;max-width:88%;padding:9px 13px;border-radius:14px;font-size:12.5px;line-height:1.5;">${esc(pergunta)}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:8px;background:linear-gradient(145deg,#4361ee,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+          <i data-lucide="sparkles" style="width:13px;height:13px;color:#fff;"></i>
+        </div>
+        <div class="ai-msg-bubble" style="background:var(--lg-bg-sm);border:1px solid var(--lg-border-dim);color:var(--text);border-bottom-left-radius:5px;max-width:88%;padding:10px 14px;border-radius:14px;font-size:12.5px;line-height:1.6;">${esc(resposta)}</div>
+      </div>`
+    msgs.appendChild(wrap)
+    msgs.scrollTop = msgs.scrollHeight
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [wrap] })
+  }
+
+  /* ── Aplica estado (ativo/desativado) na UI ──────────────── */
+  window._iaAplicarEstado = function() {
+    const paneIa  = document.getElementById('aiPane-ia')
+    const paneFaq = document.getElementById('aiPane-faq')
+    const btn     = document.getElementById('iaToggleBtn')
+    const thumb   = document.getElementById('iaToggleThumb')
+    const label   = document.getElementById('iaToggleLabel')
+    const desc    = document.getElementById('iaToggleDesc')
+    const subTit  = document.getElementById('aiPanelSubtitle')
+
+    if (AI_ATIVO) {
+      // IA ligada
+      if (paneIa)  paneIa.style.display  = 'flex'
+      if (paneFaq) paneFaq.style.display = 'none'
+      if (btn)   { btn.style.background  = '#7c3aed' }
+      if (thumb) { thumb.style.left      = '23px' }
+      if (label) { label.textContent = 'Ativo'; label.style.color = '#7c3aed' }
+      if (desc)  desc.textContent = 'Usuários têm acesso ao assistente de IA completo.'
+      if (subTit) subTit.textContent = 'Assistente inteligente do PCA'
+    } else {
+      // IA desligada
+      if (paneIa)  paneIa.style.display  = 'none'
+      if (paneFaq) paneFaq.style.display = 'flex'
+      if (btn)   { btn.style.background  = '#94a3b8' }
+      if (thumb) { thumb.style.left      = '3px' }
+      if (label) { label.textContent = 'Inativo'; label.style.color = '#94a3b8' }
+      if (desc)  desc.textContent = 'Usuários verão perguntas pré-definidas e o botão WhatsApp.'
+      if (subTit) subTit.textContent = 'Dúvidas frequentes · PCA'
+      // Renderiza chips FAQ dinâmicos
+      setTimeout(() => window.aiFaqRenderChips && window.aiFaqRenderChips(), 50)
+    }
+  }
+
+  /* ── Toggle: inverte estado e salva ─────────────────────── */
+  window.cfgIaToggle = async function() {
+    AI_ATIVO = !AI_ATIVO
+    localStorage.setItem('pca-ia-ativo', String(AI_ATIVO))
+    window._iaAplicarEstado()
+
+    // Grava na aba IAAPI via Apps Script (linha IA_ATIVO)
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+      mostrarToast('Estado salvo localmente. Configure o Web App para persistir.', 'warn')
+      return
+    }
+    try {
+      const params = new URLSearchParams({
+        acao    : 'salvarToggleIa',
+        configId: CONFIG_SHEET_ID,
+        iaAtivo : String(AI_ATIVO),
+      })
+      // POST cors; fallback GET no-cors
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method: 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+      } catch(_) {
+        await fetch(`${WEBAPP_URL}?${params.toString()}`, {
+          method: 'GET', mode: 'no-cors', cache: 'no-store',
+        })
+      }
+      mostrarToast(
+        AI_ATIVO ? 'IA Copilot ativado e salvo.' : 'IA Copilot desativado e salvo.',
+        AI_ATIVO ? 'ok' : 'warn'
+      )
+    } catch(e) {
+      console.warn('[IA Toggle]', e.message)
+      mostrarToast('Estado salvo localmente. Erro ao gravar na planilha: ' + e.message, 'warn')
+    }
+  }
+
+  /* ── Inicialização ───────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Aplica estado inicial assim que o DOM está pronto
+    window._iaAplicarEstado()
+
+    // Hook ao abrir IA Copilot nas configs: sincroniza o toggle
+    const origCfg = window.cfgIaAbrirSecao
+    if (typeof origCfg === 'function' && !window.__iaTogglePatched) {
+      window.__iaTogglePatched = true
+      window.cfgIaAbrirSecao = function() {
+        origCfg()
+        window._iaAplicarEstado()
+      }
+    }
+  })
+
+})()
+/* ── fim IA TOGGLE ── */
+
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO FAQ — Gerenciamento de Perguntas & Respostas
+   Armazena na aba FAQ_CONFIG da PCA_CONFIG (via Apps Script).
+   Colunas: ID | PERGUNTA | RESPOSTA | KEYWORDS | ATIVO | CRIADO_EM
+   Expõe:
+     window._faqCache      — lista em memória (usada pelo motor de busca)
+     window.faqCarregar()  — carrega do Sheets API
+     window.faqAbrirModal(id?)
+     window.faqFecharModal()
+     window.faqSalvar()
+     window.faqExcluir(id)
+     window.faqFiltrar(q)
+══════════════════════════════════════════════════════════════ */
+;(function _moduloFaq() {
+  'use strict'
+
+  /* ── Estado ──────────────────────────────────────────────── */
+  window._faqCache = []      // cache em memória — compartilhado com motor de busca
+  let _filtroAtual = ''
+  let _salvando    = false
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  const _el   = id  => document.getElementById(id)
+  const _esc  = s   => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  const _gerarId = () => 'faq-' + Date.now().toString(36) + Math.random().toString(36).slice(2,5)
+
+  function _setStatus(msg, tipo) {
+    const el = _el('faqStatus')
+    if (!el) return
+    const bgs  = { ok:'#dcfce7', erro:'#fee2e2', info:'#eff6ff', '':'var(--surface2)' }
+    const txts = { ok:'#166534', erro:'#991b1b', info:'#1e40af', ''  :'var(--text-muted)' }
+    el.style.display    = msg ? 'block' : 'none'
+    el.style.background = bgs[tipo]  || bgs['']
+    el.style.color      = txts[tipo] || txts['']
+    el.textContent      = msg
+  }
+
+  /* ── Carregar FAQs da planilha via Sheets API ─────────────── */
+  window.faqCarregar = async function() {
+    if (!CONFIG_SHEET_ID || !GS_API_KEY) {
+      // Sem conexão: usa FAQs builtin para a lista de config
+      _renderLista(window._faqCache.length ? window._faqCache : [])
+      // Garante chips no painel flutuante mesmo offline
+      if (typeof window.aiFaqRenderChips === 'function') window.aiFaqRenderChips()
+      return
+    }
+    _setStatus('Carregando FAQs...', 'info')
+    try {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG_SHEET_ID}/values/FAQ_CONFIG!A1:F500`
+               + `?valueRenderOption=FORMATTED_VALUE&key=${GS_API_KEY}`
+      const r = await fetch(url)
+      if (!r.ok) {
+        if (r.status === 400 || r.status === 404) {
+          // Aba FAQ_CONFIG ainda não existe — cria via Apps Script e popula com builtin
+          _setStatus('Criando base de FAQs...', 'info')
+          await _faqInicializarRemoto()
+          _setStatus('', '')
+          return
+        }
+        throw new Error('HTTP ' + r.status)
+      }
+      const data = await r.json()
+      const rows = (data.values || []).slice(1)   // pula cabeçalho
+      window._faqCache = rows
+        .filter(r => r[0] && r[1])
+        .map(r => ({
+          id      : String(r[0]||''),
+          pergunta: String(r[1]||''),
+          resposta: String(r[2]||''),
+          keywords: String(r[3]||''),
+          ativo   : String(r[4]||'SIM').toUpperCase() !== 'NÃO',
+          criadoEm: String(r[5]||''),
+        }))
+        .filter(f => f.ativo)
+      _setStatus('', '')
+      _renderLista(window._faqCache)
+      // Atualiza chips no painel flutuante
+      if (typeof window.aiFaqRenderChips === 'function') window.aiFaqRenderChips()
+    } catch(e) {
+      _setStatus('Erro ao carregar: ' + e.message, 'erro')
+    }
+  }
+
+  /* ── Renderizar lista na seção de configuração ────────────── */
+  function _renderLista(faqs) {
+    const lista  = _el('faqLista')
+    const count  = _el('faqContador')
+    if (!lista) return
+
+    const q = _filtroAtual.toLowerCase()
+    const vis = q
+      ? faqs.filter(f => [f.pergunta, f.resposta, f.keywords].join(' ').toLowerCase().includes(q))
+      : faqs
+
+    if (count) count.textContent = `${vis.length} pergunta${vis.length !== 1 ? 's' : ''} cadastrada${vis.length !== 1 ? 's' : ''}`
+
+    if (!vis.length) {
+      lista.innerHTML = `<div style="padding:36px 20px;text-align:center;color:var(--text-muted);font-size:13px;">
+        <i data-lucide="help-circle" style="width:36px;height:36px;opacity:.2;display:block;margin:0 auto 12px;"></i>
+        ${_filtroAtual ? 'Nenhuma FAQ encontrada para "' + _esc(_filtroAtual) + '".' : 'Nenhuma FAQ cadastrada ainda. Clique em <strong>Nova FAQ</strong> para começar.'}
+      </div>`
+      if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [lista] })
+      return
+    }
+
+    lista.innerHTML = vis.map(f => {
+      const kws = (f.keywords || '').split(',').map(k => k.trim()).filter(Boolean)
+      return `<div class="faq-card">
+        <div class="faq-card-pergunta">${_esc(f.pergunta)}</div>
+        <div class="faq-card-resposta">${_esc(f.resposta)}</div>
+        ${kws.length ? `<div class="faq-card-keywords">${kws.map(k => `<span class="faq-kw-tag">${_esc(k)}</span>`).join('')}</div>` : ''}
+        <div class="faq-card-actions">
+          <button class="faq-btn-edit" onclick="faqAbrirModal('${_esc(f.id)}')">
+            <i data-lucide="pencil" style="width:12px;height:12px;"></i>Editar
+          </button>
+          <button class="faq-btn-del" onclick="faqExcluir('${_esc(f.id)}')">
+            <i data-lucide="trash-2" style="width:12px;height:12px;"></i>Excluir
+          </button>
+        </div>
+      </div>`
+    }).join('')
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [lista] })
+  }
+
+  /* ── Filtro em tempo real ─────────────────────────────────── */
+  window.faqFiltrar = function(v) {
+    _filtroAtual = v || ''
+    _renderLista(window._faqCache)
+  }
+
+  /* ── Modal: abrir (novo ou editar) ───────────────────────── */
+  window.faqAbrirModal = function(id) {
+    const modal = _el('faqModal')
+    if (!modal) return
+    _el('faqModalTitulo').textContent = id ? 'Editar FAQ' : 'Nova FAQ'
+    _el('faqModalId').value           = id || ''
+    if (id) {
+      const faq = window._faqCache.find(f => f.id === id)
+      if (faq) {
+        _el('faqModalPergunta').value = faq.pergunta
+        _el('faqModalResposta').value = faq.resposta
+        _el('faqModalKeywords').value = faq.keywords || ''
+      }
+    } else {
+      _el('faqModalPergunta').value = ''
+      _el('faqModalResposta').value = ''
+      _el('faqModalKeywords').value = ''
+    }
+    modal.style.display = 'flex'
+    setTimeout(() => _el('faqModalPergunta')?.focus(), 80)
+  }
+
+  window.faqFecharModal = function() {
+    const modal = _el('faqModal')
+    if (modal) modal.style.display = 'none'
+  }
+
+  /* ── Salvar (criar ou editar) ─────────────────────────────── */
+  window.faqSalvar = async function() {
+    if (_salvando) return
+    const pergunta = (_el('faqModalPergunta')?.value || '').trim()
+    const resposta = (_el('faqModalResposta')?.value || '').trim()
+    const keywords = (_el('faqModalKeywords')?.value || '').trim()
+    const id       = (_el('faqModalId')?.value || '').trim()
+
+    if (!pergunta) { mostrarToast('Digite a pergunta.', 'warn'); return }
+    if (!resposta) { mostrarToast('Digite a resposta.', 'warn'); return }
+
+    const faqId     = id || _gerarId()
+    const criadoEm  = id
+      ? (window._faqCache.find(f => f.id === id)?.criadoEm || new Date().toISOString())
+      : new Date().toISOString()
+    const novoItem  = { id: faqId, pergunta, resposta, keywords, ativo: true, criadoEm }
+
+    // Atualiza cache local imediatamente (UX otimista)
+    if (id) {
+      const idx = window._faqCache.findIndex(f => f.id === id)
+      if (idx >= 0) window._faqCache[idx] = novoItem
+      else window._faqCache.push(novoItem)
+    } else {
+      window._faqCache.push(novoItem)
+    }
+    _renderLista(window._faqCache)
+    if (typeof window.aiFaqRenderChips === 'function') window.aiFaqRenderChips()
+    faqFecharModal()
+
+    // Persiste via Apps Script
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+      mostrarToast('FAQ salva localmente. Configure o Web App para persistir.', 'warn')
+      return
+    }
+    _salvando = true
+    const btn = _el('faqBtnSalvar')
+    if (btn) { btn.disabled = true; btn.textContent = 'Salvando...' }
+    try {
+      const params = new URLSearchParams({
+        acao     : 'salvarFaq',
+        configId : CONFIG_SHEET_ID,
+        id       : faqId,
+        pergunta,
+        resposta,
+        keywords,
+        ativo    : 'SIM',
+        criadoEm,
+      })
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method: 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+      } catch(_) {
+        await fetch(`${WEBAPP_URL}?${params.toString()}`, {
+          method: 'GET', mode: 'no-cors', cache: 'no-store',
+        })
+      }
+      mostrarToast({ title: id ? 'FAQ atualizada' : 'FAQ criada', sub: pergunta.slice(0,50) }, 'ok')
+    } catch(e) {
+      mostrarToast('FAQ salva localmente. Erro ao persistir: ' + e.message, 'warn')
+    } finally {
+      _salvando = false
+      if (btn) { btn.disabled = false; btn.textContent = 'Salvar FAQ' }
+    }
+  }
+
+  /* ── Excluir FAQ ──────────────────────────────────────────── */
+  window.faqExcluir = async function(id) {
+    const faq = window._faqCache.find(f => f.id === id)
+    if (!faq) return
+    const _confirmFn = typeof window._showConfirm === 'function' ? window._showConfirm : null
+    const ok = _confirmFn
+      ? await _confirmFn(`Excluir a FAQ "${faq.pergunta.slice(0,60)}"?`)
+      : confirm(`Excluir FAQ?\n\n"${faq.pergunta}"`)
+    if (!ok) return
+
+    window._faqCache = window._faqCache.filter(f => f.id !== id)
+    _renderLista(window._faqCache)
+    if (typeof window.aiFaqRenderChips === 'function') window.aiFaqRenderChips()
+
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) {
+      mostrarToast('FAQ removida localmente.', 'ok'); return
+    }
+    try {
+      const params = new URLSearchParams({ acao:'excluirFaq', configId:CONFIG_SHEET_ID, id })
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method:'POST', mode:'cors',
+          headers:{'Content-Type':'application/x-www-form-urlencoded'},
+          body: params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+      } catch(_) {
+        await fetch(`${WEBAPP_URL}?${params.toString()}`,{method:'GET',mode:'no-cors',cache:'no-store'})
+      }
+      mostrarToast('FAQ excluída.', 'ok')
+    } catch(e) {
+      mostrarToast('FAQ removida localmente. Erro ao persistir: ' + e.message, 'warn')
+    }
+  }
+
+  /* ── Inicializar aba FAQ_CONFIG remotamente ──────────────── */
+  /* Chamada quando a aba não existe ainda.
+     Envia as FAQs builtin para o Apps Script criar a aba e
+     popular com o conteúdo inicial, depois recarrega a lista. */
+  async function _faqInicializarRemoto() {
+    // Popula cache local com builtin imediatamente (UX)
+    if (!window._faqCache || !window._faqCache.length) {
+      const builtin = typeof FAQ_BUILTIN !== 'undefined' ? FAQ_BUILTIN : []
+      window._faqCache = builtin.slice()
+    }
+    _renderLista(window._faqCache)
+    if (typeof window.aiFaqRenderChips === 'function') window.aiFaqRenderChips()
+
+    if (!WEBAPP_URL || !CONFIG_SHEET_ID) return
+
+    // Cria a aba via Apps Script (action inicializarFaq)
+    try {
+      const params = new URLSearchParams({
+        acao     : 'inicializarFaq',
+        configId : CONFIG_SHEET_ID,
+      })
+      try {
+        const r = await fetch(WEBAPP_URL, {
+          method : 'POST', mode: 'cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body   : params.toString(),
+        })
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+        const json = await r.json().catch(() => ({}))
+        if (json.ok) {
+          // Aba criada — envia FAQs builtin uma a uma
+          for (const faq of window._faqCache) {
+            const pFaq = new URLSearchParams({
+              acao     : 'salvarFaq',
+              configId : CONFIG_SHEET_ID,
+              id       : faq.id,
+              pergunta : faq.pergunta,
+              resposta : faq.resposta,
+              keywords : faq.keywords || '',
+              ativo    : 'SIM',
+              criadoEm : new Date().toISOString(),
+            })
+            await fetch(WEBAPP_URL, {
+              method : 'POST', mode: 'cors',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body   : pFaq.toString(),
+            }).catch(() => null)
+          }
+          mostrarToast({
+            title: 'Base de FAQs criada',
+            sub  : window._faqCache.length + ' perguntas registradas na PCA_CONFIG',
+          }, 'ok')
+        }
+      } catch(_) {
+        // Fallback GET no-cors: só cria a aba (sem popular builtin)
+        await fetch(`${WEBAPP_URL}?${params.toString()}`, {
+          method: 'GET', mode: 'no-cors', cache: 'no-store',
+        })
+      }
+    } catch(e) {
+      console.warn('[FAQ] _faqInicializarRemoto:', e.message)
+    }
+  }
+
+  /* ── Boot: carrega FAQs ao inicializar o sistema ──────────── */
+  /* Registrado via hook no bootstrapSistema para garantir que
+     CONFIG_SHEET_ID e GS_API_KEY já estejam disponíveis.       */
+  ;(function _faqBoot() {
+    const _origBootstrap = window.bootstrapSistema
+    if (typeof _origBootstrap === 'function' && !window.__faqBootPatched) {
+      window.__faqBootPatched = true
+      window.bootstrapSistema = async function() {
+        const resultado = await _origBootstrap.apply(this, arguments)
+        // Carrega FAQs após o boot (cria aba se necessário)
+        if (CONFIG_SHEET_ID && GS_API_KEY) {
+          window.faqCarregar().catch(e => console.warn('[FAQ boot]', e.message))
+        }
+        return resultado
+      }
+    }
+  })()
+
+  /* ── Fecha modal ao clicar fora ───────────────────────────── */
+  document.addEventListener('click', e => {
+    const modal = _el('faqModal')
+    if (modal && modal.style.display === 'flex' && e.target === modal)
+      faqFecharModal()
+  })
+
+})()
+/* ── fim MÓDULO FAQ ── */
+
+
+/* ══════════════════════════════════════════════════════════════
+   MÓDULO TUTORIAL INTERATIVO
+   Ativa overlay escuro + tooltip contextual ao passar o mouse
+   sobre elementos com atributo [data-tutorial].
+   Catálogo de tooltips definido em TOOLTIPS abaixo.
+══════════════════════════════════════════════════════════════ */
+;(function _tutorial() {
+  'use strict'
+
+  /* ── Catálogo de tooltips por [data-tutorial] ─────────────── */
+  const TOOLTIPS = {
+    copilot: {
+      titulo: 'PCA Copilot',
+      texto : 'Assistente inteligente do PCA. Clique para abrir o chat: faça perguntas sobre os dados, filtre itens, gere resumos e navegue pelo sistema com linguagem natural.',
+    },
+    menu: {
+      titulo: 'Menu de Configurações',
+      texto : 'Abre o painel de configurações: Google Sheets, chaves de API, usuários, repartições, aparência, FAQ e muito mais.',
+    },
+    tabela: {
+      titulo: 'Tabela de Itens do PCA',
+      texto : 'Lista todos os itens do plano. Clique em qualquer linha para ver detalhes, valores, saldo e dados orçamentários do item.',
+    },
+    dock: {
+      titulo: 'Menu Rápido',
+      texto : 'Atalhos para as ações mais usadas: Consultar itens, Gerar PDF, Editar, Adicionar e Excluir. Sempre visível na parte inferior da tela.',
+    },
+    kpis: {
+      titulo: 'Indicadores do PCA',
+      texto : 'KPIs com totais, valores e distribuição por secretaria. Use o seletor de repartição no cabeçalho para filtrar todos os indicadores.',
+    },
+  }
+
+  /* Ordem de navegação sequencial */
+  const ORDEM = ['kpis', 'tabela', 'menu', 'copilot', 'dock']
+
+  let _ativo       = false
+  let _tooltip     = null
+  let _banner      = null
+  let _overlay     = null
+  let _hoverTarget = null
+  let _hideTimer   = null
+  let _seqIndex    = 0   // índice atual na navegação sequencial
+
+  const _el = id => document.getElementById(id)
+
+  /* ── Posicionamento inteligente do tooltip ────────────────── */
+  function _posicionarTooltip(el) {
+    const rect  = el.getBoundingClientRect()
+    const tw    = Math.min(290, window.innerWidth - 32)
+    const th    = 160  // altura estimada do tooltip
+    const gap   = 12   // distância do elemento
+
+    /* Tenta abaixo; se não couber, tenta acima; senão, à direita */
+    let top, left
+
+    if (rect.bottom + th + gap < window.innerHeight) {
+      // Abaixo do elemento
+      top = rect.bottom + gap
+    } else if (rect.top - th - gap > 0) {
+      // Acima do elemento
+      top = rect.top - th - gap
+    } else {
+      // Alinhado ao topo do elemento
+      top = Math.max(12, rect.top)
+    }
+
+    // Centraliza horizontalmente, ajusta se sair da tela
+    left = rect.left + rect.width / 2 - tw / 2
+    left = Math.max(12, Math.min(left, window.innerWidth - tw - 12))
+
+    _tooltip.style.top   = top + 'px'
+    _tooltip.style.left  = left + 'px'
+    _tooltip.style.width = tw + 'px'
+  }
+
+  /* ── Mostrar tooltip ──────────────────────────────────────── */
+  function _mostrarTooltip(el) {
+    if (!_tooltip || !_ativo) return
+    const key  = el.dataset.tutorial
+    const info = TOOLTIPS[key]
+    if (!info) { _esconderTooltip(); return }
+
+    // Cancela timer de esconder se houver
+    if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null }
+
+    _el('tutorialTitulo').textContent = info.titulo
+    _el('tutorialTexto').textContent  = info.texto
+    _posicionarTooltip(el)
+    _tooltip.classList.add('visivel')
+  }
+
+  /* ── Esconder tooltip (com pequeno delay para evitar flicker) */
+  function _esconderTooltip(imediato) {
+    if (!_tooltip) return
+    if (imediato) {
+      _tooltip.classList.remove('visivel')
+      return
+    }
+    _hideTimer = setTimeout(() => {
+      _tooltip.classList.remove('visivel')
+      _hideTimer = null
+    }, 80)
+  }
+
+  /* ── Event: mouse entra em elemento ──────────────────────── */
+  function _onMouseenter(e) {
+    if (!_ativo) return
+    /* closest() sobe a árvore DOM até encontrar [data-tutorial]
+       — funciona mesmo que o cursor esteja em um filho do elemento */
+    const el = e.target.closest('[data-tutorial]')
+    if (!el) return
+    if (el === _hoverTarget) {
+      // Mesmo elemento: cancela esconder se estava pendente
+      if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null }
+      return
+    }
+    _hoverTarget = el
+    _mostrarTooltip(el)
+  }
+
+  /* ── Event: mouse sai de elemento ────────────────────────── */
+  function _onMouseleave(e) {
+    if (!_ativo) return
+    const from = e.target.closest('[data-tutorial]')
+    if (!from) return
+    /* Verifica se o mouse vai para outro [data-tutorial] ou para fora */
+    const to = (e.relatedTarget || document.elementFromPoint(e.clientX, e.clientY))
+    const toEl = to ? to.closest('[data-tutorial]') : null
+    if (toEl && toEl !== from) {
+      // Vai para outro elemento — troca diretamente sem esconder
+      _hoverTarget = toEl
+      _mostrarTooltip(toEl)
+    } else if (!toEl) {
+      _hoverTarget = null
+      _esconderTooltip()
+    }
+  }
+
+  function _onScroll()  { _esconderTooltip(true); _hoverTarget = null }
+  function _onKeydown(e){ if (e.key === 'Escape') window.tutorialEncerrar() }
+
+  /* ── Navegação sequencial: ir para próximo elemento ────────── */
+  window.tutorialProximo = function() {
+    const chaves = ORDEM.filter(k => document.querySelector(`[data-tutorial="${k}"]`))
+    if (!chaves.length) return
+    _seqIndex = (_seqIndex + 1) % chaves.length
+    const el = document.querySelector(`[data-tutorial="${chaves[_seqIndex]}"]`)
+    if (!el) return
+    _hoverTarget = el
+    _mostrarTooltip(el)
+    // Destaca o elemento brevemente
+    el.scrollIntoView({ behavior:'smooth', block:'nearest' })
+    el.style.outline = '2px solid rgba(124,58,237,.80)'
+    setTimeout(() => { el.style.outline = '' }, 1200)
+  }
+
+  /* ── Iniciar tutorial ─────────────────────────────────────── */
+  window.tutorialIniciar = function() {
+    _tooltip = _el('tutorialTooltip')
+    _banner  = _el('tutorialBanner')
+    _overlay = _el('tutorialOverlay')
+    if (!_tooltip || !_banner) return
+
+    // Fecha painel IA se estiver aberto
+    const panel = _el('aiCopilotPanel')
+    if (panel?.classList.contains('ai-open')) panel.classList.remove('ai-open')
+
+    _ativo    = true
+    _seqIndex = -1
+    document.body.classList.add('tutorial-ativo')
+    _overlay.classList.add('ativo')
+    _banner.classList.add('ativo')
+
+    /* Usa mouseover/mouseout no document para capturar eventos
+       que emergem de QUALQUER elemento, incluindo filhos —
+       com closest() identificamos qual [data-tutorial] é o alvo */
+    document.addEventListener('mouseover', _onMouseenter, true)
+    document.addEventListener('mouseout',  _onMouseleave, true)
+    window.addEventListener('scroll',      _onScroll,    { passive:true })
+    document.addEventListener('keydown',   _onKeydown)
+
+    // Mostra o primeiro elemento após um frame
+    setTimeout(window.tutorialProximo, 200)
+  }
+
+  /* ── Encerrar tutorial ────────────────────────────────────── */
+  window.tutorialEncerrar = function() {
+    _ativo = false
+    if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null }
+    _esconderTooltip(true)
+    document.body.classList.remove('tutorial-ativo')
+    if (_overlay) _overlay.classList.remove('ativo')
+    if (_banner)  _banner.classList.remove('ativo')
+    document.removeEventListener('mouseover', _onMouseenter, true)
+    document.removeEventListener('mouseout',  _onMouseleave, true)
+    window.removeEventListener('scroll',      _onScroll)
+    document.removeEventListener('keydown',   _onKeydown)
+    _hoverTarget = null
+    _seqIndex    = -1
+  }
+
+})()
+/* ── fim TUTORIAL ── */
+
 })() // fim MÓDULO LOGIN
 
 /* ══════════════════════════════════════════════════════════════
@@ -24198,5 +26848,660 @@ const _pdfCfgOnOpen = (id) => {
 
 })()
 /* ── fim LIQUID GLASS NAVBAR ── */
+
+/* ══════════════════════════════════════════════════════════════
+   PCA COPILOT — Assistente de IA com Claude API + tool_use
+   ──────────────────────────────────────────────────────────────
+   Arquitetura:
+   • _aiTools[]          → ferramentas que o Claude pode invocar
+   • _aiExecuteTool()    → executa as ferramentas localmente
+     (zero latência — dados já estão em dados[] na memória)
+   • _aiBuildContext()   → contexto compacto enviado a cada turno
+   • aiEnviar()          → orquestra a conversa multi-turn
+   • aiTogglePanel()     → abre/fecha o painel Liquid Glass
+══════════════════════════════════════════════════════════════ */
+;(function _pcaCopilot() {
+
+  /* ── Configuração ──────────────────────────────────────────── */
+  const ANTHROPIC_MODEL    = 'claude-sonnet-4-6'
+  const ANTHROPIC_ENDPOINT = 'https://api.anthropic.com/v1/messages'
+  /* Modelos Gemini em ordem de preferência (API v1beta — março/2026).
+     gemini-2.0-flash  : padrão atual, gratuito, disponível na v1beta.
+     gemini-2.0-flash-lite: alternativa leve.
+     gemini-1.5-flash e gemini-1.5-flash-latest foram descontinuados. */
+  const GEMINI_MODELS   = ['gemini-2.0-flash', 'gemini-2.0-flash-lite']
+  const GEMINI_BASE     = 'https://generativelanguage.googleapis.com/v1beta/models/'
+  // GEMINI_MODEL/ENDPOINT mantidos para compatibilidade com cfgTestarIaKey
+  const GEMINI_MODEL    = GEMINI_MODELS[0]
+  const GEMINI_ENDPOINT = GEMINI_BASE + GEMINI_MODEL + ':generateContent'
+
+  /* Retorna { prov, key } para a chamada atual.
+     CORREÇÃO 5: verificação com .trim() para evitar que strings vazias
+     passem pelo operador && e acabem lendo valor desatualizado do localStorage. */
+  function _getProviderConfig() {
+    const prov = ((typeof AI_PROVIDER !== 'undefined' && AI_PROVIDER) ? AI_PROVIDER : null)
+      || localStorage.getItem('pca-ai-provider') || 'anthropic'
+    const keyMem = prov === 'gemini'
+      ? (typeof AI_GEMINI_KEY !== 'undefined' ? AI_GEMINI_KEY : '')
+      : (typeof AI_API_KEY    !== 'undefined' ? AI_API_KEY    : '')
+    const lsKey  = prov === 'gemini' ? 'pca-gemini-key' : 'pca-ai-key'
+    const key    = (keyMem && keyMem.trim()) ? keyMem.trim() : (localStorage.getItem(lsKey) || '').trim()
+    return { prov, key }
+  }
+
+  /* Histórico de conversa (multi-turn) — mantido em memória */
+  const _history = []
+  let   _busy    = false
+
+  /* ── Ferramentas (tool_use) ────────────────────────────────── */
+  const _aiTools = [
+    {
+      name: 'filtrar_itens',
+      description: 'Filtra os itens do PCA por um ou mais critérios e exibe na tabela da tela. Use quando o usuário pedir para ver, listar, buscar ou filtrar itens.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          local:         { type: 'string',  description: 'Código da secretaria (ex: SMPG, SEMUS)' },
+          classificacao: { type: 'string',  description: 'MATERIAL ou SERVIÇO' },
+          prioridade:    { type: 'string',  enum: ['ALTA','MÉDIA','BAIXA'], description: 'Nível de prioridade' },
+          dominio:       { type: 'string',  description: 'Domínio de contratação' },
+          valor_min:     { type: 'number',  description: 'Valor total mínimo em R$' },
+          valor_max:     { type: 'number',  description: 'Valor total máximo em R$' },
+          texto:         { type: 'string',  description: 'Texto livre para busca no nome do produto' }
+        }
+      }
+    },
+    {
+      name: 'resumir_por_campo',
+      description: 'Agrupa e totaliza os itens por um campo (secretaria, classificação, domínio, prioridade, mês). Retorna tabela com quantidade e valor.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          campo: {
+            type: 'string',
+            enum: ['LOCAL','CLASSIFICAÇÃO','DOMÍNIO','PRIORIDADE','DATA PARA CONTRATAÇÃO'],
+            description: 'Campo pelo qual agrupar'
+          },
+          limite: { type: 'number', description: 'Máximo de linhas a retornar (padrão: 10)' }
+        },
+        required: ['campo']
+      }
+    },
+    {
+      name: 'buscar_anomalias',
+      description: 'Detecta problemas nos dados: itens com saldo maior que valor total, sem produto, sem valor, ou prioridade não definida.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          tipo: {
+            type: 'string',
+            enum: ['saldo_excede','sem_produto','sem_valor','prioridade_indefinida','todos'],
+            description: 'Tipo de anomalia a detectar'
+          }
+        },
+        required: ['tipo']
+      }
+    },
+    {
+      name: 'navegar',
+      description: 'Navega para uma seção específica do sistema.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          destino: {
+            type: 'string',
+            enum: ['indicadores','orcamento','consultaItens','documentos'],
+            description: 'Seção de destino'
+          }
+        },
+        required: ['destino']
+      }
+    },
+    {
+      name: 'exportar_excel',
+      description: 'Exporta os itens atualmente filtrados na tabela para um arquivo Excel.',
+      input_schema: { type: 'object', properties: {} }
+    },
+    {
+      name: 'sincronizar',
+      description: 'Sincroniza os dados com a planilha Google Sheets.',
+      input_schema: { type: 'object', properties: {} }
+    }
+  ]
+
+  /* ── Executor local das ferramentas ───────────────────────── */
+  function _aiExecuteTool(name, input) {
+    switch (name) {
+
+      /* ─ filtrar_itens ─────────────────────────────────────── */
+      case 'filtrar_itens': {
+        let resultado = [...dados]
+        if (input.local)         resultado = resultado.filter(r => norm(r[COL.LOCAL]).toUpperCase() === input.local.toUpperCase())
+        if (input.classificacao) resultado = resultado.filter(r => norm(r[COL.CLASSIFICACAO]).toUpperCase().includes(input.classificacao.toUpperCase()))
+        if (input.prioridade)    resultado = resultado.filter(r => normPrioridade(r[COL.PRIORIDADE]) === input.prioridade)
+        if (input.dominio)       resultado = resultado.filter(r => norm(r[COL.DOMINIO]).toUpperCase().includes(input.dominio.toUpperCase()))
+        if (input.valor_min)     resultado = resultado.filter(r => getValor(r) >= input.valor_min)
+        if (input.valor_max)     resultado = resultado.filter(r => getValor(r) <= input.valor_max)
+        if (input.texto)         resultado = resultado.filter(r => norm(r[COL.PRODUTO]).toLowerCase().includes(input.texto.toLowerCase()))
+
+        /* Reflete o filtro na tabela visível.
+           dadosFiltrados é `let` global — atribuição direta (não window.xxx)
+           para que renderizarPagina() leia o valor correto. */
+        dadosFiltrados = resultado   // eslint-disable-line no-undef
+        paginaAtual    = 1           // eslint-disable-line no-undef
+        if (typeof renderizarPagina === 'function') renderizarPagina()
+        if (typeof mudarAba === 'function') mudarAba('dashboard')
+        if (typeof scrollToSectionByText === 'function') scrollToSectionByText('Consulta de Itens')
+
+        const soma = resultado.reduce((a, r) => a + getValor(r), 0)
+        return {
+          total: resultado.length,
+          valor_total: formatBRL(soma),
+          preview: resultado.slice(0, 5).map(r => ({
+            seq:     r[COL.SEQUENCIAL] || '—',
+            produto: (norm(r[COL.PRODUTO]) || '').substring(0, 40),
+            valor:   formatBRL(getValor(r)),
+            local:   norm(r[COL.LOCAL])
+          }))
+        }
+      }
+
+      /* ─ resumir_por_campo ─────────────────────────────────── */
+      case 'resumir_por_campo': {
+        const grupos = {}
+        const fonte  = (typeof dadosFiltrados !== 'undefined' && dadosFiltrados.length) ? dadosFiltrados : dados  // eslint-disable-line no-undef
+        fonte.forEach(r => {
+          let chave = norm(r[input.campo]) || 'Não definido'
+          if (input.campo === 'DATA PARA CONTRATAÇÃO') chave = normData(chave) || 'Não definido'
+          if (input.campo === 'PRIORIDADE')            chave = normPrioridade(chave)
+          if (!grupos[chave]) grupos[chave] = { qtd: 0, valor: 0 }
+          grupos[chave].qtd++
+          grupos[chave].valor += getValor(r)
+        })
+        const limite = input.limite || 10
+        const linhas = Object.entries(grupos)
+          .sort((a, b) => b[1].valor - a[1].valor)
+          .slice(0, limite)
+          .map(([k, v]) => ({ grupo: k, itens: v.qtd, valor: formatBRL(v.valor) }))
+        const totalGeral = Object.values(grupos).reduce((a, v) => a + v.valor, 0)
+        return { campo: input.campo, linhas, total_geral: formatBRL(totalGeral) }
+      }
+
+      /* ─ buscar_anomalias ──────────────────────────────────── */
+      case 'buscar_anomalias': {
+        const resultado = {}
+
+        const verificar = (tipo, fn) => {
+          if (input.tipo === tipo || input.tipo === 'todos') {
+            resultado[tipo] = dados.filter(fn).slice(0, 10).map(r => ({
+              seq:   r[COL.SEQUENCIAL] || '—',
+              local: norm(r[COL.LOCAL]),
+              item:  (norm(r[COL.PRODUTO]) || '').substring(0, 35)
+            }))
+          }
+        }
+
+        verificar('saldo_excede',       r => (parseFloat(r[COL.SALDO_UTIL]) || 0) > getValor(r) && getValor(r) > 0)
+        verificar('sem_produto',         r => !norm(r[COL.PRODUTO]))
+        verificar('sem_valor',           r => getValor(r) === 0)
+        verificar('prioridade_indefinida',r => !['ALTA','MÉDIA','BAIXA'].includes(normPrioridade(r[COL.PRIORIDADE])))
+
+        return resultado
+      }
+
+      /* ─ navegar ───────────────────────────────────────────── */
+      case 'navegar': {
+        const mapa = {
+          indicadores:  () => { mudarAba('dashboard'); scrollToSection('kpiGrid') },
+          orcamento:    () => { mudarAba('dashboard'); scrollToSectionByText('Análise Orçamentária') },
+          consultaItens:() => { mudarAba('dashboard'); scrollToSectionByText('Consulta de Itens') },
+          documentos:   () => mudarAba('documentos'),
+        }
+        const fn = mapa[input.destino]
+        if (fn) { setTimeout(fn, 200); return { ok: true, destino: input.destino } }
+        return { ok: false, erro: 'Destino desconhecido' }
+      }
+
+      /* ─ exportar_excel ────────────────────────────────────── */
+      case 'exportar_excel':
+        if (typeof exportarExcel === 'function') exportarExcel()
+        return { ok: true }
+
+      /* ─ sincronizar ───────────────────────────────────────── */
+      case 'sincronizar':
+        if (typeof carregarDoSheets === 'function') carregarDoSheets()
+        return { ok: true, mensagem: 'Sincronização iniciada' }
+
+      default:
+        return { erro: 'Ferramenta desconhecida: ' + name }
+    }
+  }
+
+  /* ── Contexto compacto (cabeçalho do system prompt) ────────── */
+  function _aiBuildContext() {
+    if (!dados || dados.length === 0) return 'Nenhum dado carregado no momento.'
+
+    const locais    = unicos(COL.LOCAL)
+    const total     = dados.length
+    const soma      = dados.reduce((a, r) => a + getValor(r), 0)
+    const altas     = dados.filter(r => normPrioridade(r[COL.PRIORIDADE]) === 'ALTA').length
+    const classes   = unicos(COL.CLASSIFICACAO)
+    const dominios  = unicos(COL.DOMINIO)
+
+    return `Sistema: PCA - Prefeitura de Rio Verde/GO
+Itens carregados: ${total} | Valor total: ${formatBRL(soma)} | Alta prioridade: ${altas}
+Secretarias disponíveis: ${locais.join(', ')}
+Classificações: ${classes.join(', ')}
+Domínios: ${dominios.slice(0, 8).join(', ')}${dominios.length > 8 ? ` (+${dominios.length - 8})` : ''}
+Colunas: LOCAL, SEQUENCIAL, CÓDIGO, PRODUTO, UNIDADE DE MEDIDA, CLASSIFICAÇÃO, DOMÍNIO,
+QUANTIDADE, VALOR UNITÁRIO, VALOR TOTAL, DATA PARA CONTRATAÇÃO, PRIORIDADE,
+ID PROTOCOLO, DFD, SALDO UTILIZADO, QUANTIDADE UTILIZADA, TIPO DE CONTROLE.`
+  }
+
+  /* ── Render de resposta: texto + tabelas + chips ───────────── */
+  function _aiRenderResposta(texto) {
+    /* Preserva quebras de linha como <br> */
+    return texto
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(.*?)`/g, '<code style="background:rgba(67,97,238,.1);padding:1px 5px;border-radius:4px;font-size:11px;">$1</code>')
+  }
+
+  function _aiRenderTabela(linhas, campos) {
+    if (!linhas || linhas.length === 0) return ''
+    const cabecalho = campos || Object.keys(linhas[0])
+    return `<table class="ai-result-table">
+      <thead><tr>${cabecalho.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${linhas.map(r => `<tr>${cabecalho.map(h => `<td>${r[h] ?? '—'}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`
+  }
+
+  /* ── Adicionar mensagem no chat ───────────────────────────── */
+  function _aiAddMsg(role, html, showIcon = true) {
+    const wrap = document.getElementById('aiMessages')
+    if (!wrap) return
+
+    const div = document.createElement('div')
+    div.className = `ai-msg ai-msg-${role}`
+
+    if (role === 'assistant' && showIcon) {
+      div.innerHTML = `
+        <div class="ai-msg-icon">
+          <i data-lucide="sparkles" style="width:12px;height:12px;color:#fff;"></i>
+        </div>
+        <div class="ai-msg-bubble">${html}</div>`
+    } else {
+      div.innerHTML = `<div class="ai-msg-bubble">${html}</div>`
+    }
+
+    wrap.appendChild(div)
+    wrap.scrollTop = wrap.scrollHeight
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [div] })
+    return div
+  }
+
+  /* Indicador de "digitando" */
+  let _typingEl = null
+  function _aiShowTyping() {
+    const wrap = document.getElementById('aiMessages')
+    if (!wrap || _typingEl) return
+    const div = document.createElement('div')
+    div.className = 'ai-msg ai-msg-assistant'
+    div.innerHTML = `
+      <div class="ai-msg-icon">
+        <i data-lucide="sparkles" style="width:12px;height:12px;color:#fff;"></i>
+      </div>
+      <div class="ai-msg-bubble ai-typing">
+        <span></span><span></span><span></span>
+      </div>`
+    wrap.appendChild(div)
+    wrap.scrollTop = wrap.scrollHeight
+    if (typeof lucide !== 'undefined') lucide.createIcons({ nodes: [div] })
+    _typingEl = div
+  }
+  function _aiHideTyping() {
+    if (_typingEl) { _typingEl.remove(); _typingEl = null }
+  }
+
+  /* ── Núcleo: enviar mensagem e processar tool_use ──────────── */
+  async function _aiChat(userMsg) {
+    if (_busy) return
+    _busy = true
+
+    const btn     = document.getElementById('aiCopilotBtn')
+    const sendBtn = document.getElementById('aiSendBtn')
+    const input   = document.getElementById('aiInput')
+
+    if (btn)     btn.classList.add('ai-loading')
+    if (sendBtn) sendBtn.disabled = true
+    if (input)   input.disabled  = true
+
+    /* Ocultar sugestões após primeira interação */
+    const sugg = document.getElementById('aiSuggestions')
+    if (sugg) sugg.style.display = 'none'
+
+    /* Adiciona mensagem do usuário ao histórico e ao chat */
+    _history.push({ role: 'user', content: userMsg })
+    _aiAddMsg('user', _aiRenderResposta(userMsg), false)
+    _aiShowTyping()
+
+    try {
+      const { prov, key } = _getProviderConfig()
+      if (!key) {
+        _aiHideTyping()
+        const linkA = 'https://console.anthropic.com'
+        const linkG = 'https://aistudio.google.com/app/apikey'
+        _aiAddMsg('assistant',
+          `<div class="ai-api-notice">
+            <strong>Chave de API necessária.</strong><br>
+            Acesse <strong>Configurações → IA Copilot</strong> e configure sua chave.<br>
+            Anthropic: <a href="${linkA}" target="_blank" rel="noopener">console.anthropic.com</a> (pago) |
+            Gemini: <a href="${linkG}" target="_blank" rel="noopener">aistudio.google.com</a> (gratuito)
+          </div>`)
+        return
+      }
+
+      const SYSTEM_PROMPT = `Você é o PCA Copilot, assistente inteligente do sistema de Plano de Contratações Anual (PCA) da Prefeitura de Rio Verde/GO.
+Responda SEMPRE em português brasileiro. Seja direto, objetivo e preciso.
+Use as ferramentas disponíveis para responder perguntas sobre os dados do PCA.
+Ao filtrar ou resumir dados, mostre os resultados na resposta de forma clara.
+Quando executar ações no sistema (navegar, filtrar, exportar), confirme o que foi feito.
+Nunca invente dados — use apenas as ferramentas para consultar as informações reais.
+
+BASE DE CONHECIMENTO (FAQs cadastradas):
+${(function(){
+  const r = window._faqBuscarResposta ? window._faqBuscarResposta(userMsg) : null
+  if (!r) return '(nenhuma FAQ relevante encontrada)'
+  return 'Pergunta relacionada: ' + r.faq.pergunta + '\nResposta: ' + r.faq.resposta + ' [score: ' + r.score.toFixed(2) + ']'
+})()}
+
+CONTEXTO ATUAL DO SISTEMA:
+${_aiBuildContext()}`
+
+      /* Ferramentas Anthropic → Gemini function_declarations */
+      const _geminiTools = [{
+        function_declarations: _aiTools.map(t => ({
+          name: t.name, description: t.description,
+          parameters: t.input_schema || { type: 'object', properties: {} },
+        }))
+      }]
+
+      /* Histórico Anthropic → Gemini contents */
+      function _toGeminiHistory(hist) {
+        const out = []
+        for (const m of hist) {
+          if (m.role === 'user') {
+            if (typeof m.content === 'string') {
+              out.push({ role: 'user', parts: [{ text: m.content }] })
+            } else if (Array.isArray(m.content)) {
+              const parts = m.content.filter(b => b.type === 'tool_result')
+                .map(b => ({ functionResponse: { name: b.tool_use_id, response: { content: b.content } } }))
+              if (parts.length) out.push({ role: 'user', parts })
+            }
+          } else if (m.role === 'assistant') {
+            if (typeof m.content === 'string') {
+              out.push({ role: 'model', parts: [{ text: m.content }] })
+            } else if (Array.isArray(m.content)) {
+              const parts = []
+              for (const b of m.content) {
+                if (b.type === 'text' && b.text) parts.push({ text: b.text })
+                if (b.type === 'tool_use')        parts.push({ functionCall: { name: b.name, args: b.input || {} } })
+              }
+              if (parts.length) out.push({ role: 'model', parts })
+            }
+          }
+        }
+        return out
+      }
+
+      /* Helper: exibe texto + tabelas de ferramentas */
+      function _exibirBlocos(texto, blocks, toolResults) {
+        if (!texto) return
+        _aiHideTyping()
+        let html = _aiRenderResposta(texto)
+        for (const block of blocks) {
+          if (block.type !== 'tool_use') continue
+          const res = JSON.parse(toolResults.find(t => t.tool_use_id === block.id || t.tool_use_id === block.name)?.content || '{}')
+          if (block.name === 'filtrar_itens' && res.preview?.length) {
+            html += _aiRenderTabela(res.preview, ['seq','local','produto','valor'])
+            html += `<div style="margin-top:8px;">
+              <button class="ai-action-chip" onclick="mudarAba('dashboard');scrollToSectionByText('Consulta de Itens')">
+                <i data-lucide="external-link" style="width:11px;height:11px;"></i> Ver na tabela
+              </button>
+              <button class="ai-action-chip" onclick="exportarExcel()">
+                <i data-lucide="download" style="width:11px;height:11px;"></i> Exportar Excel
+              </button>
+            </div>`
+          }
+          if (block.name === 'resumir_por_campo' && res.linhas?.length) {
+            html += _aiRenderTabela(res.linhas, ['grupo','itens','valor'])
+          }
+        }
+        _aiAddMsg('assistant', html)
+      }
+
+      /* Loop multi-turn */
+      let continuar = true
+      while (continuar) {
+
+        if (prov === 'gemini') {
+          /* ── Gemini: chamada direta com fallback automático de modelos ── */
+          const gBodyBase = {
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents          : _toGeminiHistory(_history),
+            tools             : _geminiTools,
+            generationConfig  : { maxOutputTokens: 1024 },
+          }
+          let gData = null
+          for (const gMod of GEMINI_MODELS) {
+            const gUrl  = `${GEMINI_BASE}${gMod}:generateContent?key=${encodeURIComponent(key)}`
+            const gResp = await fetch(gUrl, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(gBodyBase),
+            })
+            const gJson = await gResp.json().catch(() => ({}))
+            if (gResp.ok) { gData = gJson; break }
+            const errMsg = gJson.error?.message || ''
+            // Tenta o próximo modelo em caso de: quota excedida (429),
+            // modelo não encontrado (404/400 "not found") ou indisponível.
+            // Só aborta imediatamente para erros de autenticação (401/403).
+            const isAuth  = gResp.status === 401 || gResp.status === 403
+            const isRetry = !isAuth  // qualquer outro erro → tenta próximo
+            if (isAuth) throw new Error(errMsg || 'Gemini HTTP ' + gResp.status)
+            // continua para próximo modelo (quota, not found, etc.)
+          }
+          if (!gData) throw new Error('Quota excedida em todos os modelos Gemini disponíveis. Aguarde o reset diário ou ative o billing no Google Cloud.')
+          const gParts  = gData.candidates?.[0]?.content?.parts || []
+          const gFinish = gData.candidates?.[0]?.finishReason
+
+          let textoG = ''; const toolResG = []; const assistG = []
+          for (const part of gParts) {
+            if (part.text)         { textoG += part.text; assistG.push({ type: 'text', text: part.text }) }
+            if (part.functionCall) {
+              const fc = part.functionCall
+              const res = _aiExecuteTool(fc.name, fc.args || {})
+              toolResG.push({ type: 'tool_result', tool_use_id: fc.name, content: JSON.stringify(res) })
+              assistG.push({ type: 'tool_use', name: fc.name, input: fc.args || {}, id: fc.name })
+            }
+          }
+          _history.push({ role: 'assistant', content: assistG })
+          _exibirBlocos(textoG, assistG, toolResG)
+          if (toolResG.length > 0 && gFinish !== 'STOP') {
+            _history.push({ role: 'user', content: toolResG })
+            if (!textoG) _aiShowTyping()
+          } else { continuar = false; _aiHideTyping() }
+
+        } else {
+          /* ── Anthropic: proxy ou direto ── */
+          const aBody = {
+            model: ANTHROPIC_MODEL, max_tokens: 1024,
+            system: SYSTEM_PROMPT, tools: _aiTools, messages: _history,
+          }
+          const usarProxy = !!(
+            (typeof WEBAPP_URL !== 'undefined' && WEBAPP_URL) &&
+            (typeof CONFIG_SHEET_ID !== 'undefined' && CONFIG_SHEET_ID)
+          )
+          let data
+          if (usarProxy) {
+            const pb = new URLSearchParams({
+              acao: 'aiChat', configId: CONFIG_SHEET_ID, chaveAnthrop: key,
+              mensagensJson: JSON.stringify(aBody.messages),
+              systemPrompt: aBody.system || '',
+              ferramentasJson: JSON.stringify(aBody.tools || []),
+              modelo: aBody.model, maxTokens: '1024',
+            })
+            const pr = await fetch(WEBAPP_URL, {
+              method: 'POST', mode: 'cors',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: pb.toString(),
+            })
+            if (!pr.ok) throw new Error('Proxy HTTP ' + pr.status)
+            const pd = await pr.json()
+            if (!pd.ok) throw new Error(pd.erro || pd.data?.error?.message || 'Erro no proxy')
+            data = pd.data
+          } else {
+            const ar = await fetch(ANTHROPIC_ENDPOINT, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json', 'x-api-key': key,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true',
+              },
+              body: JSON.stringify(aBody),
+            })
+            if (!ar.ok) { const e = await ar.json().catch(() => ({})); throw new Error(e?.error?.message || 'HTTP ' + ar.status) }
+            data = await ar.json()
+          }
+          _history.push({ role: 'assistant', content: data.content })
+          let textoA = ''; const toolResA = []
+          for (const block of data.content) {
+            if (block.type === 'text')     textoA += block.text
+            if (block.type === 'tool_use') {
+              const res = _aiExecuteTool(block.name, block.input || {})
+              toolResA.push({ type: 'tool_result', tool_use_id: block.id, content: JSON.stringify(res) })
+            }
+          }
+          _exibirBlocos(textoA, data.content, toolResA)
+          if (toolResA.length > 0 && data.stop_reason === 'tool_use') {
+            _history.push({ role: 'user', content: toolResA })
+            if (!textoA) _aiShowTyping()
+          } else { continuar = false; _aiHideTyping() }
+        }
+      }
+
+    } catch(e) {
+      // CORREÇÃO 2: catch que realmente captura erros lançados no while{}
+      // O bloco anterior estava dentro do try{} com variáveis 'msg' e 'ehAuth'
+      // não declaradas nesse escopo — nunca era alcançado em caso de erro.
+      _aiHideTyping()
+      const msg    = e.message || 'Erro desconhecido'
+      const ehAuth  = e.status === 401 || msg.includes('401') || msg.includes('invalid_api_key') || msg.includes('authentication')
+      const ehRede  = msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('network')
+      const ehProxy = msg.includes('Proxy') || msg.includes('proxy') || msg.includes('Apps Script')
+      const ehQuota = msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('exceeded') || msg.includes('429')
+      console.error('[PCA Copilot] erro:', msg)
+      _aiAddMsg('assistant',
+        `<div class="ai-api-notice">
+          <strong>${
+            ehAuth  ? 'Chave de API inválida ou sem permissão.' :
+            ehQuota ? 'Quota diária esgotada.' :
+            ehProxy ? 'Erro no Apps Script (proxy).' :
+            ehRede  ? 'Sem conexão com a API.' :
+                      'Erro ao conectar.'
+          }</strong><br>
+          ${
+            ehAuth  ? 'Verifique sua chave em <strong>Configurações → IA Copilot</strong>.' :
+            ehQuota ? 'Quota diária esgotada. O Gemini gratuito tem limite de 1.500 req/dia. Aguarde o reset (meia-noite PST) ou ative o billing no <a href="https://console.cloud.google.com" target="_blank" style="color:inherit">Google Cloud Console</a>.' :
+            ehProxy ? 'Verifique se o Apps Script V18.3 foi reimplantado. Detalhe: ' + _aiRenderResposta(msg) :
+            ehRede  ? 'Verifique sua conexão com a internet.' :
+                      'Detalhe: ' + _aiRenderResposta(msg)
+          }
+        </div>`)
+    } finally {
+      _busy = false
+      if (btn)     btn.classList.remove('ai-loading')
+      if (sendBtn) sendBtn.disabled = false
+      if (input)   { input.disabled = false; input.focus() }
+    }
+  }
+
+  /* ── API pública ───────────────────────────────────────────── */
+  window.aiTogglePanel = function() {
+    const panel = document.getElementById('aiCopilotPanel')
+    if (!panel) return
+    const aberto = panel.classList.contains('ai-open')
+    panel.classList.toggle('ai-open', !aberto)
+    // Encerra tutorial se painel for fechado com tutorial ativo
+    if (aberto && document.body.classList.contains('tutorial-ativo')) {
+      if (typeof window.tutorialEncerrar === 'function') window.tutorialEncerrar()
+    }
+
+    /* Mensagem de boas-vindas na primeira abertura */
+    if (!aberto && _history.length === 0) {
+      const temDados = dados && dados.length > 0
+      _aiAddMsg('assistant',
+        temDados
+          ? `Olá! Sou o <strong>PCA Copilot</strong>. Há <strong>${dados.length} itens</strong> carregados (${formatBRL(dados.reduce((a,r)=>a+getValor(r),0))}).<br>Posso filtrar itens, gerar resumos, detectar anomalias e navegar pelo sistema. Como posso ajudar?`
+          : `Olá! Sou o <strong>PCA Copilot</strong>. Nenhum dado carregado ainda.<br>Sincronize a planilha para começar. Posso ajudar com isso?`
+      )
+    }
+
+    if (!aberto) setTimeout(() => document.getElementById('aiInput')?.focus(), 300)
+  }
+
+  window.aiEnviar = function() {
+    const input = document.getElementById('aiInput')
+    if (!input) return
+    const msg = input.value.trim()
+    if (!msg || _busy) return
+    input.value = ''
+    aiAutoResize(input)
+    _aiChat(msg)
+  }
+
+  window.aiSendSuggestion = function(texto) {
+    if (_busy) return
+    _aiChat(texto)
+  }
+
+  window.aiHandleKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      aiEnviar()
+    }
+  }
+
+  window.aiAutoResize = function(el) {
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px'
+  }
+
+  /* Pulsar quando dados estão carregados */
+  function _aiBotaoReady() {
+    const btn = document.getElementById('aiCopilotBtn')
+    if (btn && dados && dados.length > 0) btn.classList.add('ai-ready')
+  }
+
+  /* Escuta o evento de dados carregados para ativar o pulso */
+  const _origProcessarLinhas = window.processarLinhas
+  if (typeof _origProcessarLinhas === 'function') {
+    window.processarLinhas = function(linhas) {
+      _origProcessarLinhas(linhas)
+      _aiBotaoReady()
+      const sub = document.getElementById('aiPanelSubtitle')
+      if (sub && dados.length) sub.textContent = `${dados.length} itens carregados`
+    }
+  }
+
+  /* Inicialização: Lucide nos ícones do painel */
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('aiCopilotBtn')
+    if (btn && typeof lucide !== 'undefined') lucide.createIcons({ nodes: [btn] })
+    _aiBotaoReady()
+  })
+
+})()
+/* ── fim PCA COPILOT ── */
 
 </script>
