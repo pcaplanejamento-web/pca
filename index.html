@@ -5401,12 +5401,13 @@ PAINEL DE CONFIGURAÇÕES
   display: flex;
   align-items: center;
   gap: 0;
+  width: 100%;                      /* preenche o dock p/ o scroll ter área */
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* momentum scroll iOS */
+  scroll-snap-type: x proximity;    /* proximity não trava como mandatory */
   scroll-behavior: smooth;
 }
 .dock-scroll-inner::-webkit-scrollbar { display: none; }
@@ -5562,21 +5563,17 @@ PAINEL DE CONFIGURAÇÕES
     bottom: 16px;
     padding: 7px 6px;
     border-radius: 22px;
-    /*
-     * Calcula a largura para exibir exatamente 4 botões visíveis.
-     * Cada botão: min-width 52px + padding 2×7px = 66px
-     * 4 botões = 264px + gap + padding do dock
-     * Usamos ~80vw como limite generoso que força o 5º a ficar oculto
-     * em telas de até 360px (o mais comum no Android).
-     */
     max-width: min(80vw, 310px);
+    box-sizing: border-box;
+    overflow: visible; /* não corta o dock-scroll-inner */
   }
   .dock-btn {
     padding: 8px 7px;
     min-width: 52px;
+    flex-shrink: 0;          /* botões não encolhem durante scroll */
+    scroll-snap-align: start;
     border-radius: 12px;
     gap: 3px;
-    /* toque maior para mobile */
     min-height: 58px;
   }
   .dock-btn-icon {
@@ -5585,7 +5582,6 @@ PAINEL DE CONFIGURAÇÕES
     border-radius: 9px;
   }
   .dock-btn-label { font-size: 9px; }
-  /* Separadores ocultados no mobile (espaço é precioso) */
   .dock-separator { display: none; }
 }
 
@@ -5594,9 +5590,13 @@ PAINEL DE CONFIGURAÇÕES
   #floatingDock {
     padding: 6px 4px;
     max-width: min(84vw, 280px);
+    box-sizing: border-box;
+    overflow: visible;
   }
   .dock-btn {
     min-width: 44px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
     padding: 7px 4px;
     min-height: 52px;
   }
